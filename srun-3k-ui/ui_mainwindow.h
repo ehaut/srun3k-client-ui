@@ -1,0 +1,112 @@
+/********************************************************************************
+** Form generated from reading UI file 'mainwindow.ui'
+**
+** Created by: Qt User Interface Compiler version 5.8.0
+**
+** WARNING! All changes made in this file will be lost when recompiling UI file!
+********************************************************************************/
+
+#ifndef UI_MAINWINDOW_H
+#define UI_MAINWINDOW_H
+
+#include <QtCore/QVariant>
+#include <QtWidgets/QAction>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QHeaderView>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QMainWindow>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QWidget>
+
+QT_BEGIN_NAMESPACE
+
+class Ui_MainWindow
+{
+public:
+    QWidget *centralWidget;
+    QLabel *TOP;
+    QLabel *LNAME;
+    QLabel *LPASSWD;
+    QLineEdit *INPUT_NAME;
+    QLineEdit *INPUT_PASSWD;
+    QPushButton *LOGIN;
+    QPushButton *LOGOUT;
+    QPushButton *INFO;
+
+    void setupUi(QMainWindow *MainWindow)
+    {
+        if (MainWindow->objectName().isEmpty())
+            MainWindow->setObjectName(QStringLiteral("MainWindow"));
+        MainWindow->resize(400, 250);
+        MainWindow->setMinimumSize(QSize(400, 250));
+        MainWindow->setMaximumSize(QSize(400, 250));
+        centralWidget = new QWidget(MainWindow);
+        centralWidget->setObjectName(QStringLiteral("centralWidget"));
+        TOP = new QLabel(centralWidget);
+        TOP->setObjectName(QStringLiteral("TOP"));
+        TOP->setEnabled(true);
+        TOP->setGeometry(QRect(100, 0, 251, 61));
+        QFont font;
+        font.setFamily(QString::fromUtf8("\345\276\256\350\275\257\351\233\205\351\273\221"));
+        font.setPointSize(26);
+        font.setBold(false);
+        font.setWeight(50);
+        TOP->setFont(font);
+        LNAME = new QLabel(centralWidget);
+        LNAME->setObjectName(QStringLiteral("LNAME"));
+        LNAME->setGeometry(QRect(40, 90, 70, 25));
+        QFont font1;
+        font1.setFamily(QString::fromUtf8("\346\226\260\345\256\213\344\275\223"));
+        font1.setPointSize(14);
+        LNAME->setFont(font1);
+        LPASSWD = new QLabel(centralWidget);
+        LPASSWD->setObjectName(QStringLiteral("LPASSWD"));
+        LPASSWD->setGeometry(QRect(40, 130, 70, 25));
+        LPASSWD->setFont(font1);
+        INPUT_NAME = new QLineEdit(centralWidget);
+        INPUT_NAME->setObjectName(QStringLiteral("INPUT_NAME"));
+        INPUT_NAME->setGeometry(QRect(130, 90, 201, 25));
+        INPUT_PASSWD = new QLineEdit(centralWidget);
+        INPUT_PASSWD->setObjectName(QStringLiteral("INPUT_PASSWD"));
+        INPUT_PASSWD->setGeometry(QRect(130, 130, 201, 25));
+        INPUT_PASSWD->setEchoMode(QLineEdit::Password);
+        LOGIN = new QPushButton(centralWidget);
+        LOGIN->setObjectName(QStringLiteral("LOGIN"));
+        LOGIN->setGeometry(QRect(70, 190, 75, 23));
+        LOGOUT = new QPushButton(centralWidget);
+        LOGOUT->setObjectName(QStringLiteral("LOGOUT"));
+        LOGOUT->setGeometry(QRect(160, 190, 75, 23));
+        INFO = new QPushButton(centralWidget);
+        INFO->setObjectName(QStringLiteral("INFO"));
+        INFO->setGeometry(QRect(250, 190, 75, 23));
+        MainWindow->setCentralWidget(centralWidget);
+
+        retranslateUi(MainWindow);
+
+        QMetaObject::connectSlotsByName(MainWindow);
+    } // setupUi
+
+    void retranslateUi(QMainWindow *MainWindow)
+    {
+        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", Q_NULLPTR));
+        TOP->setText(QApplication::translate("MainWindow", "\346\240\241\345\233\255\347\275\221\347\231\273\351\231\206\345\231\250", Q_NULLPTR));
+        LNAME->setText(QApplication::translate("MainWindow", "\347\224\250\346\210\267\345\220\215:", Q_NULLPTR));
+        LPASSWD->setText(QApplication::translate("MainWindow", "\345\257\206  \347\240\201:", Q_NULLPTR));
+        INPUT_NAME->setPlaceholderText(QApplication::translate("MainWindow", "\350\257\267\350\276\223\345\205\245\346\202\250\347\232\204\347\224\250\346\210\267\345\220\215", Q_NULLPTR));
+        INPUT_PASSWD->setPlaceholderText(QApplication::translate("MainWindow", "\350\257\267\350\276\223\345\205\245\346\202\250\347\232\204\345\257\206\347\240\201", Q_NULLPTR));
+        LOGIN->setText(QApplication::translate("MainWindow", "\347\231\273\351\231\206", Q_NULLPTR));
+        LOGOUT->setText(QApplication::translate("MainWindow", "\346\263\250\351\224\200", Q_NULLPTR));
+        INFO->setText(QApplication::translate("MainWindow", "\350\216\267\345\217\226\347\212\266\346\200\201", Q_NULLPTR));
+    } // retranslateUi
+
+};
+
+namespace Ui {
+    class MainWindow: public Ui_MainWindow {};
+} // namespace Ui
+
+QT_END_NAMESPACE
+
+#endif // UI_MAINWINDOW_H

@@ -1,2 +1,0 @@
-# SRUN-3K-UI
-SRUN-3K登陆器UI界面学习
