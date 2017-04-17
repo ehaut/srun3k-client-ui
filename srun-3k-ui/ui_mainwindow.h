@@ -13,11 +13,13 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QSpinBox>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -34,20 +36,23 @@ public:
     QPushButton *LOGIN;
     QPushButton *LOGOUT;
     QPushButton *INFO;
+    QSpinBox *ACID;
+    QLabel *LACID;
+    QLabel *ME;
+    QCheckBox *SAVE_INFO;
 
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
+        MainWindow->setEnabled(true);
         MainWindow->resize(400, 250);
-        MainWindow->setMinimumSize(QSize(400, 250));
-        MainWindow->setMaximumSize(QSize(400, 250));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         TOP = new QLabel(centralWidget);
         TOP->setObjectName(QStringLiteral("TOP"));
         TOP->setEnabled(true);
-        TOP->setGeometry(QRect(100, 0, 251, 61));
+        TOP->setGeometry(QRect(100, 10, 211, 61));
         QFont font;
         font.setFamily(QString::fromUtf8("\345\276\256\350\275\257\351\233\205\351\273\221"));
         font.setPointSize(26);
@@ -74,13 +79,31 @@ public:
         INPUT_PASSWD->setEchoMode(QLineEdit::Password);
         LOGIN = new QPushButton(centralWidget);
         LOGIN->setObjectName(QStringLiteral("LOGIN"));
-        LOGIN->setGeometry(QRect(70, 190, 75, 23));
+        LOGIN->setGeometry(QRect(60, 210, 75, 23));
         LOGOUT = new QPushButton(centralWidget);
         LOGOUT->setObjectName(QStringLiteral("LOGOUT"));
-        LOGOUT->setGeometry(QRect(160, 190, 75, 23));
+        LOGOUT->setGeometry(QRect(160, 210, 75, 23));
         INFO = new QPushButton(centralWidget);
         INFO->setObjectName(QStringLiteral("INFO"));
-        INFO->setGeometry(QRect(250, 190, 75, 23));
+        INFO->setGeometry(QRect(260, 210, 75, 23));
+        ACID = new QSpinBox(centralWidget);
+        ACID->setObjectName(QStringLiteral("ACID"));
+        ACID->setGeometry(QRect(130, 170, 42, 25));
+        ACID->setMinimum(1);
+        ACID->setMaximum(2);
+        LACID = new QLabel(centralWidget);
+        LACID->setObjectName(QStringLiteral("LACID"));
+        LACID->setGeometry(QRect(44, 170, 70, 25));
+        QFont font2;
+        font2.setFamily(QString::fromUtf8("\346\226\260\345\256\213\344\275\223"));
+        font2.setPointSize(12);
+        LACID->setFont(font2);
+        ME = new QLabel(centralWidget);
+        ME->setObjectName(QStringLiteral("ME"));
+        ME->setGeometry(QRect(130, 66, 381, 20));
+        SAVE_INFO = new QCheckBox(centralWidget);
+        SAVE_INFO->setObjectName(QStringLiteral("SAVE_INFO"));
+        SAVE_INFO->setGeometry(QRect(240, 170, 91, 25));
         MainWindow->setCentralWidget(centralWidget);
 
         retranslateUi(MainWindow);
@@ -99,6 +122,9 @@ public:
         LOGIN->setText(QApplication::translate("MainWindow", "\347\231\273\351\231\206", Q_NULLPTR));
         LOGOUT->setText(QApplication::translate("MainWindow", "\346\263\250\351\224\200", Q_NULLPTR));
         INFO->setText(QApplication::translate("MainWindow", "\350\216\267\345\217\226\347\212\266\346\200\201", Q_NULLPTR));
+        LACID->setText(QApplication::translate("MainWindow", "A C I D:", Q_NULLPTR));
+        ME->setText(QApplication::translate("MainWindow", "Made by CHN-STUDENT V0.0.2", Q_NULLPTR));
+        SAVE_INFO->setText(QApplication::translate("MainWindow", "\344\277\235\345\255\230\351\205\215\347\275\256\346\226\207\344\273\266", Q_NULLPTR));
     } // retranslateUi
 
 };

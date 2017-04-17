@@ -1,8 +1,23 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "QJsonObject"
+#include "QJsonDocument"
 #include "QMessageBox"
+#include "QFile"
 #include <curl/curl.h>
-#include <string.h>
+#include <string>
+
+const char POSTURL[]= "http://172.16.154.130:69/cgi-bin/srun_portal";
+
+
+typedef struct feedback_info
+{
+    char name[20];
+    char data[20];
+    char time[20];
+    char ip[20];
+}info;
+
 
 struct MemoryStruct {
   char *memory;
@@ -29,12 +44,29 @@ WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
   return realsize;
 }
 
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    QFile open("config.json");
+    if(open.open(QIODevice::ReadOnly))
+    {
+        QByteArray OPEN_INFO=open.readAll();
+        open.close();
+        QJsonDocument INFO=QJsonDocument::fromJson(OPEN_INFO);
+        if(INFO.isObject())
+        {
+            QJsonObject obj=INFO.object();
+            if(obj.contains("username"))
+               { ui->INPUT_NAME->setText(obj.value("username").toString());}
+            if(obj.contains("password"))
+               {ui->INPUT_PASSWD->setText(obj.value("password").toString());}
+            if(obj.contains("acid"))
+                { ui->ACID->setValue(obj.value("acid").toInt());}
+              ui->SAVE_INFO->setCheckState(Qt::Checked);
+        }
+    }
 }
 
 MainWindow::~MainWindow()
@@ -45,23 +77,23 @@ MainWindow::~MainWindow()
 void MainWindow::on_LOGIN_clicked()
 {
 
-    QString NAME_INPUT = ui->INPUT_NAME->text();
+    QString NAME_INPUT = ui->INPUT_NAME->text().trimmed();
     QString PASSWD_INPUT = ui->INPUT_PASSWD->text();
-    if(NAME_INPUT.isEmpty())//如果用户名是空的
+    char ACID[2];
+    itoa(ui->ACID->value(),ACID,10);
+    if(NAME_INPUT.isEmpty()||PASSWD_INPUT.isEmpty()||(NAME_INPUT.isEmpty()&&PASSWD_INPUT.isEmpty()))
      {
-        QMessageBox::critical(this, tr("错误!"),tr("请输入您的用户名登陆"));
+        QMessageBox::critical(this, tr("错误!"),tr("请输入您的用户名和密码登陆"));
     }
-    if(PASSWD_INPUT.isEmpty())//如果密码是空的
-    {
-       QMessageBox::critical(this, tr("错误!"),tr("请输入您的密码登陆"));
-   }
     if(!(NAME_INPUT.isEmpty())&&!(PASSWD_INPUT.isEmpty()))
      {
         QByteArray temp1 = NAME_INPUT.toLatin1();
            char *name = temp1.data();
          QByteArray temp2 = PASSWD_INPUT.toLatin1();
             char *password = temp2.data();
-            char post[200]="&action=login&drop=0&pop=1&type=2&n=117&mbytes=0&minutes=0&mac=&ac_id=1&username=%7BSRUN3%7D%0D%0A";
+            char post[200]="&action=login&drop=0&pop=1&type=2&n=117&mbytes=0&minutes=0&mac=&ac_id=";
+            strcat(post,ACID);
+            strcat(post,"&username=%7BSRUN3%7D%0D%0A");
             char *ptr=post;
             while(*ptr!='\0')ptr++;//到达POST参数末尾
             char temp[50]="\0";//这是用来临时存储加密后用户名和密码
@@ -104,7 +136,7 @@ void MainWindow::on_LOGIN_clicked()
                                 strcat(temp, _h);
                             }
                         }
-                    for(char *password_Post="&password=";*password_Post!='\0';password_Post++,ptr++)
+                        for(char *password_Post="&password=";*password_Post!='\0';password_Post++,ptr++)
                         {
                             *ptr=*password_Post;
                         }
@@ -130,7 +162,7 @@ void MainWindow::on_LOGIN_clicked()
                              QCoreApplication::exit();
                          }
                         /* specify URL to get */
-                        curl_easy_setopt(curl, CURLOPT_URL, "http://172.16.154.130:69/cgi-bin/srun_portal");
+                        curl_easy_setopt(curl, CURLOPT_URL, POSTURL);
 
                         curl_easy_setopt(curl, CURLOPT_POSTFIELDS,post);//设置POST参数
 
@@ -147,26 +179,47 @@ void MainWindow::on_LOGIN_clicked()
 
                         /* get it! */
                         CURLcode res = curl_easy_perform(curl);
-
+                         char *feed=chunk.memory;
                         /* check for errors */
                         if(res != CURLE_OK) {
                           QMessageBox::critical(NULL,"错误!","无法连接服务器!");
                         }
-                        else {
-                          /*
-                           * Now, our chunk.memory points to a memory block that is chunk.size
-                           * bytes big and contains the remote file.
-                           *
-                           * Do something nice with it!
-                           */
-
-                          QMessageBox::information(this, tr("接受信息!"),QString(chunk.memory));
+                        else
+                        {
+                            for(;*chunk.memory!='\0';chunk.memory++)
+                            {
+                                if(*chunk.memory=='n'&&*(chunk.memory+2)=='o')
+                                        {//登陆成功情况
+                                            QMessageBox::information(this, tr(":) 登陆成功!"),tr("您已登陆成功!"));
+                                            break;
+                                        }
+                                else if(*chunk.memory=='P'&&*(chunk.memory+1)=='a')
+                                        {//密码错误情况
+                                            QMessageBox::critical(this,tr(":( 密码错误!"),tr("密码错误，请检查输入后重试!"));
+                                            break;
+                                        }
+                                else if(*chunk.memory=='U'&&*(chunk.memory+1)=='s')
+                                        {//用户名错误情况
+                                            QMessageBox::critical(this,tr(":( 用户名错误!"),tr("用户名错误，请检查输入后重试!"));
+                                            break;
+                                        }
+                                else if(*chunk.memory=='I'&&*(chunk.memory+1)=='N')
+                                        {//ACID错误情况
+                                            QMessageBox::critical(this,tr(":( ACID错误!"),tr("ACID错误，请更改ACID后重试!"));
+                                            break;
+                                        }
+                                else if(*chunk.memory=='m')
+                                        {//参数错误情况
+                                           QMessageBox::critical(this,tr(":( 参数错误!"),tr("参数错误，请重新输入重试!"));
+                                            break;
+                                        }
+                            }
                         }
 
                         /* cleanup curl stuff */
                         curl_easy_cleanup(curl);
 
-                        free(chunk.memory);
+                        free(feed);
 
                         /* we're done with libcurl, so clean it up */
                         curl_global_cleanup();
@@ -175,8 +228,10 @@ void MainWindow::on_LOGIN_clicked()
 
 void MainWindow::on_LOGOUT_clicked()
 {
-    QString NAME_INPUT = ui->INPUT_NAME->text();
+    QString NAME_INPUT = ui->INPUT_NAME->text().trimmed();
     QString PASSWD_INPUT = ui->INPUT_PASSWD->text();
+    char ACID[2];
+    itoa(ui->ACID->value(),ACID,10);
     if(NAME_INPUT.isEmpty())//如果用户名是空的
      {
         QMessageBox::critical(this, tr("错误!"),tr("请输入您的用户名注销"));
@@ -185,13 +240,14 @@ void MainWindow::on_LOGOUT_clicked()
      {
         QByteArray temp = NAME_INPUT.toLatin1();
            char *name = temp.data();
-           char post[100]="&mac=&type=2&action=logout&ac_id=1&username=";
+           char post[100]="&mac=&type=2&action=logout&ac_id=";
+           strcat(post,ACID);
+           strcat(post,"&username=");
            strcat(post,name);
            struct MemoryStruct chunk;
            chunk.memory = (char *)malloc(1);  /* will be grown as needed by the realloc above */
            chunk.size = 0;    /* no data at this point */
            curl_global_init(CURL_GLOBAL_ALL);
-
            /* init the curl session */
           CURL * curl = curl_easy_init();
             if(!curl)
@@ -200,7 +256,7 @@ void MainWindow::on_LOGOUT_clicked()
                 QCoreApplication::exit();
             }
            /* specify URL to get */
-           curl_easy_setopt(curl, CURLOPT_URL, "http://172.16.154.130:69/cgi-bin/srun_portal");
+           curl_easy_setopt(curl, CURLOPT_URL, POSTURL);
 
            curl_easy_setopt(curl, CURLOPT_POSTFIELDS,post);//设置POST参数
 
@@ -217,26 +273,42 @@ void MainWindow::on_LOGOUT_clicked()
 
            /* get it! */
            CURLcode res = curl_easy_perform(curl);
-
+           char *ptr=chunk.memory;
            /* check for errors */
            if(res != CURLE_OK) {
              QMessageBox::critical(NULL,"错误!","无法连接服务器!");
            }
-           else {
-             /*
-              * Now, our chunk.memory points to a memory block that is chunk.size
-              * bytes big and contains the remote file.
-              *
-              * Do something nice with it!
-              */
-
-             QMessageBox::information(this, tr("接受信息!"),QString(chunk.memory));
+           else
+           {
+               for(;*chunk.memory!='\0';chunk.memory++)
+               {
+                   if(*chunk.memory=='t'&&*(chunk.memory+2)=='o')
+                           {//注销成功情况
+                              QMessageBox::information(this, tr(":) 注销成功!"),tr("您已注销成功!"));
+                              break;
+                           }
+                   else if(*chunk.memory=='Y'&&*(chunk.memory+1)=='o')
+                           {//不在线情况
+                               QMessageBox::critical(this,tr(":( 注销失败!"),tr("您不在线，无法完成注销!"));
+                               break;
+                           }
+                   else if(*chunk.memory=='I'&&*(chunk.memory+1)=='N')
+                           {//ACID错误情况
+                               QMessageBox::critical(this,tr(":( ACID错误!"),tr("ACID错误，请更改ACID后重试!"));
+                               break;
+                           }
+                   else if(*chunk.memory=='m')
+                           {//参数错误情况
+                              QMessageBox::critical(this,tr(":( 参数错误!"),tr("参数错误，请重新输入重试!"));
+                               break;
+                           }
+               }
            }
 
            /* cleanup curl stuff */
            curl_easy_cleanup(curl);
 
-           free(chunk.memory);
+           free(ptr);
 
            /* we're done with libcurl, so clean it up */
            curl_global_cleanup();
@@ -278,21 +350,92 @@ void MainWindow::on_INFO_clicked()
 
       /* get it! */
       res = curl_easy_perform(curl_handle);
-
+      char *back=chunk.memory;
       /* check for errors */
       if(res != CURLE_OK) {
         QMessageBox::critical(NULL,"错误!","无法连接服务器!");
       }
-      else {
-
-        QMessageBox::information(this, tr("接受信息!"),QString(chunk.memory));
+      else
+      {
+          if(*chunk.memory=='n')
+                QMessageBox::information(this, tr(":) 您的信息!"),tr("您不在线!"));
+          else
+          {
+          char *j=chunk.memory;
+          info i;
+          char temp[20]={0}; //定义一个临时变量
+          for(int flag=0;chunk.memory!='\0';chunk.memory++)//开始循环直到数据末尾
+          {
+               memset(temp,0,sizeof(temp));//将temp字符数组重置
+              if(*chunk.memory==',')//如果当前位为,分隔符
+              {
+                  flag++;//,分隔符计数
+                  char *t=temp;//定义一个临时指针指向t
+                  for(;*j!=*chunk.memory;j++,t++)
+                      *t=*j;
+                  *t='\0';
+                  if(flag==1)
+                      strcpy(i.name,temp);
+                  if(flag==7)
+                      strcpy(i.data,temp);
+                  if(flag==8)
+                      strcpy(i.time,temp);
+                  if(flag==9)
+                  {
+                      strcpy(i.ip,temp);
+                      break;
+                  }
+                  j++;
+                  continue;
+              }
+          }
+          double data_used=atof(i.data)/1073741824;
+          int time_h=atoi(i.time)/3600;
+          int time_m=atoi(i.time)/60%60;
+          int time_s=atoi(i.time)%60;
+         QString put=+"您已在线，下面是您的登录信息:\n您的登入用户名是:"+QString(i.name)+"\n"+"您这个月所用流量:"+ QString::number(data_used,'g',6)+"GB\n"+"您这个月所用时间:"+\
+                 QString::number(time_h,10)+"时"+ QString::number(time_m,10)+"分"+ QString::number(time_s,10)+"秒\n"+"您 的 登 入  IP:"+QString(i.ip);
+          QMessageBox::information(this, tr(":) 您的信息!"),put);
+          }
       }
-
       /* cleanup curl stuff */
       curl_easy_cleanup(curl_handle);
 
-      free(chunk.memory);
-
+      free(back);
       /* we're done with libcurl, so clean it up */
       curl_global_cleanup();
+}
+
+void MainWindow::on_SAVE_INFO_clicked()
+{
+    if(ui->SAVE_INFO->isChecked())
+    {
+        QString NAME_INPUT = ui->INPUT_NAME->text().trimmed();
+        QString PASSWD_INPUT = ui->INPUT_PASSWD->text();
+        if(NAME_INPUT.isEmpty()&&PASSWD_INPUT.isEmpty())
+         {
+            QMessageBox::critical(this, tr("错误!"),tr("请输入您的用户名和密码保存以保存登陆信息!"));
+            ui->SAVE_INFO->setCheckState(Qt::Unchecked);//设置为未被选择状态
+        }
+        else
+        {
+             QJsonObject info;
+             info.insert("username",NAME_INPUT);
+             info.insert("password",PASSWD_INPUT);
+             info.insert("acid",ui->ACID->value());
+             QJsonDocument SAVE_INFO;
+             SAVE_INFO.setObject(info);
+             QFile save("config.json");
+             if(!save.open(QIODevice::WriteOnly))
+              {
+                 QMessageBox::critical(this, tr("错误!"),tr("文件保存失败!"));
+             }
+             else
+               {
+                 save.write(SAVE_INFO.toJson());
+                 QMessageBox::information(this, tr(":) 配置文件保存成功!"),tr("配置文件已经保存本程序目录下，\n下次打开本程序将会自动载入。\n为了保证信息完整性，请勿更改!!!"));
+             }
+             save.close();
+        }
+    }
 }

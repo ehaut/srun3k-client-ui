@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.2.1, 2017-04-12T19:44:57. -->
+<!-- Written by QtCreator 4.2.1, 2017-04-17T13:21:39. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -534,7 +534,7 @@
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">srun-3k-ui</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">srun-3k-ui2</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:C:/Users/MR.Guo/Documents/GitHub/SRUN-3K-UI/srun-3k-ui/srun-3k-ui.pro</value>
     <value type="bool" key="QmakeProjectManager.QmakeRunConfiguration.UseLibrarySearchPath">true</value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments"></value>

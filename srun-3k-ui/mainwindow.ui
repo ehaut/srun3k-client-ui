@@ -2,25 +2,22 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>250</height>
+    <height>280</height>
    </rect>
   </property>
-  <property name="minimumSize">
-   <size>
-    <width>400</width>
-    <height>250</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>400</width>
-    <height>250</height>
-   </size>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -33,8 +30,8 @@
     <property name="geometry">
      <rect>
       <x>100</x>
-      <y>0</y>
-      <width>251</width>
+      <y>10</y>
+      <width>211</width>
       <height>61</height>
      </rect>
     </property>
@@ -93,7 +90,7 @@
      <rect>
       <x>130</x>
       <y>90</y>
-      <width>201</width>
+      <width>211</width>
       <height>25</height>
      </rect>
     </property>
@@ -106,7 +103,7 @@
      <rect>
       <x>130</x>
       <y>130</y>
-      <width>201</width>
+      <width>211</width>
       <height>25</height>
      </rect>
     </property>
@@ -120,10 +117,10 @@
    <widget class="QPushButton" name="LOGIN">
     <property name="geometry">
      <rect>
-      <x>70</x>
-      <y>190</y>
-      <width>75</width>
-      <height>23</height>
+      <x>40</x>
+      <y>230</y>
+      <width>80</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="text">
@@ -133,10 +130,10 @@
    <widget class="QPushButton" name="LOGOUT">
     <property name="geometry">
      <rect>
-      <x>160</x>
-      <y>190</y>
-      <width>75</width>
-      <height>23</height>
+      <x>149</x>
+      <y>230</y>
+      <width>80</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="text">
@@ -146,14 +143,101 @@
    <widget class="QPushButton" name="INFO">
     <property name="geometry">
      <rect>
-      <x>250</x>
-      <y>190</y>
-      <width>75</width>
-      <height>23</height>
+      <x>260</x>
+      <y>230</y>
+      <width>80</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="text">
      <string>获取状态</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="ACID">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>170</y>
+      <width>42</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>1</number>
+    </property>
+    <property name="maximum">
+     <number>2</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="LACID">
+    <property name="geometry">
+     <rect>
+      <x>44</x>
+      <y>170</y>
+      <width>70</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>新宋体</family>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>A C I D:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="ME">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>66</y>
+      <width>381</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Made by CHN-STUDENT V0.0.2</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="SAVE_INFO">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>200</y>
+      <width>70</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>保存配置</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="AUTO_LOGIN">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>200</y>
+      <width>70</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>自动登陆</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBox">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>200</y>
+      <width>70</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>开机自启</string>
     </property>
    </widget>
   </widget>

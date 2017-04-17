@@ -22,8 +22,10 @@ private slots:
 
     void on_INFO_clicked();
 
+    void on_SAVE_INFO_clicked();
+
 private:
     Ui::MainWindow *ui;
 };
 
-#endif // MAINWINDOW_H
+#endif // MAINWINDOW_H                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                /

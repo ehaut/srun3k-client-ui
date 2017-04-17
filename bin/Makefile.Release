@@ -12,12 +12,12 @@ MAKEFILE      = Makefile.Release
 CC            = gcc
 CXX           = g++
 DEFINES       = -DUNICODE -DQT_DEPRECATED_WARNINGS -DCURL_STATICLIB -DDBUILDING_LIBCURL -DDCURL_STATICLIB -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DQT_NEEDS_QMAIN
-CFLAGS        = -pipe -fno-keep-inline-dllexport -O2 -Wall -Wextra $(DEFINES)
+CFLAGS        = -pipe -fno-keep-inline-dllexport -std=c99 -O2 -Wall -Wextra $(DEFINES)
 CXXFLAGS      = -pipe -fno-keep-inline-dllexport -O2 -std=gnu++11 -frtti -Wall -Wextra -fexceptions -mthreads $(DEFINES)
-INCPATH       = -I..\srun-3k-ui -I. -I..\libcurl\include -ID:\qt\5.8\mingw_static\include -ID:\qt\5.8\mingw_static\include\QtWidgets -ID:\qt\5.8\mingw_static\include\QtGui -ID:\qt\5.8\mingw_static\include\QtCore -Irelease -I. -ID:\qt\5.8\mingw_static\mkspecs\win32-g++ 
+INCPATH       = -I..\srun-3k-ui -I. -ID:\Dev-Cpp\curl-7.53.1\include -ID:\qt\5.8\mingw_static\include -ID:\qt\5.8\mingw_static\include\QtWidgets -ID:\qt\5.8\mingw_static\include\QtGui -ID:\qt\5.8\mingw_static\include\QtCore -Irelease -I. -ID:\qt\5.8\mingw_static\mkspecs\win32-g++ 
 LINKER      =        g++
 LFLAGS        =        -static -Wl,-s -Wl,-subsystem,windows -mthreads
-LIBS        =        -lmingw32 -LD:\qt\5.8\mingw_static\lib D:\qt\5.8\mingw_static\lib\libqtmain.a -LC:\Dev\openssl-1.0.1c_static_w32_mingw -LC:\Users\MR.Guo\Documents\GitHub\SRUN-3K-UI\libcurl\lib -static-libgcc -lcurl -lwldap32 D:\qt\5.8\mingw_static\lib\libQt5Widgets.a -luxtheme -LD:\qt\5.8\mingw_static\plugins\platforms D:\qt\5.8\mingw_static\plugins\platforms\libqwindows.a -ldwmapi -lwinspool -lshlwapi D:\qt\5.8\mingw_static\lib\libQt5EventDispatcherSupport.a D:\qt\5.8\mingw_static\lib\libQt5AccessibilitySupport.a D:\qt\5.8\mingw_static\lib\libQt5FontDatabaseSupport.a D:\qt\5.8\mingw_static\lib\libQt5ThemeSupport.a D:\qt\5.8\mingw_static\lib\libqtfreetype.a -LD:\qt\5.8\mingw_static\plugins\imageformats D:\qt\5.8\mingw_static\plugins\imageformats\libqgif.a D:\qt\5.8\mingw_static\plugins\imageformats\libqicns.a D:\qt\5.8\mingw_static\plugins\imageformats\libqico.a D:\qt\5.8\mingw_static\plugins\imageformats\libqjpeg.a D:\qt\5.8\mingw_static\plugins\imageformats\libqtga.a D:\qt\5.8\mingw_static\plugins\imageformats\libqtiff.a D:\qt\5.8\mingw_static\plugins\imageformats\libqwbmp.a D:\qt\5.8\mingw_static\plugins\imageformats\libqwebp.a D:\qt\5.8\mingw_static\lib\libQt5Gui.a -lcomdlg32 -loleaut32 -limm32 -lglu32 -lopengl32 -lgdi32 D:\qt\5.8\mingw_static\lib\libqtlibpng.a D:\qt\5.8\mingw_static\lib\libqtharfbuzz.a D:\qt\5.8\mingw_static\lib\libQt5Core.a -lole32 -luuid -lws2_32 -ladvapi32 -lshell32 -luser32 -lkernel32 -lmpr -lwinmm D:\qt\5.8\mingw_static\lib\libqtpcre.a 
+LIBS        =        -lmingw32 -LD:\qt\5.8\mingw_static\lib D:\qt\5.8\mingw_static\lib\libqtmain.a -LC:\Dev\openssl-1.0.1c_static_w32_mingw -LD:\Dev-Cpp\curl-7.53.1\lib -static-libgcc -lcurl -lwldap32 D:\qt\5.8\mingw_static\lib\libQt5Widgets.a -luxtheme -LD:\qt\5.8\mingw_static\plugins\platforms D:\qt\5.8\mingw_static\plugins\platforms\libqwindows.a -ldwmapi -lwinspool -lshlwapi D:\qt\5.8\mingw_static\lib\libQt5EventDispatcherSupport.a D:\qt\5.8\mingw_static\lib\libQt5AccessibilitySupport.a D:\qt\5.8\mingw_static\lib\libQt5FontDatabaseSupport.a D:\qt\5.8\mingw_static\lib\libQt5ThemeSupport.a D:\qt\5.8\mingw_static\lib\libqtfreetype.a -LD:\qt\5.8\mingw_static\plugins\imageformats D:\qt\5.8\mingw_static\plugins\imageformats\libqgif.a D:\qt\5.8\mingw_static\plugins\imageformats\libqicns.a D:\qt\5.8\mingw_static\plugins\imageformats\libqico.a D:\qt\5.8\mingw_static\plugins\imageformats\libqjpeg.a D:\qt\5.8\mingw_static\plugins\imageformats\libqtga.a D:\qt\5.8\mingw_static\plugins\imageformats\libqtiff.a D:\qt\5.8\mingw_static\plugins\imageformats\libqwbmp.a D:\qt\5.8\mingw_static\plugins\imageformats\libqwebp.a D:\qt\5.8\mingw_static\lib\libQt5Gui.a -lcomdlg32 -loleaut32 -limm32 -lglu32 -lopengl32 -lgdi32 D:\qt\5.8\mingw_static\lib\libqtlibpng.a D:\qt\5.8\mingw_static\lib\libqtharfbuzz.a D:\qt\5.8\mingw_static\lib\libQt5Core.a -lole32 -luuid -lws2_32 -ladvapi32 -lshell32 -luser32 -lkernel32 -lmpr -lwinmm D:\qt\5.8\mingw_static\lib\libqtpcre.a 
 QMAKE         = D:\qt\5.8\mingw_static\bin\qmake.exe
 IDC           = idc
 IDL           = midl
@@ -210,7 +210,7 @@ release/moc_mainwindow.cpp: D:/qt/5.8/mingw_static/include/QtWidgets/QMainWindow
 		../srun-3k-ui/mainwindow.h \
 		release/moc_predefs.h \
 		D:/qt/5.8/mingw_static/bin/moc.exe
-	D:\qt\5.8\mingw_static\bin\moc.exe $(DEFINES) --include release/moc_predefs.h -ID:/qt/5.8/mingw_static/mkspecs/win32-g++ -IC:/Users/MR.Guo/Documents/GitHub/SRUN-3K-UI/srun-3k-ui -IC:/Users/MR.Guo/Documents/GitHub/SRUN-3K-UI/libcurl/include -ID:/qt/5.8/mingw_static/include -ID:/qt/5.8/mingw_static/include/QtWidgets -ID:/qt/5.8/mingw_static/include/QtGui -ID:/qt/5.8/mingw_static/include/QtCore -I. -ID:/qt/Tools/mingw530_32/lib/gcc/i686-w64-mingw32/5.3.0/include -ID:/qt/Tools/mingw530_32/lib/gcc/i686-w64-mingw32/5.3.0/include-fixed -ID:/qt/Tools/mingw530_32/i686-w64-mingw32/include -ID:/qt/Tools/mingw530_32/i686-w64-mingw32/include/c++ -ID:/qt/Tools/mingw530_32/i686-w64-mingw32/include/c++/i686-w64-mingw32 -ID:/qt/Tools/mingw530_32/i686-w64-mingw32/include/c++/backward ..\srun-3k-ui\mainwindow.h -o release\moc_mainwindow.cpp
+	D:\qt\5.8\mingw_static\bin\moc.exe $(DEFINES) --include release/moc_predefs.h -ID:/qt/5.8/mingw_static/mkspecs/win32-g++ -IC:/Users/MR.Guo/Documents/GitHub/SRUN-3K-UI/srun-3k-ui -ID:/Dev-Cpp/curl-7.53.1/include -ID:/qt/5.8/mingw_static/include -ID:/qt/5.8/mingw_static/include/QtWidgets -ID:/qt/5.8/mingw_static/include/QtGui -ID:/qt/5.8/mingw_static/include/QtCore -I. -ID:/qt/Tools/mingw530_32/lib/gcc/i686-w64-mingw32/5.3.0/include -ID:/qt/Tools/mingw530_32/lib/gcc/i686-w64-mingw32/5.3.0/include-fixed -ID:/qt/Tools/mingw530_32/i686-w64-mingw32/include -ID:/qt/Tools/mingw530_32/i686-w64-mingw32/include/c++ -ID:/qt/Tools/mingw530_32/i686-w64-mingw32/include/c++/i686-w64-mingw32 -ID:/qt/Tools/mingw530_32/i686-w64-mingw32/include/c++/backward ..\srun-3k-ui\mainwindow.h -o release\moc_mainwindow.cpp
 
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
@@ -466,6 +466,9 @@ release/mainwindow.o: ../srun-3k-ui/mainwindow.cpp ../srun-3k-ui/mainwindow.h \
 		D:/qt/5.8/mingw_static/include/QtGui/qinputmethod.h \
 		D:/qt/5.8/mingw_static/include/QtWidgets/QButtonGroup \
 		D:/qt/5.8/mingw_static/include/QtWidgets/qbuttongroup.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/QCheckBox \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qcheckbox.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qabstractbutton.h \
 		D:/qt/5.8/mingw_static/include/QtWidgets/QHeaderView \
 		D:/qt/5.8/mingw_static/include/QtWidgets/qheaderview.h \
 		D:/qt/5.8/mingw_static/include/QtWidgets/qabstractitemview.h \
@@ -493,18 +496,25 @@ release/mainwindow.o: ../srun-3k-ui/mainwindow.cpp ../srun-3k-ui/mainwindow.h \
 		D:/qt/5.8/mingw_static/include/QtGui/qtextoption.h \
 		D:/qt/5.8/mingw_static/include/QtWidgets/QPushButton \
 		D:/qt/5.8/mingw_static/include/QtWidgets/qpushbutton.h \
-		D:/qt/5.8/mingw_static/include/QtWidgets/qabstractbutton.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/QSpinBox \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qspinbox.h \
 		D:/qt/5.8/mingw_static/include/QtWidgets/QWidget \
+		D:/qt/5.8/mingw_static/include/QtCore/QJsonObject \
+		D:/qt/5.8/mingw_static/include/QtCore/qjsonobject.h \
+		D:/qt/5.8/mingw_static/include/QtCore/qjsonvalue.h \
+		D:/qt/5.8/mingw_static/include/QtCore/QJsonDocument \
+		D:/qt/5.8/mingw_static/include/QtCore/qjsondocument.h \
 		D:/qt/5.8/mingw_static/include/QtWidgets/QMessageBox \
 		D:/qt/5.8/mingw_static/include/QtWidgets/qmessagebox.h \
 		D:/qt/5.8/mingw_static/include/QtWidgets/qdialog.h \
-		../libcurl/include/curl/curl.h \
-		../libcurl/include/curl/curlver.h \
-		../libcurl/include/curl/curlbuild.h \
-		../libcurl/include/curl/curlrules.h \
-		../libcurl/include/curl/easy.h \
-		../libcurl/include/curl/multi.h \
-		../libcurl/include/curl/typecheck-gcc.h
+		D:/qt/5.8/mingw_static/include/QtCore/QFile \
+		D:/Dev-Cpp/curl-7.53.1/include/curl/curl.h \
+		D:/Dev-Cpp/curl-7.53.1/include/curl/curlver.h \
+		D:/Dev-Cpp/curl-7.53.1/include/curl/curlbuild.h \
+		D:/Dev-Cpp/curl-7.53.1/include/curl/curlrules.h \
+		D:/Dev-Cpp/curl-7.53.1/include/curl/easy.h \
+		D:/Dev-Cpp/curl-7.53.1/include/curl/multi.h \
+		D:/Dev-Cpp/curl-7.53.1/include/curl/typecheck-gcc.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release\mainwindow.o ..\srun-3k-ui\mainwindow.cpp
 
 release/srun-3k-ui_plugin_import.o: C:/Users/MR.Guo/Documents/GitHub/SRUN-3K-UI/bin/srun-3k-ui_plugin_import.cpp 
