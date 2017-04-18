@@ -1,4 +1,4 @@
-#ifndef MAINWINDOW_H
+ #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
 #include <QMainWindow>
@@ -14,7 +14,6 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-
 private slots:
     void on_LOGIN_clicked();
 
@@ -22,7 +21,9 @@ private slots:
 
     void on_INFO_clicked();
 
-    void on_SAVE_INFO_clicked();
+    void on_GET_MESSAGE_clicked();
+
+    void on_AUTO_START_clicked();
 
 private:
     Ui::MainWindow *ui;

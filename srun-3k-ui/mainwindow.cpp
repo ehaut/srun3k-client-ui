@@ -4,11 +4,12 @@
 #include "QJsonDocument"
 #include "QMessageBox"
 #include "QFile"
+#include "QSettings"
 #include <curl/curl.h>
 #include <string>
 
 const char POSTURL[]= "http://172.16.154.130:69/cgi-bin/srun_portal";
-
+int file_state=0;
 
 typedef struct feedback_info
 {
@@ -24,8 +25,7 @@ struct MemoryStruct {
   size_t size;
 };
 
-static size_t
-WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
+static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
   size_t realsize = size * nmemb;
   struct MemoryStruct *mem = (struct MemoryStruct *)userp;
@@ -50,24 +50,29 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     QFile open("config.json");
-    if(open.open(QIODevice::ReadOnly))
-    {
-        QByteArray OPEN_INFO=open.readAll();
-        open.close();
-        QJsonDocument INFO=QJsonDocument::fromJson(OPEN_INFO);
-        if(INFO.isObject())
-        {
-            QJsonObject obj=INFO.object();
-            if(obj.contains("username"))
-               { ui->INPUT_NAME->setText(obj.value("username").toString());}
-            if(obj.contains("password"))
-               {ui->INPUT_PASSWD->setText(obj.value("password").toString());}
-            if(obj.contains("acid"))
-                { ui->ACID->setValue(obj.value("acid").toInt());}
-              ui->SAVE_INFO->setCheckState(Qt::Checked);
-        }
+       if(open.open(QIODevice::ReadOnly))
+       {
+           file_state=1;
+           QByteArray OPEN_INFO=open.readAll();
+           open.close();
+           QJsonDocument INFO=QJsonDocument::fromJson(OPEN_INFO);
+           if(INFO.isObject())
+           {
+               QJsonObject obj=INFO.object();
+               if(obj.contains("username"))
+                  { ui->INPUT_NAME->setText(obj.value("username").toString());}
+               if(obj.contains("password"))
+                  {ui->INPUT_PASSWD->setText(obj.value("password").toString());}
+              ui->SAVE_LOGIN->setCheckState(Qt::Checked);
+               if(obj.contains("auto_start"))
+                  {
+                       bool auto_start=obj.value("auto_start").toBool();
+                       if(auto_start)
+                            ui->AUTO_START->setCheckState(Qt::Checked);
+                   }
+           }
+       }
     }
-}
 
 MainWindow::~MainWindow()
 {
@@ -79,8 +84,7 @@ void MainWindow::on_LOGIN_clicked()
 
     QString NAME_INPUT = ui->INPUT_NAME->text().trimmed();
     QString PASSWD_INPUT = ui->INPUT_PASSWD->text();
-    char ACID[2];
-    itoa(ui->ACID->value(),ACID,10);
+
     if(NAME_INPUT.isEmpty()||PASSWD_INPUT.isEmpty()||(NAME_INPUT.isEmpty()&&PASSWD_INPUT.isEmpty()))
      {
         QMessageBox::critical(this, tr("错误!"),tr("请输入您的用户名和密码登陆"));
@@ -91,9 +95,7 @@ void MainWindow::on_LOGIN_clicked()
            char *name = temp1.data();
          QByteArray temp2 = PASSWD_INPUT.toLatin1();
             char *password = temp2.data();
-            char post[200]="&action=login&drop=0&pop=1&type=2&n=117&mbytes=0&minutes=0&mac=&ac_id=";
-            strcat(post,ACID);
-            strcat(post,"&username=%7BSRUN3%7D%0D%0A");
+            char post[200]="&action=login&drop=0&pop=1&type=2&n=117&mbytes=0&minutes=0&mac=&ac_id=1&username=%7BSRUN3%7D%0D%0A";
             char *ptr=post;
             while(*ptr!='\0')ptr++;//到达POST参数末尾
             char temp[50]="\0";//这是用来临时存储加密后用户名和密码
@@ -170,7 +172,7 @@ void MainWindow::on_LOGIN_clicked()
                         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
 
                         curl_easy_setopt(curl,CURLOPT_TIMEOUT,1L);//超时设置成1s
-
+                        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
                         /* we pass our 'chunk' struct to the callback function */
                         curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
 
@@ -190,7 +192,31 @@ void MainWindow::on_LOGIN_clicked()
                             {
                                 if(*chunk.memory=='n'&&*(chunk.memory+2)=='o')
                                         {//登陆成功情况
-                                            QMessageBox::information(this, tr(":) 登陆成功!"),tr("您已登陆成功!"));
+                                            if(file_state==0&&ui->SAVE_LOGIN->isChecked())
+                                            {
+                                                    QJsonObject info;
+                                                     info.insert("username",NAME_INPUT);
+                                                     info.insert("password",PASSWD_INPUT);
+                                                     bool auto_start=ui->AUTO_START->isChecked();
+                                                     info.insert("auto_start",auto_start);
+                                                     QJsonDocument SAVE_INFO;
+                                                     SAVE_INFO.setObject(info);
+                                                     QFile save("config.json");
+                                                     if(!save.open(QIODevice::WriteOnly))
+                                                      {
+                                                         QMessageBox::critical(this, tr("错误!"),tr("文件保存失败!"));
+                                                     }
+                                                     else
+                                                       {
+                                                         save.write(SAVE_INFO.toJson());
+                                                         QMessageBox::information(this, tr(":) 登陆成功且配置文件保存成功!"),tr("您已登陆成功!\n配置文件已经保存本程序目录下，\n下次打开本程序将会自动载入。\n为了保证信息完整性，请勿更改!!!"));
+                                                     }
+                                                     save.close();
+                                             }
+                                             else
+                                             {
+                                                 QMessageBox::information(this, tr(":) 登陆成功!"),tr("您已登陆成功!"));
+                                             }
                                             break;
                                         }
                                 else if(*chunk.memory=='P'&&*(chunk.memory+1)=='a')
@@ -230,8 +256,6 @@ void MainWindow::on_LOGOUT_clicked()
 {
     QString NAME_INPUT = ui->INPUT_NAME->text().trimmed();
     QString PASSWD_INPUT = ui->INPUT_PASSWD->text();
-    char ACID[2];
-    itoa(ui->ACID->value(),ACID,10);
     if(NAME_INPUT.isEmpty())//如果用户名是空的
      {
         QMessageBox::critical(this, tr("错误!"),tr("请输入您的用户名注销"));
@@ -240,9 +264,7 @@ void MainWindow::on_LOGOUT_clicked()
      {
         QByteArray temp = NAME_INPUT.toLatin1();
            char *name = temp.data();
-           char post[100]="&mac=&type=2&action=logout&ac_id=";
-           strcat(post,ACID);
-           strcat(post,"&username=");
+           char post[100]="&mac=&type=2&action=logout&ac_id=1&username=";
            strcat(post,name);
            struct MemoryStruct chunk;
            chunk.memory = (char *)malloc(1);  /* will be grown as needed by the realloc above */
@@ -261,7 +283,7 @@ void MainWindow::on_LOGOUT_clicked()
            curl_easy_setopt(curl, CURLOPT_POSTFIELDS,post);//设置POST参数
 
            curl_easy_setopt(curl,CURLOPT_TIMEOUT,1L);//超时设置成1s
-
+            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
            /* send all data to this function  */
            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
 
@@ -341,7 +363,7 @@ void MainWindow::on_INFO_clicked()
       curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
 
       curl_easy_setopt(curl_handle,CURLOPT_TIMEOUT,1L);//超时设置成1s
-
+       curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
       /* we pass our 'chunk' struct to the callback function */
       curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
 
@@ -406,36 +428,65 @@ void MainWindow::on_INFO_clicked()
       curl_global_cleanup();
 }
 
-void MainWindow::on_SAVE_INFO_clicked()
+void MainWindow::on_GET_MESSAGE_clicked()
 {
-    if(ui->SAVE_INFO->isChecked())
-    {
-        QString NAME_INPUT = ui->INPUT_NAME->text().trimmed();
-        QString PASSWD_INPUT = ui->INPUT_PASSWD->text();
-        if(NAME_INPUT.isEmpty()&&PASSWD_INPUT.isEmpty())
-         {
-            QMessageBox::critical(this, tr("错误!"),tr("请输入您的用户名和密码保存以保存登陆信息!"));
-            ui->SAVE_INFO->setCheckState(Qt::Unchecked);//设置为未被选择状态
+    CURL *curl_handle;
+      CURLcode res;
+
+      struct MemoryStruct chunk;
+
+      chunk.memory = (char *)malloc(1);  /* will be grown as needed by the realloc above */
+      chunk.size = 0;    /* no data at this point */
+
+      curl_global_init(CURL_GLOBAL_ALL);
+
+      /* init the curl session */
+      curl_handle = curl_easy_init();
+       if(!curl_handle)
+          {
+           QMessageBox::critical(NULL,"错误!","LIBCURL初始化错误");
+           QCoreApplication::exit();
+       }
+      /* specify URL to get */
+      curl_easy_setopt(curl_handle, CURLOPT_URL, "http://172.16.154.130/get_msg.php");
+
+      /* send all data to this function  */
+      curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+
+      curl_easy_setopt(curl_handle,CURLOPT_TIMEOUT,1L);//超时设置成1s
+     curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
+      /* we pass our 'chunk' struct to the callback function */
+      curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
+
+      /* some servers don't like requests that are made without a user-agent
+         field, so we provide one */
+
+      /* get it! */
+      res = curl_easy_perform(curl_handle);
+      /* check for errors */
+      if(res != CURLE_OK) {
+       QMessageBox::critical(NULL,"错误!","无法连接服务器!");
+      }
+      else
+      {
+           QMessageBox::information(this, tr(":) 公告信息"),QString::fromLocal8Bit(chunk.memory));
+      }
+      curl_easy_cleanup(curl_handle);
+
+      free(chunk.memory);
+      /* we're done with libcurl, so clean it up */
+      curl_global_cleanup();
+}
+
+void MainWindow::on_AUTO_START_clicked()
+{
+    QSettings *reg=new QSettings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",QSettings::NativeFormat);
+        if(ui->AUTO_START->isChecked())
+        {
+            reg->setValue("srun3k",QApplication::applicationFilePath().replace("/", "\\"));
         }
         else
         {
-             QJsonObject info;
-             info.insert("username",NAME_INPUT);
-             info.insert("password",PASSWD_INPUT);
-             info.insert("acid",ui->ACID->value());
-             QJsonDocument SAVE_INFO;
-             SAVE_INFO.setObject(info);
-             QFile save("config.json");
-             if(!save.open(QIODevice::WriteOnly))
-              {
-                 QMessageBox::critical(this, tr("错误!"),tr("文件保存失败!"));
-             }
-             else
-               {
-                 save.write(SAVE_INFO.toJson());
-                 QMessageBox::information(this, tr(":) 配置文件保存成功!"),tr("配置文件已经保存本程序目录下，\n下次打开本程序将会自动载入。\n为了保证信息完整性，请勿更改!!!"));
-             }
-             save.close();
+            reg->setValue("srun3k","");
         }
-    }
 }

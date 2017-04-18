@@ -41,3 +41,5 @@ INCLUDEPATH +=  D:\Dev-Cpp\curl-7.53.1\include
 QMAKE_CFLAGS += -std=c99
 
 CONFIG += c++11
+
+RC_FILE += main.rc

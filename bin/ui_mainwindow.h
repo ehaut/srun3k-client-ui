@@ -14,12 +14,12 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QCheckBox>
+#include <QtWidgets/QFrame>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QPushButton>
-#include <QtWidgets/QSpinBox>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -36,87 +36,105 @@ public:
     QPushButton *LOGIN;
     QPushButton *LOGOUT;
     QPushButton *INFO;
-    QSpinBox *ACID;
-    QLabel *LACID;
-    QLabel *ME;
-    QCheckBox *SAVE_INFO;
-    QCheckBox *AUTO_LOGIN;
-    QCheckBox *checkBox;
+    QCheckBox *SAVE_LOGIN;
+    QCheckBox *AUTO_START;
+    QPushButton *GET_MESSAGE;
+    QLabel *GITHUB;
+    QLabel *WELCOME;
+    QLabel *label;
+    QFrame *line_2;
+    QFrame *line;
 
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
         MainWindow->setEnabled(true);
-        MainWindow->resize(400, 280);
-        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        MainWindow->resize(380, 220);
+        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(MainWindow->sizePolicy().hasHeightForWidth());
         MainWindow->setSizePolicy(sizePolicy);
+        MainWindow->setMinimumSize(QSize(380, 220));
+        MainWindow->setMaximumSize(QSize(380, 220));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         TOP = new QLabel(centralWidget);
         TOP->setObjectName(QStringLiteral("TOP"));
         TOP->setEnabled(true);
-        TOP->setGeometry(QRect(100, 10, 211, 61));
+        TOP->setGeometry(QRect(80, 0, 381, 51));
+        sizePolicy.setHeightForWidth(TOP->sizePolicy().hasHeightForWidth());
+        TOP->setSizePolicy(sizePolicy);
         QFont font;
         font.setFamily(QString::fromUtf8("\345\276\256\350\275\257\351\233\205\351\273\221"));
-        font.setPointSize(26);
+        font.setPointSize(28);
         font.setBold(false);
         font.setWeight(50);
         TOP->setFont(font);
         LNAME = new QLabel(centralWidget);
         LNAME->setObjectName(QStringLiteral("LNAME"));
-        LNAME->setGeometry(QRect(40, 90, 70, 25));
+        LNAME->setGeometry(QRect(20, 80, 70, 25));
         QFont font1;
         font1.setFamily(QString::fromUtf8("\346\226\260\345\256\213\344\275\223"));
         font1.setPointSize(14);
         LNAME->setFont(font1);
         LPASSWD = new QLabel(centralWidget);
         LPASSWD->setObjectName(QStringLiteral("LPASSWD"));
-        LPASSWD->setGeometry(QRect(40, 130, 70, 25));
+        LPASSWD->setGeometry(QRect(20, 120, 70, 25));
         LPASSWD->setFont(font1);
         INPUT_NAME = new QLineEdit(centralWidget);
         INPUT_NAME->setObjectName(QStringLiteral("INPUT_NAME"));
-        INPUT_NAME->setGeometry(QRect(130, 90, 211, 25));
+        INPUT_NAME->setGeometry(QRect(100, 80, 171, 25));
         INPUT_PASSWD = new QLineEdit(centralWidget);
         INPUT_PASSWD->setObjectName(QStringLiteral("INPUT_PASSWD"));
-        INPUT_PASSWD->setGeometry(QRect(130, 130, 211, 25));
+        INPUT_PASSWD->setGeometry(QRect(100, 120, 171, 25));
         INPUT_PASSWD->setEchoMode(QLineEdit::Password);
         LOGIN = new QPushButton(centralWidget);
         LOGIN->setObjectName(QStringLiteral("LOGIN"));
-        LOGIN->setGeometry(QRect(40, 230, 80, 30));
+        LOGIN->setGeometry(QRect(20, 160, 75, 25));
         LOGOUT = new QPushButton(centralWidget);
         LOGOUT->setObjectName(QStringLiteral("LOGOUT"));
-        LOGOUT->setGeometry(QRect(149, 230, 80, 30));
+        LOGOUT->setGeometry(QRect(110, 160, 75, 25));
         INFO = new QPushButton(centralWidget);
         INFO->setObjectName(QStringLiteral("INFO"));
-        INFO->setGeometry(QRect(260, 230, 80, 30));
-        ACID = new QSpinBox(centralWidget);
-        ACID->setObjectName(QStringLiteral("ACID"));
-        ACID->setGeometry(QRect(130, 170, 42, 25));
-        ACID->setMinimum(1);
-        ACID->setMaximum(2);
-        LACID = new QLabel(centralWidget);
-        LACID->setObjectName(QStringLiteral("LACID"));
-        LACID->setGeometry(QRect(44, 170, 70, 25));
-        QFont font2;
-        font2.setFamily(QString::fromUtf8("\346\226\260\345\256\213\344\275\223"));
-        font2.setPointSize(12);
-        LACID->setFont(font2);
-        ME = new QLabel(centralWidget);
-        ME->setObjectName(QStringLiteral("ME"));
-        ME->setGeometry(QRect(130, 66, 381, 20));
-        SAVE_INFO = new QCheckBox(centralWidget);
-        SAVE_INFO->setObjectName(QStringLiteral("SAVE_INFO"));
-        SAVE_INFO->setGeometry(QRect(60, 200, 70, 25));
-        AUTO_LOGIN = new QCheckBox(centralWidget);
-        AUTO_LOGIN->setObjectName(QStringLiteral("AUTO_LOGIN"));
-        AUTO_LOGIN->setGeometry(QRect(160, 200, 70, 25));
-        checkBox = new QCheckBox(centralWidget);
-        checkBox->setObjectName(QStringLiteral("checkBox"));
-        checkBox->setGeometry(QRect(260, 200, 70, 25));
+        INFO->setGeometry(QRect(200, 160, 75, 25));
+        SAVE_LOGIN = new QCheckBox(centralWidget);
+        SAVE_LOGIN->setObjectName(QStringLiteral("SAVE_LOGIN"));
+        SAVE_LOGIN->setGeometry(QRect(290, 80, 70, 25));
+        QSizePolicy sizePolicy1(QSizePolicy::Minimum, QSizePolicy::Fixed);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(SAVE_LOGIN->sizePolicy().hasHeightForWidth());
+        SAVE_LOGIN->setSizePolicy(sizePolicy1);
+        AUTO_START = new QCheckBox(centralWidget);
+        AUTO_START->setObjectName(QStringLiteral("AUTO_START"));
+        AUTO_START->setGeometry(QRect(290, 120, 70, 25));
+        sizePolicy1.setHeightForWidth(AUTO_START->sizePolicy().hasHeightForWidth());
+        AUTO_START->setSizePolicy(sizePolicy1);
+        GET_MESSAGE = new QPushButton(centralWidget);
+        GET_MESSAGE->setObjectName(QStringLiteral("GET_MESSAGE"));
+        GET_MESSAGE->setGeometry(QRect(290, 160, 75, 25));
+        GITHUB = new QLabel(centralWidget);
+        GITHUB->setObjectName(QStringLiteral("GITHUB"));
+        GITHUB->setGeometry(QRect(350, 200, 31, 16));
+        GITHUB->setOpenExternalLinks(true);
+        WELCOME = new QLabel(centralWidget);
+        WELCOME->setObjectName(QStringLiteral("WELCOME"));
+        WELCOME->setGeometry(QRect(0, 200, 131, 16));
+        label = new QLabel(centralWidget);
+        label->setObjectName(QStringLiteral("label"));
+        label->setGeometry(QRect(120, 50, 381, 21));
+        line_2 = new QFrame(centralWidget);
+        line_2->setObjectName(QStringLiteral("line_2"));
+        line_2->setGeometry(QRect(0, 190, 381, 16));
+        line_2->setFrameShape(QFrame::HLine);
+        line_2->setFrameShadow(QFrame::Sunken);
+        line = new QFrame(centralWidget);
+        line->setObjectName(QStringLiteral("line"));
+        line->setGeometry(QRect(270, 80, 21, 61));
+        line->setFrameShape(QFrame::VLine);
+        line->setFrameShadow(QFrame::Sunken);
         MainWindow->setCentralWidget(centralWidget);
 
         retranslateUi(MainWindow);
@@ -130,16 +148,17 @@ public:
         TOP->setText(QApplication::translate("MainWindow", "\346\240\241\345\233\255\347\275\221\347\231\273\351\231\206\345\231\250", Q_NULLPTR));
         LNAME->setText(QApplication::translate("MainWindow", "\347\224\250\346\210\267\345\220\215:", Q_NULLPTR));
         LPASSWD->setText(QApplication::translate("MainWindow", "\345\257\206  \347\240\201:", Q_NULLPTR));
-        INPUT_NAME->setPlaceholderText(QApplication::translate("MainWindow", "\350\257\267\350\276\223\345\205\245\346\202\250\347\232\204\347\224\250\346\210\267\345\220\215", Q_NULLPTR));
-        INPUT_PASSWD->setPlaceholderText(QApplication::translate("MainWindow", "\350\257\267\350\276\223\345\205\245\346\202\250\347\232\204\345\257\206\347\240\201", Q_NULLPTR));
+        INPUT_NAME->setPlaceholderText(QApplication::translate("MainWindow", "\350\257\267\350\276\223\345\205\245\346\202\250\347\232\204\347\224\250\346\210\267\345\220\215...", Q_NULLPTR));
+        INPUT_PASSWD->setPlaceholderText(QApplication::translate("MainWindow", "\350\257\267\350\276\223\345\205\245\346\202\250\347\232\204\345\257\206\347\240\201...", Q_NULLPTR));
         LOGIN->setText(QApplication::translate("MainWindow", "\347\231\273\351\231\206", Q_NULLPTR));
         LOGOUT->setText(QApplication::translate("MainWindow", "\346\263\250\351\224\200", Q_NULLPTR));
-        INFO->setText(QApplication::translate("MainWindow", "\350\216\267\345\217\226\347\212\266\346\200\201", Q_NULLPTR));
-        LACID->setText(QApplication::translate("MainWindow", "A C I D:", Q_NULLPTR));
-        ME->setText(QApplication::translate("MainWindow", "Made by CHN-STUDENT V0.0.2", Q_NULLPTR));
-        SAVE_INFO->setText(QApplication::translate("MainWindow", "\344\277\235\345\255\230\351\205\215\347\275\256", Q_NULLPTR));
-        AUTO_LOGIN->setText(QApplication::translate("MainWindow", "\350\207\252\345\212\250\347\231\273\351\231\206", Q_NULLPTR));
-        checkBox->setText(QApplication::translate("MainWindow", "\345\274\200\346\234\272\350\207\252\345\220\257", Q_NULLPTR));
+        INFO->setText(QApplication::translate("MainWindow", "\347\231\273\351\231\206\347\212\266\346\200\201", Q_NULLPTR));
+        SAVE_LOGIN->setText(QApplication::translate("MainWindow", "\344\277\235\345\255\230\347\231\273\351\231\206", Q_NULLPTR));
+        AUTO_START->setText(QApplication::translate("MainWindow", "\345\274\200\346\234\272\350\207\252\345\220\257", Q_NULLPTR));
+        GET_MESSAGE->setText(QApplication::translate("MainWindow", "\350\216\267\345\217\226\345\205\254\345\221\212", Q_NULLPTR));
+        GITHUB->setText(QApplication::translate("MainWindow", "<html><head/><body><p><a href=\"https://github.com/CHN-STUDENT/SRUN-3K-UI\"><span style=\" text-decoration: underline; color:#0000ff;\">\345\205\263\344\272\216</span></a></p></body></html>", Q_NULLPTR));
+        WELCOME->setText(QApplication::translate("MainWindow", "\346\254\242\350\277\216\344\275\277\347\224\250\346\240\241\345\233\255\347\275\221\347\231\273\351\231\206\345\231\250!", Q_NULLPTR));
+        label->setText(QApplication::translate("MainWindow", "Made by CHN-STUDENT V0.0.3", Q_NULLPTR));
     } // retranslateUi
 
 };

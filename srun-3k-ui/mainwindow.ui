@@ -9,15 +9,27 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>280</height>
+    <width>380</width>
+    <height>220</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>380</width>
+    <height>220</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>380</width>
+    <height>220</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -29,16 +41,22 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>100</x>
-      <y>10</y>
-      <width>211</width>
-      <height>61</height>
+      <x>80</x>
+      <y>0</y>
+      <width>381</width>
+      <height>51</height>
      </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
     </property>
     <property name="font">
      <font>
       <family>微软雅黑</family>
-      <pointsize>26</pointsize>
+      <pointsize>28</pointsize>
       <weight>50</weight>
       <bold>false</bold>
      </font>
@@ -50,8 +68,8 @@
    <widget class="QLabel" name="LNAME">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>90</y>
+      <x>20</x>
+      <y>80</y>
       <width>70</width>
       <height>25</height>
      </rect>
@@ -69,8 +87,8 @@
    <widget class="QLabel" name="LPASSWD">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>130</y>
+      <x>20</x>
+      <y>120</y>
       <width>70</width>
       <height>25</height>
      </rect>
@@ -88,22 +106,22 @@
    <widget class="QLineEdit" name="INPUT_NAME">
     <property name="geometry">
      <rect>
-      <x>130</x>
-      <y>90</y>
-      <width>211</width>
+      <x>100</x>
+      <y>80</y>
+      <width>171</width>
       <height>25</height>
      </rect>
     </property>
     <property name="placeholderText">
-     <string>请输入您的用户名</string>
+     <string>请输入您的用户名...</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="INPUT_PASSWD">
     <property name="geometry">
      <rect>
-      <x>130</x>
-      <y>130</y>
-      <width>211</width>
+      <x>100</x>
+      <y>120</y>
+      <width>171</width>
       <height>25</height>
      </rect>
     </property>
@@ -111,16 +129,16 @@
      <enum>QLineEdit::Password</enum>
     </property>
     <property name="placeholderText">
-     <string>请输入您的密码</string>
+     <string>请输入您的密码...</string>
     </property>
    </widget>
    <widget class="QPushButton" name="LOGIN">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>230</y>
-      <width>80</width>
-      <height>30</height>
+      <x>20</x>
+      <y>160</y>
+      <width>75</width>
+      <height>25</height>
      </rect>
     </property>
     <property name="text">
@@ -130,10 +148,10 @@
    <widget class="QPushButton" name="LOGOUT">
     <property name="geometry">
      <rect>
-      <x>149</x>
-      <y>230</y>
-      <width>80</width>
-      <height>30</height>
+      <x>110</x>
+      <y>160</y>
+      <width>75</width>
+      <height>25</height>
      </rect>
     </property>
     <property name="text">
@@ -143,101 +161,133 @@
    <widget class="QPushButton" name="INFO">
     <property name="geometry">
      <rect>
-      <x>260</x>
-      <y>230</y>
-      <width>80</width>
-      <height>30</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>获取状态</string>
-    </property>
-   </widget>
-   <widget class="QSpinBox" name="ACID">
-    <property name="geometry">
-     <rect>
-      <x>130</x>
-      <y>170</y>
-      <width>42</width>
+      <x>200</x>
+      <y>160</y>
+      <width>75</width>
       <height>25</height>
      </rect>
     </property>
-    <property name="minimum">
-     <number>1</number>
-    </property>
-    <property name="maximum">
-     <number>2</number>
+    <property name="text">
+     <string>登陆状态</string>
     </property>
    </widget>
-   <widget class="QLabel" name="LACID">
+   <widget class="QCheckBox" name="SAVE_LOGIN">
     <property name="geometry">
      <rect>
-      <x>44</x>
-      <y>170</y>
+      <x>290</x>
+      <y>80</y>
       <width>70</width>
       <height>25</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <family>新宋体</family>
-      <pointsize>12</pointsize>
-     </font>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
     </property>
     <property name="text">
-     <string>A C I D:</string>
+     <string>保存登陆</string>
     </property>
    </widget>
-   <widget class="QLabel" name="ME">
+   <widget class="QCheckBox" name="AUTO_START">
     <property name="geometry">
      <rect>
-      <x>130</x>
-      <y>66</y>
-      <width>381</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Made by CHN-STUDENT V0.0.2</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="SAVE_INFO">
-    <property name="geometry">
-     <rect>
-      <x>60</x>
-      <y>200</y>
+      <x>290</x>
+      <y>120</y>
       <width>70</width>
       <height>25</height>
      </rect>
     </property>
-    <property name="text">
-     <string>保存配置</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="AUTO_LOGIN">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>200</y>
-      <width>70</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>自动登陆</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBox">
-    <property name="geometry">
-     <rect>
-      <x>260</x>
-      <y>200</y>
-      <width>70</width>
-      <height>25</height>
-     </rect>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
     </property>
     <property name="text">
      <string>开机自启</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="GET_MESSAGE">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>160</y>
+      <width>75</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>获取公告</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="GITHUB">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>200</y>
+      <width>31</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/CHN-STUDENT/SRUN-3K-UI&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;关于&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="openExternalLinks">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="WELCOME">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>200</y>
+      <width>131</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>欢迎使用校园网登陆器!</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>50</y>
+      <width>381</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Made by CHN-STUDENT V0.0.3</string>
+    </property>
+   </widget>
+   <widget class="Line" name="line_2">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>190</y>
+      <width>381</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="Line" name="line">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>80</y>
+      <width>21</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
     </property>
    </widget>
   </widget>
