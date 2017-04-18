@@ -17,13 +17,13 @@ CXXFLAGS      = -pipe -fno-keep-inline-dllexport -g -std=gnu++11 -frtti -Wall -W
 INCPATH       = -I..\srun-3k-ui -I. -ID:\Dev-Cpp\curl-7.53.1\include -ID:\qt\5.8\mingw_static\include -ID:\qt\5.8\mingw_static\include\QtWidgets -ID:\qt\5.8\mingw_static\include\QtGui -ID:\qt\5.8\mingw_static\include\QtCore -Idebug -I. -ID:\qt\5.8\mingw_static\mkspecs\win32-g++ 
 LINKER      =        g++
 LFLAGS        =        -static -Wl,-subsystem,windows -mthreads
-LIBS        =        -lglu32 -lopengl32 -lgdi32 -luser32 -lmingw32 -LD:\qt\5.8\mingw_static\lib -lqtmaind -LD:\Dev-Cpp\curl-7.53.1\lib -static-libgcc -lcurl -lws2_32 -lwldap32 -lQt5Widgetsd -lQt5Guid -lQt5Cored -LD:\qt\5.8\mingw_static\plugins\platforms -lqwindowsd -LD:\qt\5.8\mingw_static\plugins\imageformats -lqgifd -lqicnsd -lqicod -lqjpegd -lqtgad -lqtiffd -lqwbmpd -lqwebpd debug\main_res.o 
+LIBS        =        -lglu32 -lopengl32 -lgdi32 -luser32 -lmingw32 -LD:\qt\5.8\mingw_static\lib -lqtmaind -LD:\Dev-Cpp\curl-7.53.1\lib -static-libgcc -lcurl -lws2_32 -lwldap32 -lQt5Widgetsd -lQt5Guid -lQt5Cored -LD:\qt\5.8\mingw_static\plugins\platforms -lqwindowsd -LD:\qt\5.8\mingw_static\plugins\imageformats -lqgifd -lqicnsd -lqicod -lqjpegd -lqtgad -lqtiffd -lqwbmpd -lqwebpd 
 QMAKE         = D:\qt\5.8\mingw_static\bin\qmake.exe
 IDC           = idc
 IDL           = midl
 ZIP           = zip -r -9
 DEF_FILE      = 
-RES_FILE      = debug\main_res.o
+RES_FILE      = 
 COPY          = copy /y
 SED           = $(QMAKE) -install sed
 COPY_FILE     = copy /y
@@ -63,11 +63,8 @@ DESTDIR_TARGET = debug\srun-3k-ui.exe
 first: all
 all: Makefile.Debug  $(DESTDIR_TARGET)
 
-$(DESTDIR_TARGET): D:/qt/5.8/mingw_static/lib/libQt5Widgetsd.a D:/qt/5.8/mingw_static/lib/libQt5Guid.a D:/qt/5.8/mingw_static/lib/libQt5Cored.a ui_mainwindow.h $(OBJECTS) debug/main_res.o
+$(DESTDIR_TARGET): D:/qt/5.8/mingw_static/lib/libQt5Widgetsd.a D:/qt/5.8/mingw_static/lib/libQt5Guid.a D:/qt/5.8/mingw_static/lib/libQt5Cored.a ui_mainwindow.h $(OBJECTS) 
 	$(LINKER) $(LFLAGS) -o $(DESTDIR_TARGET) $(OBJECTS)  $(LIBS)
-
-debug/main_res.o: ../srun-3k-ui/main.rc
-	windres -i ..\srun-3k-ui\main.rc -o debug\main_res.o --include-dir=./../srun-3k-ui $(DEFINES)
 
 qmake: FORCE
 	@$(QMAKE) -o Makefile.Debug ..\srun-3k-ui\srun-3k-ui.pro -spec win32-g++
@@ -79,7 +76,6 @@ dist:
 
 clean: compiler_clean 
 	-$(DEL_FILE) debug\main.o debug\mainwindow.o debug\srun-3k-ui_plugin_import.o debug\moc_mainwindow.o
-	-$(DEL_FILE) debug\main_res.o
 
 distclean: clean 
 	-$(DEL_FILE) C:\Users\MR.Guo\Documents\GitHub\SRUN-3K-UI\bin\srun-3k-ui_plugin_import.cpp .qmake.stash
@@ -457,6 +453,51 @@ debug/mainwindow.o: ../srun-3k-ui/mainwindow.cpp ../srun-3k-ui/mainwindow.h \
 		D:/qt/5.8/mingw_static/include/QtWidgets/qtabwidget.h \
 		D:/qt/5.8/mingw_static/include/QtGui/qicon.h \
 		ui_mainwindow.h \
+		D:/qt/5.8/mingw_static/include/QtCore/QVariant \
+		D:/qt/5.8/mingw_static/include/QtWidgets/QAction \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qaction.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qactiongroup.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/QApplication \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qapplication.h \
+		D:/qt/5.8/mingw_static/include/QtCore/qcoreapplication.h \
+		D:/qt/5.8/mingw_static/include/QtCore/qeventloop.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qdesktopwidget.h \
+		D:/qt/5.8/mingw_static/include/QtGui/qguiapplication.h \
+		D:/qt/5.8/mingw_static/include/QtGui/qinputmethod.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/QButtonGroup \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qbuttongroup.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/QCheckBox \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qcheckbox.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qabstractbutton.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/QFrame \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qframe.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/QHeaderView \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qheaderview.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qabstractitemview.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qabstractscrollarea.h \
+		D:/qt/5.8/mingw_static/include/QtCore/qabstractitemmodel.h \
+		D:/qt/5.8/mingw_static/include/QtCore/qitemselectionmodel.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qabstractitemdelegate.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qstyleoption.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qabstractspinbox.h \
+		D:/qt/5.8/mingw_static/include/QtGui/qvalidator.h \
+		D:/qt/5.8/mingw_static/include/QtCore/qregularexpression.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qslider.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qabstractslider.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qstyle.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qtabbar.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qrubberband.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/QLabel \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qlabel.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/QLineEdit \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qlineedit.h \
+		D:/qt/5.8/mingw_static/include/QtGui/qtextcursor.h \
+		D:/qt/5.8/mingw_static/include/QtGui/qtextformat.h \
+		D:/qt/5.8/mingw_static/include/QtGui/qpen.h \
+		D:/qt/5.8/mingw_static/include/QtGui/qtextoption.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/QPushButton \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qpushbutton.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/QWidget \
 		D:/qt/5.8/mingw_static/include/QtCore/QJsonObject \
 		D:/qt/5.8/mingw_static/include/QtCore/qjsonobject.h \
 		D:/qt/5.8/mingw_static/include/QtCore/qjsonvalue.h \

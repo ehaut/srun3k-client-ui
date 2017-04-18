@@ -17,13 +17,13 @@ CXXFLAGS      = -pipe -fno-keep-inline-dllexport -O2 -std=gnu++11 -frtti -Wall -
 INCPATH       = -I..\srun-3k-ui -I. -ID:\Dev-Cpp\curl-7.53.1\include -ID:\qt\5.8\mingw_static\include -ID:\qt\5.8\mingw_static\include\QtWidgets -ID:\qt\5.8\mingw_static\include\QtGui -ID:\qt\5.8\mingw_static\include\QtCore -Irelease -I. -ID:\qt\5.8\mingw_static\mkspecs\win32-g++ 
 LINKER      =        g++
 LFLAGS        =        -static -Wl,-s -Wl,-subsystem,windows -mthreads
-LIBS        =        -lmingw32 -LD:\qt\5.8\mingw_static\lib D:\qt\5.8\mingw_static\lib\libqtmain.a -LC:\Dev\openssl-1.0.1c_static_w32_mingw -LD:\Dev-Cpp\curl-7.53.1\lib -static-libgcc -lcurl -lwldap32 D:\qt\5.8\mingw_static\lib\libQt5Widgets.a -luxtheme -LD:\qt\5.8\mingw_static\plugins\platforms D:\qt\5.8\mingw_static\plugins\platforms\libqwindows.a -ldwmapi -lwinspool -lshlwapi D:\qt\5.8\mingw_static\lib\libQt5EventDispatcherSupport.a D:\qt\5.8\mingw_static\lib\libQt5AccessibilitySupport.a D:\qt\5.8\mingw_static\lib\libQt5FontDatabaseSupport.a D:\qt\5.8\mingw_static\lib\libQt5ThemeSupport.a D:\qt\5.8\mingw_static\lib\libqtfreetype.a -LD:\qt\5.8\mingw_static\plugins\imageformats D:\qt\5.8\mingw_static\plugins\imageformats\libqgif.a D:\qt\5.8\mingw_static\plugins\imageformats\libqicns.a D:\qt\5.8\mingw_static\plugins\imageformats\libqico.a D:\qt\5.8\mingw_static\plugins\imageformats\libqjpeg.a D:\qt\5.8\mingw_static\plugins\imageformats\libqtga.a D:\qt\5.8\mingw_static\plugins\imageformats\libqtiff.a D:\qt\5.8\mingw_static\plugins\imageformats\libqwbmp.a D:\qt\5.8\mingw_static\plugins\imageformats\libqwebp.a D:\qt\5.8\mingw_static\lib\libQt5Gui.a -lcomdlg32 -loleaut32 -limm32 -lglu32 -lopengl32 -lgdi32 D:\qt\5.8\mingw_static\lib\libqtlibpng.a D:\qt\5.8\mingw_static\lib\libqtharfbuzz.a D:\qt\5.8\mingw_static\lib\libQt5Core.a -lole32 -luuid -lws2_32 -ladvapi32 -lshell32 -luser32 -lkernel32 -lmpr -lwinmm D:\qt\5.8\mingw_static\lib\libqtpcre.a release\main_res.o 
+LIBS        =        -lmingw32 -LD:\qt\5.8\mingw_static\lib D:\qt\5.8\mingw_static\lib\libqtmain.a -LC:\Dev\openssl-1.0.1c_static_w32_mingw -LD:\Dev-Cpp\curl-7.53.1\lib -static-libgcc -lcurl -lwldap32 D:\qt\5.8\mingw_static\lib\libQt5Widgets.a -luxtheme -LD:\qt\5.8\mingw_static\plugins\platforms D:\qt\5.8\mingw_static\plugins\platforms\libqwindows.a -ldwmapi -lwinspool -lshlwapi D:\qt\5.8\mingw_static\lib\libQt5EventDispatcherSupport.a D:\qt\5.8\mingw_static\lib\libQt5AccessibilitySupport.a D:\qt\5.8\mingw_static\lib\libQt5FontDatabaseSupport.a D:\qt\5.8\mingw_static\lib\libQt5ThemeSupport.a D:\qt\5.8\mingw_static\lib\libqtfreetype.a -LD:\qt\5.8\mingw_static\plugins\imageformats D:\qt\5.8\mingw_static\plugins\imageformats\libqgif.a D:\qt\5.8\mingw_static\plugins\imageformats\libqicns.a D:\qt\5.8\mingw_static\plugins\imageformats\libqico.a D:\qt\5.8\mingw_static\plugins\imageformats\libqjpeg.a D:\qt\5.8\mingw_static\plugins\imageformats\libqtga.a D:\qt\5.8\mingw_static\plugins\imageformats\libqtiff.a D:\qt\5.8\mingw_static\plugins\imageformats\libqwbmp.a D:\qt\5.8\mingw_static\plugins\imageformats\libqwebp.a D:\qt\5.8\mingw_static\lib\libQt5Gui.a -lcomdlg32 -loleaut32 -limm32 -lglu32 -lopengl32 -lgdi32 D:\qt\5.8\mingw_static\lib\libqtlibpng.a D:\qt\5.8\mingw_static\lib\libqtharfbuzz.a D:\qt\5.8\mingw_static\lib\libQt5Core.a -lole32 -luuid -lws2_32 -ladvapi32 -lshell32 -luser32 -lkernel32 -lmpr -lwinmm D:\qt\5.8\mingw_static\lib\libqtpcre.a 
 QMAKE         = D:\qt\5.8\mingw_static\bin\qmake.exe
 IDC           = idc
 IDL           = midl
 ZIP           = zip -r -9
 DEF_FILE      = 
-RES_FILE      = release\main_res.o
+RES_FILE      = 
 COPY          = copy /y
 SED           = $(QMAKE) -install sed
 COPY_FILE     = copy /y
@@ -63,11 +63,8 @@ DESTDIR_TARGET = release\srun-3k-ui.exe
 first: all
 all: Makefile.Release  $(DESTDIR_TARGET)
 
-$(DESTDIR_TARGET): D:/qt/5.8/mingw_static/lib/libQt5Widgets.a D:/qt/5.8/mingw_static/lib/libQt5Gui.a D:/qt/5.8/mingw_static/lib/libQt5Core.a ui_mainwindow.h $(OBJECTS) release/main_res.o
+$(DESTDIR_TARGET): D:/qt/5.8/mingw_static/lib/libQt5Widgets.a D:/qt/5.8/mingw_static/lib/libQt5Gui.a D:/qt/5.8/mingw_static/lib/libQt5Core.a ui_mainwindow.h $(OBJECTS) 
 	$(LINKER) $(LFLAGS) -o $(DESTDIR_TARGET) $(OBJECTS)  $(LIBS)
-
-release/main_res.o: ../srun-3k-ui/main.rc
-	windres -i ..\srun-3k-ui\main.rc -o release\main_res.o --include-dir=./../srun-3k-ui $(DEFINES)
 
 qmake: FORCE
 	@$(QMAKE) -o Makefile.Release ..\srun-3k-ui\srun-3k-ui.pro -spec win32-g++
@@ -79,7 +76,6 @@ dist:
 
 clean: compiler_clean 
 	-$(DEL_FILE) release\main.o release\mainwindow.o release\srun-3k-ui_plugin_import.o release\moc_mainwindow.o
-	-$(DEL_FILE) release\main_res.o
 
 distclean: clean 
 	-$(DEL_FILE) C:\Users\MR.Guo\Documents\GitHub\SRUN-3K-UI\bin\srun-3k-ui_plugin_import.cpp .qmake.stash
@@ -457,6 +453,51 @@ release/mainwindow.o: ../srun-3k-ui/mainwindow.cpp ../srun-3k-ui/mainwindow.h \
 		D:/qt/5.8/mingw_static/include/QtWidgets/qtabwidget.h \
 		D:/qt/5.8/mingw_static/include/QtGui/qicon.h \
 		ui_mainwindow.h \
+		D:/qt/5.8/mingw_static/include/QtCore/QVariant \
+		D:/qt/5.8/mingw_static/include/QtWidgets/QAction \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qaction.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qactiongroup.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/QApplication \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qapplication.h \
+		D:/qt/5.8/mingw_static/include/QtCore/qcoreapplication.h \
+		D:/qt/5.8/mingw_static/include/QtCore/qeventloop.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qdesktopwidget.h \
+		D:/qt/5.8/mingw_static/include/QtGui/qguiapplication.h \
+		D:/qt/5.8/mingw_static/include/QtGui/qinputmethod.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/QButtonGroup \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qbuttongroup.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/QCheckBox \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qcheckbox.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qabstractbutton.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/QFrame \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qframe.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/QHeaderView \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qheaderview.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qabstractitemview.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qabstractscrollarea.h \
+		D:/qt/5.8/mingw_static/include/QtCore/qabstractitemmodel.h \
+		D:/qt/5.8/mingw_static/include/QtCore/qitemselectionmodel.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qabstractitemdelegate.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qstyleoption.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qabstractspinbox.h \
+		D:/qt/5.8/mingw_static/include/QtGui/qvalidator.h \
+		D:/qt/5.8/mingw_static/include/QtCore/qregularexpression.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qslider.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qabstractslider.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qstyle.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qtabbar.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qrubberband.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/QLabel \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qlabel.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/QLineEdit \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qlineedit.h \
+		D:/qt/5.8/mingw_static/include/QtGui/qtextcursor.h \
+		D:/qt/5.8/mingw_static/include/QtGui/qtextformat.h \
+		D:/qt/5.8/mingw_static/include/QtGui/qpen.h \
+		D:/qt/5.8/mingw_static/include/QtGui/qtextoption.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/QPushButton \
+		D:/qt/5.8/mingw_static/include/QtWidgets/qpushbutton.h \
+		D:/qt/5.8/mingw_static/include/QtWidgets/QWidget \
 		D:/qt/5.8/mingw_static/include/QtCore/QJsonObject \
 		D:/qt/5.8/mingw_static/include/QtCore/qjsonobject.h \
 		D:/qt/5.8/mingw_static/include/QtCore/qjsonvalue.h \

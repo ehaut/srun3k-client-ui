@@ -221,6 +221,7 @@ Makefile: ../srun-3k-ui/srun-3k-ui.pro D:/qt/5.8/mingw_static/mkspecs/win32-g++/
 		D:/qt/5.8/mingw_static/mkspecs/features/qt_config.prf \
 		D:/qt/5.8/mingw_static/mkspecs/win32-g++/qmake.conf \
 		D:/qt/5.8/mingw_static/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		D:/qt/5.8/mingw_static/mkspecs/features/exclusive_builds.prf \
 		D:/qt/5.8/mingw_static/mkspecs/features/toolchain.prf \
 		D:/qt/5.8/mingw_static/mkspecs/features/default_pre.prf \
@@ -420,6 +421,7 @@ D:/qt/5.8/mingw_static/mkspecs/features/qt_functions.prf:
 D:/qt/5.8/mingw_static/mkspecs/features/qt_config.prf:
 D:/qt/5.8/mingw_static/mkspecs/win32-g++/qmake.conf:
 D:/qt/5.8/mingw_static/mkspecs/features/spec_post.prf:
+.qmake.stash:
 D:/qt/5.8/mingw_static/mkspecs/features/exclusive_builds.prf:
 D:/qt/5.8/mingw_static/mkspecs/features/toolchain.prf:
 D:/qt/5.8/mingw_static/mkspecs/features/default_pre.prf:
