@@ -415,8 +415,8 @@ void MainWindow::on_INFO_clicked()
           int time_h=atoi(i.time)/3600;
           int time_m=atoi(i.time)/60%60;
           int time_s=atoi(i.time)%60;
-         QString put=+"您已在线，下面是您的登录信息:\n您的登入用户名是:"+QString(i.name)+"\n"+"您这个月所用流量:"+ QString::number(data_used,'g',6)+"GB\n"+"您这个月所用时间:"+\
-                 QString::number(time_h,10)+"时"+ QString::number(time_m,10)+"分"+ QString::number(time_s,10)+"秒\n"+"您 的 登 入  IP:"+QString(i.ip);
+         QString put=+"您已在线，下面是您的登录信息:\n用户名:"+QString(i.name)+"\n"+"流量:"+ QString::number(data_used,'g',6)+"GB\n"+"时间:"+\
+                 QString::number(time_h,10)+"时"+ QString::number(time_m,10)+"分"+ QString::number(time_s,10)+"秒\n"+"IP:"+QString(i.ip);
           QMessageBox::information(this, tr(":) 您的信息!"),put);
           }
       }
