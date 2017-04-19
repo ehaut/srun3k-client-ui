@@ -199,6 +199,11 @@ void MainWindow::on_LOGIN_clicked()
                                                      info.insert("password",PASSWD_INPUT);
                                                      bool auto_start=ui->AUTO_START->isChecked();
                                                      info.insert("auto_start",auto_start);
+                                                         if(ui->AUTO_START->isChecked())
+                                                         {
+                                                              QSettings *reg=new QSettings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",QSettings::NativeFormat);
+                                                             reg->setValue("srun3k",QApplication::applicationFilePath().replace("/", "\\"));
+                                                         }
                                                      QJsonDocument SAVE_INFO;
                                                      SAVE_INFO.setObject(info);
                                                      QFile save("config.json");
@@ -480,13 +485,13 @@ void MainWindow::on_GET_MESSAGE_clicked()
 
 void MainWindow::on_AUTO_START_clicked()
 {
-    QSettings *reg=new QSettings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",QSettings::NativeFormat);
-        if(ui->AUTO_START->isChecked())
-        {
-            reg->setValue("srun3k",QApplication::applicationFilePath().replace("/", "\\"));
-        }
+    if(ui->AUTO_START->isChecked())
+    {
+       ui->SAVE_LOGIN->setCheckState(Qt::Checked);
+    }
         else
         {
+          QSettings *reg=new QSettings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",QSettings::NativeFormat);
             reg->setValue("srun3k","");
         }
 }

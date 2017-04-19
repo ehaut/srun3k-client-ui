@@ -46,6 +46,7 @@ public:
     QFrame *line;
     QFrame *line_3;
     QLabel *SERVICE;
+    QLabel *label_2;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -94,10 +95,10 @@ public:
         LPASSWD->setFont(font1);
         INPUT_NAME = new QLineEdit(centralWidget);
         INPUT_NAME->setObjectName(QStringLiteral("INPUT_NAME"));
-        INPUT_NAME->setGeometry(QRect(100, 80, 171, 25));
+        INPUT_NAME->setGeometry(QRect(100, 80, 161, 25));
         INPUT_PASSWD = new QLineEdit(centralWidget);
         INPUT_PASSWD->setObjectName(QStringLiteral("INPUT_PASSWD"));
-        INPUT_PASSWD->setGeometry(QRect(100, 120, 171, 25));
+        INPUT_PASSWD->setGeometry(QRect(100, 120, 161, 25));
         INPUT_PASSWD->setEchoMode(QLineEdit::Password);
         LOGIN = new QPushButton(centralWidget);
         LOGIN->setObjectName(QStringLiteral("LOGIN"));
@@ -110,12 +111,12 @@ public:
         INFO->setGeometry(QRect(200, 160, 75, 25));
         SAVE_LOGIN = new QCheckBox(centralWidget);
         SAVE_LOGIN->setObjectName(QStringLiteral("SAVE_LOGIN"));
-        SAVE_LOGIN->setGeometry(QRect(290, 80, 70, 25));
+        SAVE_LOGIN->setGeometry(QRect(290, 100, 80, 25));
         sizePolicy1.setHeightForWidth(SAVE_LOGIN->sizePolicy().hasHeightForWidth());
         SAVE_LOGIN->setSizePolicy(sizePolicy1);
         AUTO_START = new QCheckBox(centralWidget);
         AUTO_START->setObjectName(QStringLiteral("AUTO_START"));
-        AUTO_START->setGeometry(QRect(290, 120, 70, 25));
+        AUTO_START->setGeometry(QRect(290, 125, 80, 25));
         sizePolicy1.setHeightForWidth(AUTO_START->sizePolicy().hasHeightForWidth());
         AUTO_START->setSizePolicy(sizePolicy1);
         GET_MESSAGE = new QPushButton(centralWidget);
@@ -129,7 +130,7 @@ public:
         GITHUB->setOpenExternalLinks(true);
         WELCOME = new QLabel(centralWidget);
         WELCOME->setObjectName(QStringLiteral("WELCOME"));
-        WELCOME->setGeometry(QRect(0, 200, 131, 16));
+        WELCOME->setGeometry(QRect(10, 200, 131, 16));
         sizePolicy1.setHeightForWidth(WELCOME->sizePolicy().hasHeightForWidth());
         WELCOME->setSizePolicy(sizePolicy1);
         label = new QLabel(centralWidget);
@@ -144,7 +145,7 @@ public:
         line_2->setFrameShadow(QFrame::Sunken);
         line = new QFrame(centralWidget);
         line->setObjectName(QStringLiteral("line"));
-        line->setGeometry(QRect(270, 80, 21, 61));
+        line->setGeometry(QRect(260, 80, 21, 65));
         line->setFrameShape(QFrame::VLine);
         line->setFrameShadow(QFrame::Sunken);
         line_3 = new QFrame(centralWidget);
@@ -158,6 +159,9 @@ public:
         sizePolicy1.setHeightForWidth(SERVICE->sizePolicy().hasHeightForWidth());
         SERVICE->setSizePolicy(sizePolicy1);
         SERVICE->setOpenExternalLinks(true);
+        label_2 = new QLabel(centralWidget);
+        label_2->setObjectName(QStringLiteral("label_2"));
+        label_2->setGeometry(QRect(280, 80, 91, 16));
         MainWindow->setCentralWidget(centralWidget);
 
         retranslateUi(MainWindow);
@@ -183,6 +187,7 @@ public:
         WELCOME->setText(QApplication::translate("MainWindow", "\346\254\242\350\277\216\344\275\277\347\224\250\346\240\241\345\233\255\347\275\221\347\231\273\351\231\206\345\231\250!", Q_NULLPTR));
         label->setText(QApplication::translate("MainWindow", "Made by CHN-STUDENT V0.0.3", Q_NULLPTR));
         SERVICE->setText(QApplication::translate("MainWindow", "<html><head/><body><p><a href=\"http://172.16.154.130:8800/\"><span style=\" text-decoration: underline; color:#0000ff;\">\350\207\252\346\234\215\345\212\241</span></a></p></body></html>", Q_NULLPTR));
+        label_2->setText(QApplication::translate("MainWindow", "\347\231\273\351\231\206\346\210\220\345\212\237\345\220\216\347\224\237\346\225\210:", Q_NULLPTR));
     } // retranslateUi
 
 };
