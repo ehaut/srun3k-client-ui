@@ -63,13 +63,22 @@ MainWindow::MainWindow(QWidget *parent) :
                   { ui->INPUT_NAME->setText(obj.value("username").toString());}
                if(obj.contains("password"))
                   {ui->INPUT_PASSWD->setText(obj.value("password").toString());}
-              ui->SAVE_LOGIN->setCheckState(Qt::Checked);
                if(obj.contains("auto_start"))
-                  {
-                       bool auto_start=obj.value("auto_start").toBool();
-                       if(auto_start)
-                            ui->AUTO_START->setCheckState(Qt::Checked);
-                   }
+               {
+                   bool auto_start=obj.value("auto_start").toBool();
+                  if(auto_start)
+                    ui->AUTO_START->setCheckState(Qt::Checked);
+               }
+               if(obj.contains("auto_login"))
+               {
+                   bool auto_login=obj.value("auto_login").toBool();
+                  if(auto_login)
+                   {
+                        ui->AUTO_LOGIN->setCheckState(Qt::Checked);
+                       ui->LOGIN->click();
+                  }
+               }
+
            }
        }
     }
@@ -192,11 +201,13 @@ void MainWindow::on_LOGIN_clicked()
                             {
                                 if(*chunk.memory=='n'&&*(chunk.memory+2)=='o')
                                         {//登陆成功情况
-                                            if(file_state==0&&ui->SAVE_LOGIN->isChecked())
+                                            if(file_state==0)
                                             {
                                                     QJsonObject info;
                                                      info.insert("username",NAME_INPUT);
                                                      info.insert("password",PASSWD_INPUT);
+                                                      bool auto_login=ui->AUTO_LOGIN->isChecked();
+                                                     info.insert("auto_login",auto_login);
                                                      bool auto_start=ui->AUTO_START->isChecked();
                                                      info.insert("auto_start",auto_start);
                                                          if(ui->AUTO_START->isChecked())
@@ -487,7 +498,7 @@ void MainWindow::on_AUTO_START_clicked()
 {
     if(ui->AUTO_START->isChecked())
     {
-       ui->SAVE_LOGIN->setCheckState(Qt::Checked);
+       ui->AUTO_LOGIN->setCheckState(Qt::Checked);
     }
         else
         {

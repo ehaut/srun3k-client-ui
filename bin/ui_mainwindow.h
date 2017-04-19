@@ -36,7 +36,7 @@ public:
     QPushButton *LOGIN;
     QPushButton *LOGOUT;
     QPushButton *INFO;
-    QCheckBox *SAVE_LOGIN;
+    QCheckBox *AUTO_LOGIN;
     QCheckBox *AUTO_START;
     QPushButton *GET_MESSAGE;
     QLabel *GITHUB;
@@ -52,9 +52,10 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
+        MainWindow->setWindowModality(Qt::NonModal);
         MainWindow->setEnabled(true);
         MainWindow->resize(380, 220);
-        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(MainWindow->sizePolicy().hasHeightForWidth());
@@ -109,11 +110,11 @@ public:
         INFO = new QPushButton(centralWidget);
         INFO->setObjectName(QStringLiteral("INFO"));
         INFO->setGeometry(QRect(200, 160, 75, 25));
-        SAVE_LOGIN = new QCheckBox(centralWidget);
-        SAVE_LOGIN->setObjectName(QStringLiteral("SAVE_LOGIN"));
-        SAVE_LOGIN->setGeometry(QRect(290, 100, 80, 25));
-        sizePolicy1.setHeightForWidth(SAVE_LOGIN->sizePolicy().hasHeightForWidth());
-        SAVE_LOGIN->setSizePolicy(sizePolicy1);
+        AUTO_LOGIN = new QCheckBox(centralWidget);
+        AUTO_LOGIN->setObjectName(QStringLiteral("AUTO_LOGIN"));
+        AUTO_LOGIN->setGeometry(QRect(290, 100, 80, 25));
+        sizePolicy1.setHeightForWidth(AUTO_LOGIN->sizePolicy().hasHeightForWidth());
+        AUTO_LOGIN->setSizePolicy(sizePolicy1);
         AUTO_START = new QCheckBox(centralWidget);
         AUTO_START->setObjectName(QStringLiteral("AUTO_START"));
         AUTO_START->setGeometry(QRect(290, 125, 80, 25));
@@ -180,7 +181,7 @@ public:
         LOGIN->setText(QApplication::translate("MainWindow", "\347\231\273\351\231\206", Q_NULLPTR));
         LOGOUT->setText(QApplication::translate("MainWindow", "\346\263\250\351\224\200", Q_NULLPTR));
         INFO->setText(QApplication::translate("MainWindow", "\347\231\273\351\231\206\347\212\266\346\200\201", Q_NULLPTR));
-        SAVE_LOGIN->setText(QApplication::translate("MainWindow", "\344\277\235\345\255\230\347\231\273\351\231\206", Q_NULLPTR));
+        AUTO_LOGIN->setText(QApplication::translate("MainWindow", "\350\207\252\345\212\250\347\231\273\351\231\206", Q_NULLPTR));
         AUTO_START->setText(QApplication::translate("MainWindow", "\345\274\200\346\234\272\350\207\252\345\220\257", Q_NULLPTR));
         GET_MESSAGE->setText(QApplication::translate("MainWindow", "\350\216\267\345\217\226\345\205\254\345\221\212", Q_NULLPTR));
         GITHUB->setText(QApplication::translate("MainWindow", "<html><head/><body><p><a href=\"https://github.com/CHN-STUDENT/SRUN-3K-UI\"><span style=\" text-decoration: underline; color:#0000ff;\">\345\205\263\344\272\216</span></a></p></body></html>", Q_NULLPTR));

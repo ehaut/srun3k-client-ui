@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="windowModality">
+   <enum>Qt::NonModal</enum>
+  </property>
   <property name="enabled">
    <bool>true</bool>
   </property>
@@ -14,7 +17,7 @@
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -183,7 +186,7 @@
      <string>登陆状态</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="SAVE_LOGIN">
+   <widget class="QCheckBox" name="AUTO_LOGIN">
     <property name="geometry">
      <rect>
       <x>290</x>
@@ -199,7 +202,7 @@
      </sizepolicy>
     </property>
     <property name="text">
-     <string>保存登陆</string>
+     <string>自动登陆</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="AUTO_START">
