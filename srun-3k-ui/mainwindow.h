@@ -25,6 +25,8 @@ private slots:
 
     void on_AUTO_START_clicked();
 
+    void on_AUTO_LOGIN_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

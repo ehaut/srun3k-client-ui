@@ -34,9 +34,9 @@ HEADERS  += mainwindow.h
 
 FORMS    += mainwindow.ui
 
-LIBS    +=  -LD:\Dev-Cpp\curl-7.53.1\lib -static-libgcc -lcurl -lws2_32 -lwldap32
+LIBS    +=  -LC:\Users\Administrator.PC-201611240416\Desktop\curl-7.54.0\lib -static-libgcc -lcurl -lws2_32 -lwldap32
 
-INCLUDEPATH +=  D:\Dev-Cpp\curl-7.53.1\include
+INCLUDEPATH += C:\Users\Administrator.PC-201611240416\Desktop\curl-7.54.0\include
 
 QMAKE_CFLAGS += -std=c99
 

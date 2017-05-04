@@ -10,6 +10,7 @@
 
 const char POSTURL[]= "http://172.16.154.130:69/cgi-bin/srun_portal";
 int file_state=0;
+int set=0;
 
 typedef struct feedback_info
 {
@@ -201,38 +202,29 @@ void MainWindow::on_LOGIN_clicked()
                             {
                                 if(*chunk.memory=='n'&&*(chunk.memory+2)=='o')
                                         {//登陆成功情况
-                                            if(file_state==0)
+                                            if(file_state==0||set==1)
                                             {
-                                                    QJsonObject info;
-                                                     info.insert("username",NAME_INPUT);
-                                                     info.insert("password",PASSWD_INPUT);
-                                                      bool auto_login=ui->AUTO_LOGIN->isChecked();
-                                                     info.insert("auto_login",auto_login);
-                                                     bool auto_start=ui->AUTO_START->isChecked();
-                                                     info.insert("auto_start",auto_start);
-                                                         if(ui->AUTO_START->isChecked())
-                                                         {
-                                                              QSettings *reg=new QSettings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",QSettings::NativeFormat);
-                                                             reg->setValue("srun3k",QApplication::applicationFilePath().replace("/", "\\"));
-                                                         }
-                                                     QJsonDocument SAVE_INFO;
-                                                     SAVE_INFO.setObject(info);
-                                                     QFile save("config.json");
-                                                     if(!save.open(QIODevice::WriteOnly))
-                                                      {
-                                                         QMessageBox::critical(this, tr("错误!"),tr("文件保存失败!"));
-                                                     }
-                                                     else
-                                                       {
-                                                         save.write(SAVE_INFO.toJson());
-                                                         QMessageBox::information(this, tr(":) 登陆成功且配置文件保存成功!"),tr("您已登陆成功!\n配置文件已经保存本程序目录下，\n下次打开本程序将会自动载入。\n为了保证信息完整性，请勿更改!!!"));
-                                                     }
-                                                     save.close();
+                                            QJsonObject info;
+                                             info.insert("username",NAME_INPUT);
+                                             info.insert("password",PASSWD_INPUT);
+                                              bool auto_login=ui->AUTO_LOGIN->isChecked();
+                                             info.insert("auto_login",auto_login);
+                                             bool auto_start=ui->AUTO_START->isChecked();
+                                             info.insert("auto_start",auto_start);
+                                             QJsonDocument SAVE_INFO;
+                                             SAVE_INFO.setObject(info);
+                                             QFile save("config.json");
+                                             if(!save.open(QIODevice::WriteOnly))
+                                              {
+                                                 QMessageBox::critical(this, tr("错误!"),tr("文件保存失败!"));
                                              }
                                              else
-                                             {
-                                                 QMessageBox::information(this, tr(":) 登陆成功!"),tr("您已登陆成功!"));
+                                               {
+                                                 save.write(SAVE_INFO.toJson());
                                              }
+                                             save.close();
+                                            }
+                                            QMessageBox::information(this, tr(":) 登陆成功!"),tr("您已登陆成功!"));
                                             break;
                                         }
                                 else if(*chunk.memory=='P'&&*(chunk.memory+1)=='a')
@@ -496,13 +488,21 @@ void MainWindow::on_GET_MESSAGE_clicked()
 
 void MainWindow::on_AUTO_START_clicked()
 {
+    set=1;
+     QSettings *reg=new QSettings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",QSettings::NativeFormat);
     if(ui->AUTO_START->isChecked())
     {
-       ui->AUTO_LOGIN->setCheckState(Qt::Checked);
+        reg->setValue("srun3k",QApplication::applicationFilePath().replace("/", "\\"));
     }
         else
         {
-          QSettings *reg=new QSettings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",QSettings::NativeFormat);
+
             reg->setValue("srun3k","");
         }
+}
+
+
+void MainWindow::on_AUTO_LOGIN_clicked()
+{
+    set=1;
 }
