@@ -34,9 +34,9 @@ HEADERS  += mainwindow.h
 
 FORMS    += mainwindow.ui
 
-LIBS    +=  -LC:\Users\Administrator.PC-201611240416\Desktop\curl-7.54.0\lib -static-libgcc -lcurl -lws2_32 -lwldap32
+LIBS    +=  -LD:\Github\SRUN-3K-UI\libcurl\lib -static-libgcc -lcurl -lws2_32 -lwldap32
 
-INCLUDEPATH += C:\Users\Administrator.PC-201611240416\Desktop\curl-7.54.0\include
+INCLUDEPATH += D:\Github\SRUN-3K-UI\libcurl\include
 
 QMAKE_CFLAGS += -std=c99
 

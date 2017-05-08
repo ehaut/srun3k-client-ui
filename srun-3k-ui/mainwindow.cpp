@@ -5,7 +5,7 @@
 #include "QMessageBox"
 #include "QFile"
 #include "QSettings"
-#include <curl/curl.h>
+#include "curl/curl.h"
 #include <string>
 
 const char POSTURL[]= "http://172.16.154.130:69/cgi-bin/srun_portal";
@@ -200,7 +200,12 @@ void MainWindow::on_LOGIN_clicked()
                         {
                             for(;*chunk.memory!='\0';chunk.memory++)
                             {
-                                if(*chunk.memory=='n'&&*(chunk.memory+2)=='o')
+                                if(*(chunk.memory+1)=='\0')
+                                {
+                                    QMessageBox::critical(this,tr(":( 其他错误!"),QString(feed));
+                                     break;
+                                }
+                                else if(*chunk.memory=='n'&&*(chunk.memory+2)=='o')
                                         {//登陆成功情况
                                             if(file_state==0||set==1)
                                             {
