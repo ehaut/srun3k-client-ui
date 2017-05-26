@@ -70,10 +70,10 @@
       <x>0</x>
       <y>0</y>
       <width>381</width>
-      <height>51</height>
+      <height>62</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="topLayout">
      <item>
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
@@ -135,7 +135,7 @@
       <height>22</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <layout class="QHBoxLayout" name="infoLayout_2">
      <item>
       <spacer name="horizontalSpacer_4">
        <property name="orientation">
@@ -183,10 +183,10 @@
       <x>20</x>
       <y>90</y>
       <width>231</width>
-      <height>51</height>
+      <height>55</height>
      </rect>
     </property>
-    <layout class="QFormLayout" name="formLayout">
+    <layout class="QFormLayout" name="loginLayout">
      <item row="0" column="0">
       <widget class="QLabel" name="LNAME">
        <property name="sizePolicy">
@@ -249,11 +249,11 @@
      <rect>
       <x>290</x>
       <y>90</y>
-      <width>81</width>
+      <width>89</width>
       <height>51</height>
      </rect>
     </property>
-    <layout class="QGridLayout" name="gridLayout">
+    <layout class="QGridLayout" name="setLayout">
      <item row="2" column="0">
       <widget class="QCheckBox" name="AUTO_START">
        <property name="sizePolicy">
@@ -291,7 +291,7 @@
       <height>31</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <layout class="QHBoxLayout" name="buttonLayout_3">
      <item>
       <widget class="QPushButton" name="LOGIN">
        <property name="text">
@@ -331,7 +331,7 @@
       <height>31</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_5">
+    <layout class="QHBoxLayout" name="aboutLayout_5">
      <item>
       <widget class="QLabel" name="WELCOME">
        <property name="sizePolicy">
