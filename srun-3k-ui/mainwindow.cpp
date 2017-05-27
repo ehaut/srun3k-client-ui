@@ -24,12 +24,6 @@ typedef struct feedback_info
 }info;
 
 
-struct MemoryStruct {
-  char *memory;
-  size_t size;
-};
-
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
