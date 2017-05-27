@@ -28,11 +28,14 @@ private slots:
 
     void on_AUTO_LOGIN_clicked();
 
-    void POST_LOGOUT_Finished(QNetworkRequest *);
+    void POST_LOGIN_Finished(QNetworkReply *);
+
+    void POST_LOGOUT_Finished(QNetworkReply *);
 
     void GET_MESSAGE_Finished(QNetworkReply *);
 
     void GET_INFO_Finished(QNetworkReply *);
+
 
 private:
     Ui::MainWindow *ui;

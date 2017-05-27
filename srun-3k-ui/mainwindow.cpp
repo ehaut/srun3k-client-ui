@@ -6,7 +6,6 @@
 #include "QFile"
 #include "QSettings"
 #include "QTextCodec"
-#include "curl/curl.h"
 #include "string"
 /*使用Qt网络完成*/
 #include "QtNetwork/QNetworkReply"
@@ -30,24 +29,6 @@ struct MemoryStruct {
   size_t size;
 };
 
-static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
-{
-  size_t realsize = size * nmemb;
-  struct MemoryStruct *mem = (struct MemoryStruct *)userp;
-
-  mem->memory = (char *)realloc(mem->memory, mem->size + realsize + 1);
-  if(mem->memory == NULL) {
-    /* out of memory! */
-    QMessageBox::critical(NULL,"错误!","无法分配内存");
-    QCoreApplication::exit();
-  }
-
-  memcpy(&(mem->memory[mem->size]), contents, realsize);
-  mem->size += realsize;
-  mem->memory[mem->size] = 0;
-
-  return realsize;
-}
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -93,66 +74,186 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_LOGIN_clicked()//还没做
+void MainWindow::on_LOGIN_clicked()
 {
-
-
+    QByteArray NAME_INPUT = ui->INPUT_NAME->text().trimmed().toLatin1();
+    QByteArray PASSWD_INPUT = ui->INPUT_PASSWD->text().toLatin1();
+    if(NAME_INPUT.isEmpty()||PASSWD_INPUT.isEmpty()||(NAME_INPUT.isEmpty()&&PASSWD_INPUT.isEmpty()))
+    {
+        QMessageBox::critical(this, tr("错误!"),tr("请输入您的用户名和密码登陆"));
+    }
+    else
+    {
+        char *name = NAME_INPUT.data();
+        char *password = PASSWD_INPUT.data();
+        QByteArray NAME_ENCRYPT="";
+        for (;*name!='\0';name++)
+        {//用户名加密
+            NAME_ENCRYPT.append(QString(*name+4));
+        }
+        QByteArray PASSWD_ENCRYPT="";
+        char key[]= "1234567890";
+        for (int i = 0; *(password+i)!='\0'; ++i)
+        {//这是密码加密函数
+             int ki = *(password+i) ^ key[strlen(key) - i%strlen(key) - 1];
+             QString _l =  (QChar)((ki & 0x0f) + 0x36);
+             QString _h =  (QChar)((ki >> 4 & 0x0f) + 0x63);
+             if (i % 2 == 0)
+             {
+                 PASSWD_ENCRYPT.append(_l);
+                 PASSWD_ENCRYPT.append(_h);
+             }
+             else
+             {
+                 PASSWD_ENCRYPT.append(_h);
+                 PASSWD_ENCRYPT.append(_l);
+             }
+        }
+        QString post="&action=login&drop=0&pop=1&type=2&n=117&mbytes=0&minutes=0&mac=&ac_id=1&username=%7BSRUN3%7D%0D%0A";
+        manager = new QNetworkAccessManager(this);
+        QByteArray POST;
+        QNetworkRequest request;
+        POST.append(post);
+        POST.append(NAME_ENCRYPT.toPercentEncoding());
+        POST.append("&password=");
+        POST.append(PASSWD_ENCRYPT.toPercentEncoding());
+        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+        request.setUrl(QUrl(POSTURL));
+        connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(POST_LOGIN_Finished(QNetworkReply*)));
+        manager->post(request,POST);
+        if(file_state==0||set==1)
+        {
+            QJsonObject info;
+             info.insert("username",QString(NAME_INPUT));
+             info.insert("password",QString(PASSWD_INPUT));
+              bool auto_login=ui->AUTO_LOGIN->isChecked();
+             info.insert("auto_login",auto_login);
+             bool auto_start=ui->AUTO_START->isChecked();
+             info.insert("auto_start",auto_start);
+             QJsonDocument SAVE_INFO;
+             SAVE_INFO.setObject(info);
+             QFile save("config.json");
+             if(!save.open(QIODevice::WriteOnly))
+              {
+                 QMessageBox::critical(this, tr("错误!"),tr("文件保存失败!"));
+             }
+             else
+             {
+                save.write(SAVE_INFO.toJson());
+             }
+             save.close();
+        }
+    }
 }
 
-void MainWindow::on_LOGOUT_clicked(){}//还没做
-//{
-//    QString NAME_INPUT = ui->INPUT_NAME->text().trimmed();
-//    QString PASSWD_INPUT = ui->INPUT_PASSWD->text();
-//    if(NAME_INPUT.isEmpty())//如果用户名是空的
-//     {
-//        QMessageBox::critical(this, tr("错误!"),tr("请输入您的用户名注销"));
-//    }
-//    if(!(NAME_INPUT.isEmpty()))
-//     {
-//           QString post="&mac=&type=2&action=logout&ac_id=1&username=";
-//           manager = new QNetworkAccessManager(this);
-//           connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(POST_LOGOUT_Finished(QNetworkRequest*)));
-//           manager->post(QNetworkRequest(QUrl(POSTURL+post+NAME_INPUT)));
-//     }
-//}
+void MainWindow::POST_LOGIN_Finished(QNetworkReply *reply)
+{
+    if (reply->error() == QNetworkReply::NoError)
+    {
+        QTextCodec *codec =QTextCodec::codecForName("GB2312");
+        QString all = codec->toUnicode(reply->readAll());
+        std::string get=all.toStdString();
+        for(int i=0;get[i]!='\0';i++)
+        {
+            if(get[i+1]=='\0')
+            {
+                QMessageBox::critical(this,tr(":( 其他错误!"),QString::fromStdString(get));
+                 break;
+            }
+            else if(get[i]=='n'&&get[i+2]=='o')
+            {//登陆成功情况
+                QMessageBox::information(this, tr(":) 登陆成功!"),tr("您已登陆成功!"));
+                break;
+            }
+            else if(get[i]=='P'&&get[i+1]=='a')
+            {//密码错误情况
+                QMessageBox::critical(this,tr(":( 密码错误!"),tr("密码错误，请检查输入后重试!"));
+                break;
+            }
+            else if(get[i]=='U'&&get[i+1]=='s')
+            {//用户名错误情况
+                QMessageBox::critical(this,tr(":( 用户名错误!"),tr("用户名错误，请检查输入后重试!"));
+                break;
+            }
+            else if(get[i]=='I'&&get[i+1]=='N')
+            {//ACID错误情况
+                QMessageBox::critical(this,tr(":( ACID错误!"),tr("ACID错误，请更改ACID后重试!"));
+                break;
+            }
+            else if(get[i]=='m')
+            {//参数错误情况
+               QMessageBox::critical(this,tr(":( 参数错误!"),tr("参数错误，请重新输入重试!"));
+                break;
+            }
+        }
+    }
+    else
+    {//得不到信息
+        QMessageBox::critical(NULL,"错误!","无法连接服务器!");
+    }
+   reply->deleteLater();//回收
+}
 
-void MainWindow::POST_LOGOUT_Finished(QNetworkRequest *request){}//还没做
-//{
-//    if (request->error() == QNetworkRequest::NoError)
-//    {
-//        QTextCodec *codec =QTextCodec::codecForName("GB2312");
-//        QString all = codec->toUnicode(reply->readAll());
-//        std::string get=all.toStdString();
-//        for(int i=0;get[i]!='\0';i++)
-//        {
-//           if(get[i]=='t'&&get[i+2]=='o')
-//                   {//注销成功情况
-//                      QMessageBox::information(this, tr(":) 注销成功!"),tr("您已注销成功!"));
-//                      break;
-//                   }
-//           else if(get[i]=='Y'&&get[i+1]=='o')
-//                   {//不在线情况
-//                       QMessageBox::critical(this,tr(":( 注销失败!"),tr("您不在线，无法完成注销!"));
-//                       break;
-//                   }
-//           else if(get[i]=='I'&&get[i+1]=='N')
-//                   {//ACID错误情况
-//                       QMessageBox::critical(this,tr(":( ACID错误!"),tr("ACID错误，请更改ACID后重试!"));
-//                       break;
-//                   }
-//           else if(get[i]=='m')
-//                   {//参数错误情况
-//                      QMessageBox::critical(this,tr(":( 参数错误!"),tr("参数错误，请重新输入重试!"));
-//                       break;
-//                   }
-//       }
-//    }
-//    else
-//    {//得不到信息
-//        QMessageBox::critical(NULL,"错误!","无法连接服务器!");
-//    }
-//   request->deleteLater();//回收
-//}
+void MainWindow::on_LOGOUT_clicked()
+{
+    QString NAME_INPUT = ui->INPUT_NAME->text().trimmed();
+    QString PASSWD_INPUT = ui->INPUT_PASSWD->text();
+    if(NAME_INPUT.isEmpty())//如果用户名是空的
+     {
+        QMessageBox::critical(this, tr("错误!"),tr("请输入您的用户名注销"));
+    }
+    if(!(NAME_INPUT.isEmpty()))
+     {
+           QString post="&mac=&type=2&action=logout&ac_id=1&username=";
+           manager = new QNetworkAccessManager(this);
+           QByteArray POST;
+           QNetworkRequest request;
+           POST.append(post);
+           POST.append(NAME_INPUT);
+           request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+           request.setUrl(QUrl(POSTURL));
+           connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(POST_LOGOUT_Finished(QNetworkReply*)));
+           manager->post(request,POST);
+     }
+}
+
+void MainWindow::POST_LOGOUT_Finished(QNetworkReply *reply)
+{
+    if (reply->error() == QNetworkReply::NoError)
+    {
+        QTextCodec *codec =QTextCodec::codecForName("GB2312");
+        QString all = codec->toUnicode(reply->readAll());
+        std::string get=all.toStdString();
+        for(int i=0;get[i]!='\0';i++)
+        {
+           if(get[i]=='t'&&get[i+2]=='o')
+                   {//注销成功情况
+                      QMessageBox::information(this, tr(":) 注销成功!"),tr("您已注销成功!"));
+                      break;
+                   }
+           else if(get[i]=='Y'&&get[i+1]=='o')
+                   {//不在线情况
+                       QMessageBox::critical(this,tr(":( 注销失败!"),tr("您不在线，无法完成注销!"));
+                       break;
+                   }
+           else if(get[i]=='I'&&get[i+1]=='N')
+                   {//ACID错误情况
+                       QMessageBox::critical(this,tr(":( ACID错误!"),tr("ACID错误，请更改ACID后重试!"));
+                       break;
+                   }
+           else if(get[i]=='m')
+                   {//参数错误情况
+                      QMessageBox::critical(this,tr(":( 参数错误!"),tr("参数错误，请重新输入重试!"));
+                       break;
+                   }
+       }
+    }
+    else
+    {//得不到信息
+        QMessageBox::critical(NULL,"错误!","无法连接服务器!");
+    }
+   reply->deleteLater();//回收
+}
 
 
 void MainWindow::on_INFO_clicked()

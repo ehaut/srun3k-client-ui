@@ -158,7 +158,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Made by CHN-STUDENT V0.0.3</string>
+        <string>Made by CHN-STUDENT V0.0.4</string>
        </property>
       </widget>
      </item>
@@ -182,8 +182,8 @@
      <rect>
       <x>20</x>
       <y>90</y>
-      <width>231</width>
-      <height>55</height>
+      <width>241</width>
+      <height>61</height>
      </rect>
     </property>
     <layout class="QFormLayout" name="loginLayout">
@@ -247,9 +247,9 @@
    <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>290</x>
+      <x>288</x>
       <y>90</y>
-      <width>89</width>
+      <width>91</width>
       <height>51</height>
      </rect>
     </property>
