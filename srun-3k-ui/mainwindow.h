@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "QtNetwork/QNetworkAccessManager"
 
 namespace Ui {
 class MainWindow;
@@ -27,8 +28,18 @@ private slots:
 
     void on_AUTO_LOGIN_clicked();
 
+    void POST_LOGIN_Finished(QNetworkReply *);
+
+    void POST_LOGOUT_Finished(QNetworkReply *);
+
+    void GET_MESSAGE_Finished(QNetworkReply *);
+
+    void GET_INFO_Finished(QNetworkReply *);
+
+
 private:
     Ui::MainWindow *ui;
+    QNetworkAccessManager *manager;
 };
 
 #endif // MAINWINDOW_H                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                /
