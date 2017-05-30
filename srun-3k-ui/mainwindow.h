@@ -18,11 +18,12 @@ public:
 
 private slots:
     void GET_INFO_Finished(QNetworkReply *);
-
+    void TimeSlot();
 
 private:
     Ui::MainWindow *ui;
     QNetworkAccessManager *manager;
+    QTimer *meTimer;
 };
 
 #endif // MAINWINDOW_H
