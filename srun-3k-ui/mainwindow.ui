@@ -95,7 +95,10 @@
      <item>
       <widget class="QLabel" name="About">
        <property name="text">
-        <string>关于</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/CHN-STUDENT/SRUN-3K-UI&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;关于&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="openExternalLinks">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -119,7 +122,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="LOOUT">
+      <widget class="QPushButton" name="LOGOUT">
        <property name="text">
         <string>注 销</string>
        </property>
@@ -167,7 +170,11 @@
        <widget class="QLineEdit" name="NAME_INPUT"/>
       </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="PASSWD_INPUT"/>
+       <widget class="QLineEdit" name="PASSWD_INPUT">
+        <property name="echoMode">
+         <enum>QLineEdit::Password</enum>
+        </property>
+       </widget>
       </item>
       <item row="0" column="0">
        <widget class="QLabel" name="LNANE">
@@ -191,7 +198,7 @@
        <x>0</x>
        <y>0</y>
        <width>381</width>
-       <height>51</height>
+       <height>54</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -213,7 +220,7 @@
         <property name="font">
          <font>
           <family>微软雅黑</family>
-          <pointsize>20</pointsize>
+          <pointsize>24</pointsize>
          </font>
         </property>
         <property name="text">
@@ -320,15 +327,6 @@
       </item>
      </layout>
     </widget>
-    <zorder>horizontalLayoutWidget_6</zorder>
-    <zorder>InfoWidget</zorder>
-    <zorder>horizontalSpacer_3</zorder>
-    <zorder>InfoWidget</zorder>
-    <zorder>gridLayoutWidget</zorder>
-    <zorder>horizontalLayoutWidget_3</zorder>
-    <zorder>horizontalLayoutWidget_4</zorder>
-    <zorder>line</zorder>
-    <zorder>verticalLayoutWidget</zorder>
    </widget>
    <widget class="QWidget" name="InfoWidget" native="true">
     <property name="enabled">
