@@ -101,6 +101,8 @@ void MainWindow::GET_INFO_Finished(QNetworkReply *reply)
 //            getinfo=(struct feedback_info *)new info;
             int t=0,j=0,k=0;
             char temp[20]={0}; //定义一个临时变量
+            unsigned int login_time;
+            unsigned int server_time;
             for(int flag=0;get[t]!='\0';t++)//开始循环直到数据末尾
             {
                 memset(temp,0,sizeof(temp));//将temp字符数组重置
@@ -117,6 +119,14 @@ void MainWindow::GET_INFO_Finished(QNetworkReply *reply)
                        yourname=(QString*)new QString(QString::fromStdString(temp));
 
                     }
+                   if(flag==2)
+                   {//登录时间
+                       login_time=atoi(temp);
+                   }
+                   if(flag==3)
+                   {//服务器时间
+                       server_time=atoi(temp);
+                   }
                    if(flag==7)
                    {
                        //getinfo->data=atof(temp)/1073741824;
@@ -128,7 +138,7 @@ void MainWindow::GET_INFO_Finished(QNetworkReply *reply)
 //                       ui->TIME_H->setText(QString::number(atoi(temp)/3600,10));
 //                       ui->TIME_M->setText(QString::number(atoi(temp)/60%60,10));
 //                       ui->TIME_S->setText(QString::number(atoi(temp)%60,10));
-                       usedtime=atoi(temp);
+                       usedtime=atoi(temp)+server_time-login_time;
                    }
                    if(flag==9)
                    {
