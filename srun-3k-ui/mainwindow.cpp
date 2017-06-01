@@ -365,18 +365,19 @@ void MainWindow::POST_LOGIN_Finished(QNetworkReply *reply)
         std::string get=all.toStdString();
         for(int i=0;get[i]!='\0';i++)
         {
-            if(get[i+1]=='\0')
-            {
-                QMessageBox::critical(this,tr(":( 其他错误!"),QString::fromStdString(get));
-                 break;
-            }
-            else if(get[i]=='n'&&get[i+2]=='o')
+
+            if(get[i]=='n'&&get[i+2]=='o')
             {//登陆成功情况
                 QMessageBox::information(this, tr(":) 登陆成功!"),tr("您已登陆成功!"));
                 manager = new QNetworkAccessManager(this);
                 connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_INFO_Finished(QNetworkReply*)));
                 manager->get(QNetworkRequest(QUrl("http://172.16.154.130/cgi-bin/rad_user_info")));
                 break;
+            }
+            else if(get[i]=='S'&&get[i+1]=='t'||get[i]=='L'&&get[i+1]=='o')
+            {//欠费情况
+                QMessageBox::critical(this,tr(":( 欠费无法使用!"),tr("你已欠费，无法使用，请充值!"));
+                 break;
             }
             else if(get[i]=='P'&&get[i+1]=='a')
             {//密码错误情况
