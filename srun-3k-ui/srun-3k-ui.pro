@@ -1,14 +1,14 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2017-05-29T12:02:08
+# Project created by QtCreator 2017-06-04T22:44:54
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = SRUN3K
+TARGET = UI
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -23,15 +23,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 
-SOURCES += main.cpp\
+SOURCES += \
+        main.cpp \
         mainwindow.cpp
 
-HEADERS  += mainwindow.h
+HEADERS += \
+        mainwindow.h
 
-FORMS    += mainwindow.ui
+FORMS += \
+        mainwindow.ui
 
-QMAKE_CFLAGS += -std=c99
-
-CONFIG += c++11
-
-RC_FILE += main.rc
+RESOURCES += \
+    mainwindow.qrc
