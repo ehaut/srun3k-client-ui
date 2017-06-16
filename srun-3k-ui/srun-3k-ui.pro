@@ -4,11 +4,11 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = UI
+TARGET = SRUN3K
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -35,3 +35,9 @@ FORMS += \
 
 RESOURCES += \
     mainwindow.qrc
+
+QMAKE_CFLAGS += -std=c99
+
+CONFIG += c++11
+
+RC_FILE += main.rc

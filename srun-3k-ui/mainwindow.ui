@@ -42,10 +42,13 @@
     <string notr="true"/>
    </property>
    <widget class="QPushButton" name="pushButton">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>370</y>
+      <y>380</y>
       <width>290</width>
       <height>50</height>
      </rect>
@@ -86,23 +89,35 @@
      <string>校园网登录器</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="NAME_INPUT">
+   <widget class="QWidget" name="InputWidget" native="true">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>208</y>
-      <width>290</width>
-      <height>50</height>
+      <x>0</x>
+      <y>150</y>
+      <width>350</width>
+      <height>190</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <family>微软雅黑</family>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">QLineEdit{
+    <widget class="QLineEdit" name="NAME_INPUT">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>40</y>
+       <width>290</width>
+       <height>50</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>微软雅黑</family>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QLineEdit{
 padding:10px 5px 15px 10px;
  border: 1px solid #D9D9D6;
  background: #fff
@@ -116,28 +131,28 @@ QLineEdit:focus{
 　　-moz-box-shadow:0 0 8px rgba(93,149,242,.5);
 　　-webkit-box-shadow:0 0 8px rgba(93,149,242,3)
 }</string>
-    </property>
-    <property name="placeholderText">
-     <string>用户名</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="PASSWD_INPUT">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>260</y>
-      <width>290</width>
-      <height>50</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>微软雅黑</family>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">QLineEdit{
+     </property>
+     <property name="placeholderText">
+      <string>用户名</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="PASSWD_INPUT">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>90</y>
+       <width>290</width>
+       <height>50</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>微软雅黑</family>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QLineEdit{
 padding:10px 5px 15px 10px;
  border: 1px solid #D9D9D6;
  background: #fff
@@ -151,49 +166,195 @@ QLineEdit:focus{
 　　-moz-box-shadow:0 0 8px rgba(93,149,242,.5);
 　　-webkit-box-shadow:0 0 8px rgba(93,149,242,3)
 }</string>
-    </property>
-    <property name="echoMode">
-     <enum>QLineEdit::Password</enum>
-    </property>
-    <property name="placeholderText">
-     <string>密码</string>
-    </property>
+     </property>
+     <property name="echoMode">
+      <enum>QLineEdit::Password</enum>
+     </property>
+     <property name="placeholderText">
+      <string>密码</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="AUTO_LOGIN">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>160</y>
+       <width>90</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>微软雅黑</family>
+      </font>
+     </property>
+     <property name="text">
+      <string>自动登陆</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="AUTO_START">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>160</y>
+       <width>90</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>微软雅黑</family>
+      </font>
+     </property>
+     <property name="text">
+      <string>开机自启</string>
+     </property>
+    </widget>
    </widget>
-   <widget class="QCheckBox" name="AUTO_LOGIN">
+   <widget class="QWidget" name="InfoWidget" native="true">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
-      <x>70</x>
-      <y>330</y>
-      <width>90</width>
-      <height>20</height>
+      <x>0</x>
+      <y>180</y>
+      <width>350</width>
+      <height>171</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <family>微软雅黑</family>
-     </font>
-    </property>
-    <property name="text">
-     <string>自动登陆</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="AUTO_START">
-    <property name="geometry">
-     <rect>
-      <x>190</x>
-      <y>330</y>
-      <width>90</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>微软雅黑</family>
-     </font>
-    </property>
-    <property name="text">
-     <string>开机自启</string>
-    </property>
+    <widget class="QLabel" name="NAME">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>49</y>
+       <width>290</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>微软雅黑</family>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">    background: #FFF;
+    border: 0;
+border: 1px solid #D9D9D6;
+	padding:5px 5px 5px 5px;
+    line-height: 40px;
+    color: #000;</string>
+     </property>
+     <property name="text">
+      <string>用户名：201600000000</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="IP">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>78</y>
+       <width>290</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>微软雅黑</family>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">    background: #FFF;
+    border: 0;
+	padding:5px 5px 5px 5px;
+	border: 1px solid #D9D9D6;
+    line-height: 40px;
+    color: #000;</string>
+     </property>
+     <property name="text">
+      <string>地   址  :  255.255.255.255</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="TIME">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>107</y>
+       <width>290</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>微软雅黑</family>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">    background: #ffF;
+    border: 0;
+	padding:5px 5px 5px 5px;
+	border: 1px solid #D9D9D6;
+    line-height: 40px;
+    color: #000;</string>
+     </property>
+     <property name="text">
+      <string>时   间 ：000 小时 00 分 00 秒</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="DATA">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>136</y>
+       <width>290</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>微软雅黑</family>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">    background:  #FFF;
+    border: 0;
+	padding:5px 5px 5px 5px;
+	border: 1px solid #D9D9D6;
+    line-height: 40px;
+    color: #000;</string>
+     </property>
+     <property name="text">
+      <string>流   量 ：0.00000 GB</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="INFO">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>20</y>
+       <width>290</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>微软雅黑</family>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">    background: #FFF;
+    border: 0;
+    border-top-left-radius:3px;
+	border-top-right-radius:3px;
+border: 1px solid #D9D9D6;
+	text-align:center;
+    line-height: 40px;
+    color: #000;</string>
+     </property>
+     <property name="text">
+      <string>您已在线：</string>
+     </property>
+    </widget>
    </widget>
   </widget>
  </widget>
