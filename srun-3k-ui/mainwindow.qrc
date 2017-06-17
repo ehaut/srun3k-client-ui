@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/titleButtons">
+        <file alias="close">Resouces/titleButtons/close.png</file>
+        <file alias="close_hover">Resouces/titleButtons/close_hover.png</file>
+        <file alias="close_pressed">Resouces/titleButtons/close_pressed.png</file>
+        <file alias="about">Resouces/titleButtons/About.png</file>
+    </qresource>
+    <qresource prefix="/Ico">
+        <file alias="R">Resouces/Ico/myapp(RGB).png</file>
+    </qresource>
+</RCC>
