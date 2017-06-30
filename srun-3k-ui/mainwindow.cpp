@@ -12,33 +12,22 @@
 #include "QUrl"
 #include "QSettings"
 
-using namespace std;
 unsigned int usedtime;
 QString *yourname;
 QString POSTURL= "http://172.16.154.130:69/cgi-bin/srun_portal";
 int file_state=0;
 int set=0;
 /*下面这些是服务器回传信息基准，用于做反馈处理*/
-string login_ok="login_ok,1573330604,0,0,0.0,0.0,0,0,0,0,0,1.01.20160715"; //登陆成功
-string login_ok_short="login_ok";
-string logout_ok="logout_ok";										      //注销成功
-string error1="missing_required_parameters_error";                         //缺少参数
-string error2="login_error#E2553: Password is error.";                     //密码错误
-string error3="login_error#E2531: User not found.";                        //用户未找到
-string error4="login_error#INFO failed, BAS respond timeout.";            //ACID错误
-string error5="login_error#You are not online.";	                  //你不在线
-string error6="login_error#E2901: (Third party 1)Status_Err";           //状态错误，一般指欠费
-string error7="user_locked";         //??没遇到过
-
-//struct feedback_info *getinfo;//储存信息结构体指针
-
-//typedef struct feedback_info
-//{
-//    char name[20];
-//    double data;
-//    long time;
-//    char ip[20];
-//}info;
+QString login_ok="login_ok,1573330604,0,0,0.0,0.0,0,0,0,0,0,1.01.20160715"; //登陆成功
+QString login_ok_short="login_ok";
+QString logout_ok="logout_ok";										      //注销成功
+QString error1="missing_required_parameters_error";                         //缺少参数
+QString error2="login_error#E2553: Password is error.";                     //密码错误
+QString error3="login_error#E2531: User not found.";                        //用户未找到
+QString error4="login_error#INFO failed, BAS respond timeout.";            //ACID错误
+QString error5="login_error#You are not online.";	                  //你不在线
+QString error6="login_error#E2901: (Third party 1)Status_Err";           //状态错误，一般指欠费
+QString error7="user_locked";         //??没遇到过
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -89,80 +78,42 @@ void MainWindow::GET_INFO_Finished(QNetworkReply *reply)
      {//得到信息
         QTextCodec *codec =QTextCodec::codecForName("GB2312");
         QString all = codec->toUnicode(reply->readAll());
-        std::string get=all.toStdString();
-        if(get[0]=='n')
-        {//不在线
+        if(all.indexOf("not_online")!=-1)
+        {
             ui->InfoWidget->setEnabled(false);
             ui->InputWidget->setEnabled(true);
             ui->InfoWidget->setVisible(false);
-           ui->InputWidget->setVisible(true);
-           ui->LOGIN->setEnabled(true);
-           ui->LOGOUT->setEnabled(false);
-           if(ui->AUTO_LOGIN->isChecked())
-           {
+            ui->InputWidget->setVisible(true);
+            ui->LOGIN->setEnabled(true);
+            ui->LOGOUT->setEnabled(false);
+            if(ui->AUTO_LOGIN->isChecked())
+            {
                 ui->LOGIN->click();
-           }
+            }
         }
         else
-        {//在线，将信息读取到结构体中
+        {
+            QStringList getinfo=all.split(",");
             ui->InfoWidget->setEnabled(true);
             ui->InputWidget->setEnabled(false);
             ui->InfoWidget->setVisible(true);
-           ui->InputWidget->setVisible(false);
-           ui->LOGIN->setEnabled(false);
-           ui->LOGOUT->setEnabled(true);
-//            getinfo=(struct feedback_info *)new info;
-            int t=0,j=0,k=0;
-            char temp[20]={0}; //定义一个临时变量
+            ui->InputWidget->setVisible(false);
+            ui->LOGIN->setEnabled(false);
+            ui->LOGOUT->setEnabled(true);
             unsigned int login_time;
             unsigned int server_time;
-            for(int flag=0;get[t]!='\0';t++)//开始循环直到数据末尾
-            {
-                memset(temp,0,sizeof(temp));//将temp字符数组重置
-               if(get[t]==',')//如果当前位为,分隔符
-               {
-                   flag++;//分隔符计数
-                   for(j=0;k!=t;j++,k++)
-                       temp[j]=get[k];
-                   temp[j]='\0';
-                   if(flag==1)
-                    {
-                       //strcpy(getinfo->name,temp);
-                       ui->NAME->setText(QString::fromStdString(temp));
-                       yourname=(QString*)new QString(QString::fromStdString(temp));
-
-                    }
-                   if(flag==2)
-                   {//登录时间
-                       login_time=atoi(temp);
-                   }
-                   if(flag==3)
-                   {//服务器时间
-                       server_time=atoi(temp);
-                   }
-                   if(flag==7)
-                   {
-                       //getinfo->data=atof(temp)/1073741824;
-                       ui->DATA->setText(QString::number(atof(temp)/1073741824,'g',6));
-                   }
-                   if(flag==8)
-                   {
-                       //getinfo->time=atoi(temp);
-//                       ui->TIME_H->setText(QString::number(atoi(temp)/3600,10));
-//                       ui->TIME_M->setText(QString::number(atoi(temp)/60%60,10));
-//                       ui->TIME_S->setText(QString::number(atoi(temp)%60,10));
-                       usedtime=atoi(temp)+server_time-login_time;
-                   }
-                   if(flag==9)
-                   {
-                      // strcpy(getinfo->ip,temp);
-                       ui->IP->setText(QString::fromStdString(temp));
-                       break;
-                   }
-                   k++;
-                   continue;
-               }
-            }
+            yourname=(QString*)new QString(getinfo.at(0));
+            ui->NAME->setText(QString(getinfo.at(0)));
+            QString temp1=getinfo.at(1);
+            login_time=temp1.toInt();
+            QString temp2=getinfo.at(2);
+            server_time=temp2.toInt();
+            QString temp3=getinfo.at(6);
+            double data=temp3.toDouble()/1073741824;
+            ui->DATA->setText(QString::number(data,'g',6));
+            QString temp4=getinfo.at(7);
+            usedtime=temp4.toInt()+server_time-login_time;
+            ui->IP->setText(QString(getinfo.at(8)));
             reply->deleteLater();//回收
             meTimer=new QTimer(this);  //this说明是当前类对象的定时器
             connect(meTimer,SIGNAL(timeout()),this,SLOT(TimeSlot()));  //把信号与槽进行连接
@@ -238,8 +189,7 @@ void MainWindow::POST_LOGOUT_Finished(QNetworkReply *reply)
     {
         QTextCodec *codec =QTextCodec::codecForName("GB2312");
         QString all = codec->toUnicode(reply->readAll());
-        std::string get=all.toStdString();
-        if(get.find(logout_ok)!=std::string::npos)
+        if(all.indexOf(logout_ok)!=-1)
         {
               QMessageBox::information(this, tr(":) 注销成功!"),tr("您已注销成功!"));
               ui->InfoWidget->setEnabled(false);
@@ -249,14 +199,12 @@ void MainWindow::POST_LOGOUT_Finished(QNetworkReply *reply)
              ui->LOGIN->setEnabled(true);
              ui->LOGOUT->setEnabled(false);
          }
-       else if(get.find(error5)!=std::string::npos)
+       else if(all.indexOf(error5)!=-1)
            QMessageBox::critical(this,tr(":( 注销失败!"),tr("您不在线，无法完成注销!"));
-       else if(get.find(error4)!=std::string::npos)
+       else if(all.indexOf(error4)!=-1)
            QMessageBox::critical(this,tr(":( ACID错误!"),tr("ACID错误，请更改ACID后重试!"));
-       else if(get.find(error1)!=std::string::npos)
+       else if(all.indexOf(error1)!=-1)
            QMessageBox::critical(this,tr(":( 参数错误!"),tr("参数错误，请重新输入重试!"));
-
-
     }
     else
     {//得不到信息
@@ -364,26 +312,25 @@ void MainWindow::POST_LOGIN_Finished(QNetworkReply *reply)
     {
         QTextCodec *codec =QTextCodec::codecForName("GB2312");
         QString all = codec->toUnicode(reply->readAll());
-        std::string get=all.toStdString();
-        if(get.find(login_ok_short)!=std::string::npos)
+        if(all.indexOf(login_ok_short)!=-1)
         {
             QMessageBox::information(this, tr(":) 登陆成功!"),tr("您已登陆成功!"));
             manager = new QNetworkAccessManager(this);
             connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_INFO_Finished(QNetworkReply*)));
             manager->get(QNetworkRequest(QUrl("http://172.16.154.130/cgi-bin/rad_user_info")));
          }
-        else if(get.find(error6)!=std::string::npos)
+        else if(all.indexOf(error6)!=-1)
                 QMessageBox::critical(this,tr(":( 欠费无法使用!"),tr("你已欠费，无法使用，请充值!"));
-        else if(get.find(error2)!=std::string::npos)
+        else if(all.indexOf(error2)!=-1)
                 QMessageBox::critical(this,tr(":( 密码错误!"),tr("密码错误，请检查输入后重试!"));
-        else if(get.find(error3)!=std::string::npos)
+        else if(all.indexOf(error3)!=-1)
                 QMessageBox::critical(this,tr(":( 用户名错误!"),tr("用户名错误，请检查输入后重试!"));
-        else if(get.find(error4)!=std::string::npos)
+        else if(all.indexOf(error4)!=-1)
                 QMessageBox::critical(this,tr(":( ACID错误!"),tr("ACID错误，请更改ACID后重试!"));
-        else if(get.find(error1)!=std::string::npos)
+        else if(all.indexOf(error1)!=-1)
                 QMessageBox::critical(this,tr(":( 参数错误!"),tr("参数错误，请重新输入重试!"));
         else
-                QMessageBox::critical(this,tr(":( 其他错误!"),QString::fromStdString(get));
+                QMessageBox::critical(this,tr(":( 其他错误!"),QString(all));
 
     }
     else
@@ -392,3 +339,5 @@ void MainWindow::POST_LOGIN_Finished(QNetworkReply *reply)
     }
    reply->deleteLater();//回收
 }
+
+
