@@ -16,44 +16,33 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-protected:
-    void mousePressEvent(QMouseEvent *event);
-
 private slots:
-    void Close();
-
     void GET_INFO_Finished(QNetworkReply *);
 
-    void on_pushButton_clicked();
+    void GET_MESSAGE_Finished(QNetworkReply *);
 
-    void on_ABOUT_clicked();
+    void TimeSlot();
+
+    void on_AUTO_START_clicked();
+
+    void on_AUTO_LOGIN_clicked();
 
     void on_SERVICE_clicked();
 
-     void TimeSlot();
+    void on_GET_MESSAGE_clicked();
 
-     void GetTryTimeSlot();
+    void on_LOGOUT_clicked();
 
-     void PostTryTimeSlot();
+    void POST_LOGOUT_Finished(QNetworkReply *);
 
-     void ReLoginTimeSlot();
+    void POST_LOGIN_Finished(QNetworkReply *);
 
-     void LogoutTimeSlot();
-
-     void on_AUTO_START_clicked();
-
-     void on_AUTO_LOGIN_clicked();
-
-     void POST_LOGOUT_Finished(QNetworkReply *);
-
-     void POST_LOGIN_Finished(QNetworkReply *);
+    void on_LOGIN_clicked();
 
 private:
     Ui::MainWindow *ui;
     QNetworkAccessManager *manager;
-    QTimer *Timer;
-     QTimer *RetryTimer;
-     QTimer *WaitTimer;
+    QTimer *meTimer;
 };
 
 #endif // MAINWINDOW_H
