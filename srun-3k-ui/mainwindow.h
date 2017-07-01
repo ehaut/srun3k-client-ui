@@ -21,6 +21,8 @@ private slots:
 
     void GET_MESSAGE_Finished(QNetworkReply *);
 
+    void GET_ACID_Finished(QNetworkReply *);
+
     void TimeSlot();
 
     void on_AUTO_START_clicked();
