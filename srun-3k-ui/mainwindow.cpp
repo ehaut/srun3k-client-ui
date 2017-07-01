@@ -10,10 +10,12 @@
 #include "QTimer"
 #include "QDesktopServices"
 #include "QUrl"
+#include "QRegExp"
 #include "QSettings"
 
 unsigned int usedtime;
 QString *yourname;
+QString *acid;
 QString POSTURL= "http://172.16.154.130:69/cgi-bin/srun_portal";
 int file_state=0;
 int set=0;
@@ -66,6 +68,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
        }
    }
+   /*自动获取ACID*/
+   manager = new QNetworkAccessManager(this);
+   connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_ACID_Finished(QNetworkReply*)));
+   manager->get(QNetworkRequest(QUrl("http://172.16.154.130")));
     /*自动获取状态*/
     manager = new QNetworkAccessManager(this);
     connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_INFO_Finished(QNetworkReply*)));
@@ -171,11 +177,13 @@ void MainWindow::GET_MESSAGE_Finished(QNetworkReply *reply)
 
 void MainWindow::on_LOGOUT_clicked()
 {
-   QString post="&mac=&type=2&action=logout&ac_id=1&username=";
+   QString post="&mac=&type=2&action=logout&ac_id=";
    manager = new QNetworkAccessManager(this);
    QByteArray POST;
    QNetworkRequest request;
    POST.append(post);
+   POST.append(*acid);
+   POST.append("&username=");
    POST.append(*yourname);
    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
    request.setUrl(QUrl(POSTURL));
@@ -269,11 +277,13 @@ void MainWindow::on_LOGIN_clicked()
                  PASSWD_ENCRYPT.append(_l);
              }
         }
-        QString post="&action=login&drop=0&pop=1&type=2&n=117&mbytes=0&minutes=0&mac=&ac_id=1&username=%7BSRUN3%7D%0D%0A";
+        QString post="&action=login&drop=0&pop=1&type=2&n=117&mbytes=0&minutes=0&mac=&ac_id=";
         manager = new QNetworkAccessManager(this);
         QByteArray POST;
         QNetworkRequest request;
         POST.append(post);
+        POST.append(*acid);
+        POST.append("&username=%7BSRUN3%7D%0D%0A");
         POST.append(NAME_ENCRYPT.toPercentEncoding());
         POST.append("&password=");
         POST.append(PASSWD_ENCRYPT.toPercentEncoding());
@@ -340,4 +350,19 @@ void MainWindow::POST_LOGIN_Finished(QNetworkReply *reply)
    reply->deleteLater();//回收
 }
 
-
+void MainWindow::GET_ACID_Finished(QNetworkReply *reply)
+{
+    if (reply->error() == QNetworkReply::NoError)
+    {
+        QString ac_id=reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl().fileName();
+        QRegExp p("index_(\\d+).html");
+        int pos=ac_id.indexOf(p);
+        if(pos>=0)
+        acid=(QString*)new QString(p.cap(1));
+    }
+    else
+    {//得不到信息
+        QMessageBox::critical(NULL,"错误!","无法连接服务器!");
+    }
+   reply->deleteLater();//回收
+}
