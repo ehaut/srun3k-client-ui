@@ -14,8 +14,8 @@
 #include "QSettings"
 
 unsigned int usedtime;
-QString *yourname;
-QString *acid;
+QString yourname;
+QString acid;
 QString POSTURL= "http://172.16.154.130:69/cgi-bin/srun_portal";
 int file_state=0;
 int set=0;
@@ -29,7 +29,7 @@ QString error3="login_error#E2531: User not found.";                        //�
 QString error4="login_error#INFO failed, BAS respond timeout.";            //ACID错误
 QString error5="login_error#You are not online.";	                  //你不在线
 QString error6="login_error#E2901: (Third party 1)Status_Err";           //状态错误，一般指欠费
-QString error7="user_locked";         //??没遇到过
+QString error7="login_error#E2901: (Third party 1)User Locked";          //用户锁定，一般也指欠费
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -86,10 +86,7 @@ void MainWindow::GET_INFO_Finished(QNetworkReply *reply)
         QString all = codec->toUnicode(reply->readAll());
         if(all.indexOf("not_online")!=-1)
         {
-            ui->InfoWidget->setEnabled(false);
-            ui->InputWidget->setEnabled(true);
-            ui->InfoWidget->setVisible(false);
-            ui->InputWidget->setVisible(true);
+            ui->stackedWidget->setCurrentIndex(0);
             ui->LOGIN->setEnabled(true);
             ui->LOGOUT->setEnabled(false);
             if(ui->AUTO_LOGIN->isChecked())
@@ -100,15 +97,12 @@ void MainWindow::GET_INFO_Finished(QNetworkReply *reply)
         else
         {
             QStringList getinfo=all.split(",");
-            ui->InfoWidget->setEnabled(true);
-            ui->InputWidget->setEnabled(false);
-            ui->InfoWidget->setVisible(true);
-            ui->InputWidget->setVisible(false);
+            ui->stackedWidget->setCurrentIndex(1);
             ui->LOGIN->setEnabled(false);
             ui->LOGOUT->setEnabled(true);
             unsigned int login_time;
             unsigned int server_time;
-            yourname=(QString*)new QString(getinfo.at(0));
+            yourname=QString(getinfo.at(0));
             ui->NAME->setText(QString(getinfo.at(0)));
             QString temp1=getinfo.at(1);
             login_time=temp1.toInt();
@@ -143,7 +137,8 @@ void MainWindow::TimeSlot()
 
 MainWindow::~MainWindow()
 {
-    delete yourname;
+    delete manager;
+    delete meTimer;
     delete ui;
 }
 
@@ -182,9 +177,9 @@ void MainWindow::on_LOGOUT_clicked()
    QByteArray POST;
    QNetworkRequest request;
    POST.append(post);
-   POST.append(*acid);
+   POST.append(acid);
    POST.append("&username=");
-   POST.append(*yourname);
+   POST.append(yourname);
    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
    request.setUrl(QUrl(POSTURL));
    connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(POST_LOGOUT_Finished(QNetworkReply*)));
@@ -200,19 +195,16 @@ void MainWindow::POST_LOGOUT_Finished(QNetworkReply *reply)
         if(all.indexOf(logout_ok)!=-1)
         {
               QMessageBox::information(this, tr(":) 注销成功!"),tr("您已注销成功!"));
-              ui->InfoWidget->setEnabled(false);
-              ui->InputWidget->setEnabled(true);
-              ui->InfoWidget->setVisible(false);
-             ui->InputWidget->setVisible(true);
-             ui->LOGIN->setEnabled(true);
-             ui->LOGOUT->setEnabled(false);
+              ui->stackedWidget->setCurrentIndex(0);
+              ui->LOGIN->setEnabled(true);
+              ui->LOGOUT->setEnabled(false);
          }
        else if(all.indexOf(error5)!=-1)
            QMessageBox::critical(this,tr(":( 注销失败!"),tr("您不在线，无法完成注销!"));
        else if(all.indexOf(error4)!=-1)
            QMessageBox::critical(this,tr(":( ACID错误!"),tr("ACID错误，请更改ACID后重试!"));
        else if(all.indexOf(error1)!=-1)
-           QMessageBox::critical(this,tr(":( 参数错误!"),tr("参数错误，请重新输入重试!"));
+           ui->LOGOUT->click();
     }
     else
     {//得不到信息
@@ -282,7 +274,7 @@ void MainWindow::on_LOGIN_clicked()
         QByteArray POST;
         QNetworkRequest request;
         POST.append(post);
-        POST.append(*acid);
+        POST.append(acid);
         POST.append("&username=%7BSRUN3%7D%0D%0A");
         POST.append(NAME_ENCRYPT.toPercentEncoding());
         POST.append("&password=");
@@ -329,7 +321,7 @@ void MainWindow::POST_LOGIN_Finished(QNetworkReply *reply)
             connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_INFO_Finished(QNetworkReply*)));
             manager->get(QNetworkRequest(QUrl("http://172.16.154.130/cgi-bin/rad_user_info")));
          }
-        else if(all.indexOf(error6)!=-1)
+        else if((all.indexOf(error6)!=-1)||(all.indexOf(error7)!=-1))
                 QMessageBox::critical(this,tr(":( 欠费无法使用!"),tr("你已欠费，无法使用，请充值!"));
         else if(all.indexOf(error2)!=-1)
                 QMessageBox::critical(this,tr(":( 密码错误!"),tr("密码错误，请检查输入后重试!"));
@@ -338,7 +330,7 @@ void MainWindow::POST_LOGIN_Finished(QNetworkReply *reply)
         else if(all.indexOf(error4)!=-1)
                 QMessageBox::critical(this,tr(":( ACID错误!"),tr("ACID错误，请更改ACID后重试!"));
         else if(all.indexOf(error1)!=-1)
-                QMessageBox::critical(this,tr(":( 参数错误!"),tr("参数错误，请重新输入重试!"));
+                ui->LOGIN->click();
         else
                 QMessageBox::critical(this,tr(":( 其他错误!"),QString(all));
 
@@ -358,7 +350,7 @@ void MainWindow::GET_ACID_Finished(QNetworkReply *reply)
         QRegExp p("index_(\\d+).html");
         int pos=ac_id.indexOf(p);
         if(pos>=0)
-        acid=(QString*)new QString(p.cap(1));
+        acid= QString(p.cap(1));
     }
     else
     {//得不到信息
