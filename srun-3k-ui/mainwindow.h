@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include "QtNetwork/QNetworkAccessManager"
-
+#include "QUdpSocket"
 namespace Ui {
 class MainWindow;
 }
@@ -41,10 +41,13 @@ private slots:
 
     void on_LOGIN_clicked();
 
+    //void UdpSlot();
 private:
     Ui::MainWindow *ui;
     QNetworkAccessManager *manager;
     QTimer *meTimer;
+    //QTimer *UdpTimer;
+   // QUdpSocket *sender;
 };
 
 #endif // MAINWINDOW_H

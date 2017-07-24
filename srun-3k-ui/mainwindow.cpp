@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "timeout.h"
 #include "QtNetwork/QNetworkReply"
 #include "QtNetwork/QNetworkRequest"
 #include "QMessageBox"
@@ -12,13 +13,17 @@
 #include "QUrl"
 #include "QRegExp"
 #include "QSettings"
+#include "QNetworkInterface"
 
 unsigned int usedtime;
 QString yourname;
 QString acid;
+QString mac;
 QString POSTURL= "http://172.16.154.130:69/cgi-bin/srun_portal";
 int file_state=0;
 int set=0;
+//int heartbeat_num=0;
+
 /*下面这些是服务器回传信息基准，用于做反馈处理*/
 QString login_ok="login_ok,1573330604,0,0,0.0,0.0,0,0,0,0,0,1.01.20160715"; //登陆成功
 QString login_ok_short="login_ok";
@@ -37,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     /*自动读取配置文件*/
+    ui->stackedWidget->setCurrentIndex(0);
     QFile open("config.json");
    if(open.open(QIODevice::ReadOnly))
    {
@@ -70,12 +76,14 @@ MainWindow::MainWindow(QWidget *parent) :
    }
    /*自动获取ACID*/
    manager = new QNetworkAccessManager(this);
+   QNetworkReply *ACIDReply=manager->get(QNetworkRequest(QUrl("http://172.16.154.130")));
+   QReplyTimeout *ACIDTimeout = new QReplyTimeout(ACIDReply, 1000);
+   connect(ACIDTimeout, &QReplyTimeout::timeout, [=]() {
+            QMessageBox::critical(NULL,"错误!","无法连接服务器!程序将退出!");
+            this->close();
+        });
    connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_ACID_Finished(QNetworkReply*)));
-   manager->get(QNetworkRequest(QUrl("http://172.16.154.130")));
-    /*自动获取状态*/
-    manager = new QNetworkAccessManager(this);
-    connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_INFO_Finished(QNetworkReply*)));
-    manager->get(QNetworkRequest(QUrl("http://172.16.154.130/cgi-bin/rad_user_info")));
+
 }
 
 void MainWindow::GET_INFO_Finished(QNetworkReply *reply)
@@ -118,6 +126,26 @@ void MainWindow::GET_INFO_Finished(QNetworkReply *reply)
             meTimer=new QTimer(this);  //this说明是当前类对象的定时器
             connect(meTimer,SIGNAL(timeout()),this,SLOT(TimeSlot()));  //把信号与槽进行连接
             meTimer->start(1000);
+            //获取物理MAC地址
+            QList<QNetworkInterface> nets = QNetworkInterface::allInterfaces();// 获取所有网络接口列表
+            int nCnt = nets.count();
+            QString strMacAddr = NULL;
+            for(int i = 0; i < nCnt; i ++)
+            {
+               strMacAddr = nets[i].hardwareAddress();
+               if((nets[i].humanReadableName().indexOf("以太网")||nets[i].humanReadableName().indexOf("本地连接"))&&(!strMacAddr.isNull()))
+               {//连接名是以太网或本地连接则认为是有线网络
+                   mac=strMacAddr;
+//                   UdpTimer=new QTimer(this);  //this说明是当前类对象的定时器
+//                   connect(UdpTimer,SIGNAL(timeout()),this,SLOT(UdpSlot()));  //把信号与槽进行连接
+//                   UdpTimer->start(30000);//30s发送一次udp广播
+               }
+               else
+               {
+                  //没有找到本地连接
+                   QMessageBox::critical(NULL,"错误!","找不到本地连接");
+               }
+            }
         }
      }
      else
@@ -135,6 +163,17 @@ void MainWindow::TimeSlot()
    usedtime++;
 }
 
+//UDP心跳包，官方已更改
+//void MainWindow::UdpSlot()
+//{
+//    QString UdpData="! 12s 20x 17s 7x"+yourname+mac;
+//    sender = new QUdpSocket(this);
+//    sender->writeDatagram(UdpData,UdpData.length(),"172.16.154.130",3338);
+//    heartbeat_num++;
+//    ui->HEARTBEAT->setText(QString::number(heartbeat_num,10));
+//    delete sender;
+//}
+
 MainWindow::~MainWindow()
 {
     delete manager;
@@ -149,9 +188,14 @@ void MainWindow::on_SERVICE_clicked()
 
 void MainWindow::on_GET_MESSAGE_clicked()
 {
-    manager = new QNetworkAccessManager(this);
+    ui->stackedWidget->setEnabled(false);
+    QNetworkReply *pReply=manager->get(QNetworkRequest(QUrl("http://172.16.154.130/get_msg.php")));
+    QReplyTimeout *pTimeout = new QReplyTimeout(pReply, 1000);
+    connect(pTimeout, &QReplyTimeout::timeout, [=]() {
+          QMessageBox::critical(NULL,"错误!","无法连接服务器!");
+      });
     connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_MESSAGE_Finished(QNetworkReply*)));
-    manager->get(QNetworkRequest(QUrl("http://172.16.154.130/get_msg.php")));
+    ui->stackedWidget->setEnabled(true);
 }
 
 void MainWindow::GET_MESSAGE_Finished(QNetworkReply *reply)
@@ -163,15 +207,12 @@ void MainWindow::GET_MESSAGE_Finished(QNetworkReply *reply)
         QString all = codec->toUnicode(reply->readAll());
         QMessageBox::information(this, tr(":) 公告信息"),all);
      }
-     else
-     {//得不到信息
-         QMessageBox::critical(NULL,"错误!","无法连接服务器!");
-     }
     reply->deleteLater();//回收
 }
 
 void MainWindow::on_LOGOUT_clicked()
 {
+   ui->stackedWidget->setEnabled(false);
    QString post="&mac=&type=2&action=logout&ac_id=";
    manager = new QNetworkAccessManager(this);
    QByteArray POST;
@@ -182,8 +223,13 @@ void MainWindow::on_LOGOUT_clicked()
    POST.append(yourname);
    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
    request.setUrl(QUrl(POSTURL));
+   QNetworkReply *LogoutReply=manager->post(request,POST);
+   QReplyTimeout *LogoutTimeout = new QReplyTimeout(LogoutReply, 1000);
+   connect(LogoutTimeout, &QReplyTimeout::timeout, [=]() {
+            QMessageBox::critical(NULL,"错误!","无法连接服务器!");
+        });
    connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(POST_LOGOUT_Finished(QNetworkReply*)));
-   manager->post(request,POST);
+   ui->stackedWidget->setEnabled(true);
 }
 
 void MainWindow::POST_LOGOUT_Finished(QNetworkReply *reply)
@@ -205,10 +251,6 @@ void MainWindow::POST_LOGOUT_Finished(QNetworkReply *reply)
            QMessageBox::critical(this,tr(":( ACID错误!"),tr("ACID错误，请更改ACID后重试!"));
        else if(all.indexOf(error1)!=-1)
            ui->LOGOUT->click();
-    }
-    else
-    {//得不到信息
-        QMessageBox::critical(NULL,"错误!","无法连接服务器!");
     }
    reply->deleteLater();//回收
 }
@@ -236,6 +278,7 @@ void MainWindow::on_AUTO_LOGIN_clicked()
 
 void MainWindow::on_LOGIN_clicked()
 {
+    ui->stackedWidget->setEnabled(false);
     QByteArray NAME_INPUT = ui->NAME_INPUT->text().trimmed().toLatin1();
     QByteArray PASSWD_INPUT = ui->PASSWD_INPUT->text().toLatin1();
     if(NAME_INPUT.isEmpty()||PASSWD_INPUT.isEmpty()||(NAME_INPUT.isEmpty()&&PASSWD_INPUT.isEmpty()))
@@ -269,11 +312,12 @@ void MainWindow::on_LOGIN_clicked()
                  PASSWD_ENCRYPT.append(_l);
              }
         }
-        QString post="&action=login&drop=0&pop=1&type=2&n=117&mbytes=0&minutes=0&mac=&ac_id=";
-        manager = new QNetworkAccessManager(this);
+        QString post="&action=login&drop=0&pop=1&type=10&n=117&mbytes=0&minutes=0&mac=";
         QByteArray POST;
         QNetworkRequest request;
         POST.append(post);
+        POST.append(mac);
+        POST.append("&ac_id=");
         POST.append(acid);
         POST.append("&username=%7BSRUN3%7D%0D%0A");
         POST.append(NAME_ENCRYPT.toPercentEncoding());
@@ -281,8 +325,12 @@ void MainWindow::on_LOGIN_clicked()
         POST.append(PASSWD_ENCRYPT.toPercentEncoding());
         request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
         request.setUrl(QUrl(POSTURL));
+        QNetworkReply *LoginReply=manager->post(request,POST);
+        QReplyTimeout *LoginTimeout = new QReplyTimeout(LoginReply, 1000);
+        connect(LoginTimeout, &QReplyTimeout::timeout, [=]() {
+                 QMessageBox::critical(NULL,"错误!","无法连接服务器!");
+             });
         connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(POST_LOGIN_Finished(QNetworkReply*)));
-        manager->post(request,POST);
         if(file_state==0||set==1)
         {
             QJsonObject info;
@@ -306,6 +354,7 @@ void MainWindow::on_LOGIN_clicked()
              save.close();
         }
     }
+    ui->stackedWidget->setEnabled(true);
 }
 
 void MainWindow::POST_LOGIN_Finished(QNetworkReply *reply)
@@ -317,7 +366,6 @@ void MainWindow::POST_LOGIN_Finished(QNetworkReply *reply)
         if(all.indexOf(login_ok_short)!=-1)
         {
             QMessageBox::information(this, tr(":) 登陆成功!"),tr("您已登陆成功!"));
-            manager = new QNetworkAccessManager(this);
             connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_INFO_Finished(QNetworkReply*)));
             manager->get(QNetworkRequest(QUrl("http://172.16.154.130/cgi-bin/rad_user_info")));
          }
@@ -335,10 +383,6 @@ void MainWindow::POST_LOGIN_Finished(QNetworkReply *reply)
                 QMessageBox::critical(this,tr(":( 其他错误!"),QString(all));
 
     }
-    else
-    {//得不到信息
-        QMessageBox::critical(NULL,"错误!","无法连接服务器!");
-    }
    reply->deleteLater();//回收
 }
 
@@ -352,9 +396,8 @@ void MainWindow::GET_ACID_Finished(QNetworkReply *reply)
         if(pos>=0)
         acid= QString(p.cap(1));
     }
-    else
-    {//得不到信息
-        QMessageBox::critical(NULL,"错误!","无法连接服务器!");
-    }
    reply->deleteLater();//回收
+   /*自动获取状态*/
+   connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_INFO_Finished(QNetworkReply*)));
+   manager->get(QNetworkRequest(QUrl("http://172.16.154.130/cgi-bin/rad_user_info")));
 }
