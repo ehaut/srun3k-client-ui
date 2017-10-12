@@ -6,654 +6,559 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>250</height>
+    <width>350</width>
+    <height>500</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>400</width>
-    <height>250</height>
+    <width>350</width>
+    <height>500</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>400</width>
-    <height>250</height>
+    <width>350</width>
+    <height>500</height>
    </size>
+  </property>
+  <property name="mouseTracking">
+   <bool>false</bool>
+  </property>
+  <property name="contextMenuPolicy">
+   <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">background:#F6F6F3</string>
+  </property>
+  <property name="dockNestingEnabled">
+   <bool>false</bool>
+  </property>
   <widget class="QWidget" name="centralWidget">
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <widget class="QLabel" name="Title">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>10</y>
+      <width>121</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>微软雅黑</family>
+      <pointsize>11</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>校园网登录器</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="ShowState">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>470</y>
+      <width>311</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>微软雅黑</family>
+     </font>
+    </property>
+    <property name="text">
+     <string>欢迎使用校园网登录器!</string>
+    </property>
+   </widget>
    <widget class="QStackedWidget" name="stackedWidget">
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>0</y>
-      <width>401</width>
-      <height>191</height>
+      <y>50</y>
+      <width>361</width>
+      <height>391</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>3</number>
     </property>
-    <widget class="QWidget" name="InputWidget">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <widget class="QWidget" name="gridLayoutWidget_2">
+    <widget class="QWidget" name="Retry">
+     <widget class="QPushButton" name="RetryButton">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>5</y>
-        <width>381</width>
-        <height>181</height>
+        <x>30</x>
+        <y>320</y>
+        <width>290</width>
+        <height>50</height>
        </rect>
       </property>
-      <layout class="QGridLayout" name="gridLayout_4">
-       <property name="verticalSpacing">
-        <number>5</number>
-       </property>
-       <item row="0" column="0" colspan="2">
-        <layout class="QHBoxLayout" name="TopLayout">
-         <item>
-          <spacer name="TopSpacer1">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QLabel" name="LTop">
-           <property name="font">
-            <font>
-             <family>微软雅黑</family>
-             <pointsize>24</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>校园网登录器</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="TopSpacer2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </item>
-       <item row="1" column="0" colspan="2">
-        <layout class="QHBoxLayout" name="AuthorLayout">
-         <item>
-          <spacer name="AuthorSpacer1">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QLabel" name="LAuthor">
-           <property name="font">
-            <font>
-             <family>微软雅黑</family>
-             <pointsize>8</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Made by CHN-STUDENT V0.0.5.7</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="AuthorSpacer2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </item>
-       <item row="2" column="0" colspan="2">
-        <layout class="QGridLayout" name="InputLayout">
-         <item row="2" column="0">
-          <widget class="QLabel" name="LPASSWD">
-           <property name="font">
-            <font>
-             <family>微软雅黑</family>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>密    码：</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QLineEdit" name="PASSWD_INPUT">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <family>微软雅黑</family>
-             <pointsize>9</pointsize>
-            </font>
-           </property>
-           <property name="echoMode">
-            <enum>QLineEdit::Password</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="NAME_INPUT">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <family>微软雅黑</family>
-            </font>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="LNANE">
-           <property name="font">
-            <font>
-             <family>微软雅黑</family>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>用户名：</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2" rowspan="2">
-          <layout class="QHBoxLayout" name="SetLayout">
-           <item>
-            <widget class="Line" name="SetLine">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QVBoxLayout" name="SetverticalLayout">
-             <item>
-              <widget class="QCheckBox" name="AUTO_LOGIN">
-               <property name="font">
-                <font>
-                 <family>微软雅黑</family>
-                </font>
-               </property>
-               <property name="text">
-                <string>自动登录</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="AUTO_START">
-               <property name="font">
-                <font>
-                 <family>微软雅黑</family>
-                </font>
-               </property>
-               <property name="text">
-                <string>开机自启</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </item>
-         <item row="0" column="0" colspan="3">
-          <spacer name="InputSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>10</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </item>
-      </layout>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">    background:rgb(255, 0, 0);
+    border: 0;
+    border-radius: 3px;
+    line-height: 41px;
+    color: #fff;</string>
+      </property>
+      <property name="text">
+       <string>点我重试!</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="Error">
+      <property name="geometry">
+       <rect>
+        <x>60</x>
+        <y>180</y>
+        <width>231</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>对不起，服务器连接错误!</string>
+      </property>
      </widget>
     </widget>
-    <widget class="QWidget" name="InfoWidget">
-     <layout class="QHBoxLayout" name="horizontalLayout_4">
-      <item>
-       <spacer name="InfoSpacer1">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>84</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="1" column="1">
-         <widget class="QLabel" name="NAME">
-          <property name="font">
-           <font>
-            <family>微软雅黑</family>
-           </font>
-          </property>
-          <property name="text">
-           <string>NULL</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QLabel" name="TIME_H">
-            <property name="font">
-             <font>
-              <family>微软雅黑</family>
-             </font>
-            </property>
-            <property name="text">
-             <string>0</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="H">
-            <property name="font">
-             <font>
-              <family>微软雅黑</family>
-             </font>
-            </property>
-            <property name="text">
-             <string>时</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="TIME_M">
-            <property name="font">
-             <font>
-              <family>微软雅黑</family>
-             </font>
-            </property>
-            <property name="text">
-             <string>0</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="S">
-            <property name="font">
-             <font>
-              <family>微软雅黑</family>
-             </font>
-            </property>
-            <property name="text">
-             <string>分</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="TIME_S">
-            <property name="font">
-             <font>
-              <family>微软雅黑</family>
-             </font>
-            </property>
-            <property name="text">
-             <string>0</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="M">
-            <property name="font">
-             <font>
-              <family>微软雅黑</family>
-             </font>
-            </property>
-            <property name="text">
-             <string>秒</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="LIP">
-          <property name="font">
-           <font>
-            <family>微软雅黑</family>
-           </font>
-          </property>
-          <property name="text">
-           <string>I P 地 址 :</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QLabel" name="IP">
-          <property name="font">
-           <font>
-            <family>微软雅黑</family>
-           </font>
-          </property>
-          <property name="text">
-           <string>NULL</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="LTIME">
-          <property name="font">
-           <font>
-            <family>微软雅黑</family>
-           </font>
-          </property>
-          <property name="text">
-           <string>已 用 时 间：</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0" colspan="2">
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <item>
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QLabel" name="LINFO">
-            <property name="font">
-             <font>
-              <family>微软雅黑</family>
-              <pointsize>12</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>登陆信息：</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
-        <item row="3" column="1">
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <item>
-           <widget class="QLabel" name="DATA">
-            <property name="font">
-             <font>
-              <family>微软雅黑</family>
-             </font>
-            </property>
-            <property name="text">
-             <string>0</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_7">
-            <property name="font">
-             <font>
-              <family>微软雅黑</family>
-             </font>
-            </property>
-            <property name="text">
-             <string>GB</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="LDATA">
-          <property name="font">
-           <font>
-            <family>微软雅黑</family>
-           </font>
-          </property>
-          <property name="text">
-           <string>已 用 流 量：</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="LNAME">
-          <property name="font">
-           <font>
-            <family>微软雅黑</family>
-           </font>
-          </property>
-          <property name="text">
-           <string>用 户 名  ：</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <spacer name="InfoSpacer2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>84</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
+    <widget class="QWidget" name="Message">
+     <widget class="QTextBrowser" name="Message_show">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>71</y>
+        <width>291</width>
+        <height>241</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">    background: #FFF;
+    border: 0;
+border: 1px solid #D9D9D6;
+	padding:5px 5px 5px 5px;
+    line-height: 40px;
+    color: #000;</string>
+      </property>
+      <property name="html">
+       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'SimSun'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;欢迎使用校园网登录器。&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;请等待程序获取公告...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="Enter">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>320</y>
+        <width>290</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">    background: #0f88eb;
+    border: 0;
+    border-radius: 3px;
+    line-height: 41px;
+    color: #fff;</string>
+      </property>
+      <property name="text">
+       <string>确定</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="Message_lable">
+      <property name="geometry">
+       <rect>
+        <x>120</x>
+        <y>20</y>
+        <width>91</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>公告信息:</string>
+      </property>
+     </widget>
     </widget>
-   </widget>
-   <widget class="Line" name="BottomLine">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>220</y>
-      <width>395</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-   </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>190</y>
-      <width>401</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="ButtonLayout">
-     <item>
-      <widget class="QPushButton" name="LOGIN">
-       <property name="font">
-        <font>
-         <family>微软雅黑</family>
-        </font>
-       </property>
-       <property name="text">
-        <string>登 陆</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="LOGOUT">
-       <property name="font">
-        <font>
-         <family>微软雅黑</family>
-        </font>
-       </property>
-       <property name="text">
-        <string>注 销</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="GET_MESSAGE">
-       <property name="font">
-        <font>
-         <family>微软雅黑</family>
-        </font>
-       </property>
-       <property name="text">
-        <string>获取公告</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="SERVICE">
-       <property name="font">
-        <font>
-         <family>微软雅黑</family>
-        </font>
-       </property>
-       <property name="text">
-        <string>自服务</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>230</y>
-      <width>401</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="BottomLayout">
-     <item>
-      <spacer name="RSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>5</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QLabel" name="Welcome">
-       <property name="font">
-        <font>
-         <family>微软雅黑</family>
-        </font>
-       </property>
-       <property name="text">
-        <string>欢迎使用校园网登录器！</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="LSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QLabel" name="About">
-       <property name="font">
-        <font>
-         <family>微软雅黑</family>
-        </font>
-       </property>
-       <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/CHN-STUDENT/SRUN-3K-UI&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;关于&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="openExternalLinks">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QWidget" name="Login">
+     <widget class="QCheckBox" name="AUTO_LOGIN">
+      <property name="geometry">
+       <rect>
+        <x>60</x>
+        <y>220</y>
+        <width>90</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+       </font>
+      </property>
+      <property name="text">
+       <string>自动登陆</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="AUTO_START">
+      <property name="geometry">
+       <rect>
+        <x>210</x>
+        <y>220</y>
+        <width>90</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+       </font>
+      </property>
+      <property name="text">
+       <string>开机自启</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="PASSWD_INPUT">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>140</y>
+        <width>290</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QLineEdit{
+padding:10px 5px 15px 10px;
+ border: 1px solid #D9D9D6;
+ background: #fff
+}
+QLineEdit:focus{
+　　transition:border linear .2s,box-shadow linear .5s;
+　　-moz-transition:border linear .2s,-moz-box-shadow linear .5s;
+　　-webkit-transition:border linear .2s,-webkit-box-shadow linear .5s;
+　　outline:none;border-color:rgba(93,149,242,.75);
+　　box-shadow:0 0 8px rgba(93,149,242,.105);
+　　-moz-box-shadow:0 0 8px rgba(93,149,242,.5);
+　　-webkit-box-shadow:0 0 8px rgba(93,149,242,3)
+}</string>
+      </property>
+      <property name="echoMode">
+       <enum>QLineEdit::Password</enum>
+      </property>
+      <property name="placeholderText">
+       <string>密码</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="NAME_INPUT">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>90</y>
+        <width>290</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QLineEdit{
+padding:10px 5px 15px 10px;
+ border: 1px solid #D9D9D6;
+ background: #fff
+}
+QLineEdit:focus{
+　　transition:border linear .2s,box-shadow linear .5s;
+　　-moz-transition:border linear .2s,-moz-box-shadow linear .5s;
+　　-webkit-transition:border linear .2s,-webkit-box-shadow linear .5s;
+　　outline:none;border-color:rgba(93,149,242,.75);
+　　box-shadow:0 0 8px rgba(93,149,242,.105);
+　　-moz-box-shadow:0 0 8px rgba(93,149,242,.5);
+　　-webkit-box-shadow:0 0 8px rgba(93,149,242,3)
+}</string>
+      </property>
+      <property name="placeholderText">
+       <string>用户名</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="LoginButton">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>280</y>
+        <width>290</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">    background: #0f88eb;
+    border: 0;
+    border-radius: 3px;
+    line-height: 41px;
+    color: #fff;</string>
+      </property>
+      <property name="text">
+       <string>登陆</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="SERVICE">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>340</y>
+        <width>290</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">    background: #aa55ff;
+    border: 0;
+    border-radius: 3px;
+    line-height: 41px;
+    color: #fff;</string>
+      </property>
+      <property name="text">
+       <string>自服务</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="Info">
+     <widget class="QLabel" name="INFO">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>83</y>
+        <width>290</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">    background: #FFF;
+    border: 0;
+    border-top-left-radius:3px;
+	border-top-right-radius:3px;
+border: 1px solid #D9D9D6;
+	text-align:center;
+    line-height: 40px;
+    color: #000;</string>
+      </property>
+      <property name="text">
+       <string>                          您已在线：</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="DATA">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>199</y>
+        <width>290</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">    background:  #FFF;
+    border: 0;
+	padding:5px 5px 5px 5px;
+	border: 1px solid #D9D9D6;
+    line-height: 40px;
+    color: #000;</string>
+      </property>
+      <property name="text">
+       <string>流   量 ：0.00000 GB</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="IP">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>141</y>
+        <width>290</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">    background: #FFF;
+    border: 0;
+	padding:5px 5px 5px 5px;
+	border: 1px solid #D9D9D6;
+    line-height: 40px;
+    color: #000;</string>
+      </property>
+      <property name="text">
+       <string>地   址  :  255.255.255.255</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="NAME">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>112</y>
+        <width>290</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">    background: #FFF;
+    border: 0;
+border: 1px solid #D9D9D6;
+	padding:5px 5px 5px 5px;
+    line-height: 40px;
+    color: #000;</string>
+      </property>
+      <property name="text">
+       <string>用户名：201600000000</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="TIME">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>170</y>
+        <width>290</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">    background: #ffF;
+    border: 0;
+	padding:5px 5px 5px 5px;
+	border: 1px solid #D9D9D6;
+    line-height: 40px;
+    color: #000;</string>
+      </property>
+      <property name="text">
+       <string>时   间 ：000 小时 00 分 00 秒</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="LogoutButton">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>260</y>
+        <width>290</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">    background:#ffaa00;
+    border: 0;
+    border-radius: 3px;
+    line-height: 41px;
+    color: #fff;</string>
+      </property>
+      <property name="text">
+       <string>注销</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="SERVICE_2">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>330</y>
+        <width>290</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">    background: #aa55ff;
+    border: 0;
+    border-radius: 3px;
+    line-height: 41px;
+    color: #fff;</string>
+      </property>
+      <property name="text">
+       <string>自服务</string>
+      </property>
+     </widget>
+    </widget>
    </widget>
   </widget>
  </widget>

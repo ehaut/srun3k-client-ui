@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include "QtNetwork/QNetworkAccessManager"
-#include "QUdpSocket"
+
 namespace Ui {
 class MainWindow;
 }
@@ -16,38 +16,46 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+protected:
+    void mousePressEvent(QMouseEvent *event);
+
 private slots:
-    void GET_INFO_Finished(QNetworkReply *);
+    void Close();
 
-    void GET_MESSAGE_Finished(QNetworkReply *);
+    void on_ABOUT_clicked();
 
-    void GET_ACID_Finished(QNetworkReply *);
+    void on_SERVICE_clicked();
 
-    void TimeSlot();
+    void Start();
+
+    void GetServerInfo();
 
     void on_AUTO_START_clicked();
 
     void on_AUTO_LOGIN_clicked();
 
-    void on_SERVICE_clicked();
+    void on_RetryButton_clicked();
 
-    void on_GET_MESSAGE_clicked();
+//    void GET_ACID_Finished(QNetworkReply*);
 
-    void on_LOGOUT_clicked();
+    void GET_INFO_Finished(QNetworkReply*);
 
+    void TimeSlot();
+    void on_LogoutButton_clicked();
     void POST_LOGOUT_Finished(QNetworkReply *);
-
+    void on_LoginButton_clicked();
     void POST_LOGIN_Finished(QNetworkReply *);
+    void on_Enter_clicked();
 
-    void on_LOGIN_clicked();
+    void on_SERVICE_2_clicked();
 
-    //void UdpSlot();
 private:
     Ui::MainWindow *ui;
-    QNetworkAccessManager *manager;
+
+//    QNetworkAccessManager *manager;
     QTimer *meTimer;
-    //QTimer *UdpTimer;
-   // QUdpSocket *sender;
+//     QTimer *RetryTimer;
+//     QTimer *WaitTimer;
 };
 
 #endif // MAINWINDOW_H
