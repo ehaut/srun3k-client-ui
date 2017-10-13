@@ -47,12 +47,15 @@ private slots:
     void on_LoginButton_clicked();
     void POST_LOGIN_Finished(QNetworkReply *);
     void on_Enter_clicked();
+    void on_ADVANCED_clicked();
     void on_activatedSysTrayIcon(QSystemTrayIcon::ActivationReason);
     void on_SERVICE_2_clicked();
     void createActions();
     void createMenu();
     void on_showMainAction();
     void on_exitAppAction();
+    void on_advanced_save_clicked();
+
 private:
     Ui::MainWindow *ui;
     QSystemTrayIcon *mSysTrayIcon;

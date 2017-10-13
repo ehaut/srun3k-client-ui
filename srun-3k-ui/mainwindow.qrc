@@ -9,6 +9,9 @@
         <file alias="about">Resouces/titleButtons/about.png</file>
         <file alias="about_hover">Resouces/titleButtons/about_hover.png</file>
         <file alias="about_pressed">Resouces/titleButtons/about_pressed.png</file>
+		<file alias="advanced">Resouces/titleButtons/advanced.png</file>
+        <file alias="advanced_hover">Resouces/titleButtons/advanced_hover.png</file>
+        <file alias="advanced_pressed">Resouces/titleButtons/advanced_pressed.png</file>
     </qresource>
     <qresource prefix="/Ico">
         <file alias="R">Resouces/Ico/myapp(RGB).png</file>
