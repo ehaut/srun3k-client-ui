@@ -391,7 +391,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
 void MainWindow::on_ABOUT_clicked()
 {//关于按钮
-    QDesktopServices::openUrl(QUrl("https://github.com/CHN-STUDENT/SRUN-3K-UI/beta"));
+    QDesktopServices::openUrl(QUrl("https://github.com/CHN-STUDENT/SRUN-3K-UI/tree/beta"));
 }
 
 void MainWindow::on_SERVICE_clicked()
