@@ -3,7 +3,8 @@
 
 #include <QMainWindow>
 #include "QtNetwork/QNetworkAccessManager"
-
+#include "QSystemTrayIcon"
+#include "QMenu"
 namespace Ui {
 class MainWindow;
 }
@@ -21,7 +22,7 @@ protected:
 
 private slots:
     void Close();
-
+    void Min();
     void on_ABOUT_clicked();
 
     void on_SERVICE_clicked();
@@ -46,12 +47,20 @@ private slots:
     void on_LoginButton_clicked();
     void POST_LOGIN_Finished(QNetworkReply *);
     void on_Enter_clicked();
-
+    void on_activatedSysTrayIcon(QSystemTrayIcon::ActivationReason);
     void on_SERVICE_2_clicked();
-
+    void createActions();
+    void createMenu();
+    void on_showMainAction();
+    void on_exitAppAction();
 private:
     Ui::MainWindow *ui;
-
+    QSystemTrayIcon *mSysTrayIcon;
+    QMenu *mMenu;
+      QAction *mShowMainAction;
+      QAction *mExitAppAction;
+      QAction *mServiceAction;
+      QAction *mAboutAction;
 //    QNetworkAccessManager *manager;
     QTimer *meTimer;
 //     QTimer *RetryTimer;

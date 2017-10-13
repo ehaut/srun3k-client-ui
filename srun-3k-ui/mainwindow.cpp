@@ -13,14 +13,13 @@
 #include "QDesktopServices"
 #include "QUrl"
 #include "QSettings"
-#include "QDebug"
 unsigned int usedtime;
 QString yourname;
 QString POSTURL= "http://172.16.154.130:69/cgi-bin/srun_portal";
 int file_state=0;
 int set=0;
 int state=0;
-QString acid="2";
+QString acid="1";
 /*下面这些是服务器回传信息基准，用于做反馈处理*/
 QString login_ok="login_ok,1573330604,0,0,0.0,0.0,0,0,0,0,0,1.01.20160715"; //登陆成功
 QString login_ok_short="login_ok";
@@ -51,12 +50,22 @@ void MainWindow::Start(void)
    closeButton->setStyleSheet("QPushButton {border-image: url(:/titleButtons/close);}"
                               "QPushButton:hover {border-image: url(:/titleButtons/close_hover);}"
                                "QPushButton:pressed {border-image: url(:/titleButtons/close_pressed);}");//设置关闭等按钮的样式
-   QPushButton *AboutButton= new QPushButton(this);//建立关闭按钮
+   QPushButton *minButton= new QPushButton(this);//建立最小化按钮
+   connect(minButton, SIGNAL(clicked()), this, SLOT(Min()));//连接关闭信号
+   minButton->setGeometry(262,0,43,33);
+   minButton->setToolTip(tr("最小化"));//设置鼠标移至按钮上的提示信息
+   minButton->setStyleSheet("QPushButton {border-image: url(:/titleButtons/min);}"
+                              "QPushButton:hover {border-image: url(:/titleButtons/min_hover);}"
+                               "QPushButton:pressed {border-image: url(:/titleButtons/min_pressed);}");//设置最小化等按钮的样式
+   QPushButton *AboutButton= new QPushButton(this);//建立关于按钮
    connect(AboutButton, SIGNAL(clicked()), this, SLOT(on_ABOUT_clicked()));//连接信号
    AboutButton->setToolTip(tr("关于"));
-   AboutButton->setGeometry(340,490,10,10);
-   AboutButton->setStyleSheet("QPushButton {border-image: url(:/titleButtons/about);}");
+   AboutButton->setGeometry(320,470,20,20);
+   AboutButton->setStyleSheet("QPushButton {border-image: url(:/titleButtons/about);}"
+                              "QPushButton:hover {border-image: url(:/titleButtons/about_hover);}"
+                               "QPushButton:pressed {border-image: url(:/titleButtons/about_pressed);}");
    ui->stackedWidget->setCurrentIndex(1);
+   ui->Enter->setEnabled(false);
 }
 
 void MainWindow::GetServerInfo(void)
@@ -208,8 +217,92 @@ MainWindow::~MainWindow()
 
 void MainWindow::Close()
 {
-    close();
+    this->close();
 }
+
+void MainWindow::Min()
+{//最小化到托盘，参考http://blog.csdn.net/zhuyunfei/article/details/51433822
+    this->hide();
+    //新建QSystemTrayIcon对象
+       mSysTrayIcon = new QSystemTrayIcon(this);
+       //新建托盘要显示的icon
+       QIcon icon = QIcon(":/Ico/SysIcon");
+       //将icon设到QSystemTrayIcon对象中
+       mSysTrayIcon->setIcon(icon);
+       //当鼠标移动到托盘上的图标时，会显示此处设置的内容
+       mSysTrayIcon->setToolTip("校园网登录器");
+       //在系统托盘显示此对象
+       connect(mSysTrayIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),this,SLOT(on_activatedSysTrayIcon(QSystemTrayIcon::ActivationReason)));
+           //连接按下图标之后
+       createActions();
+       createMenu();
+       mSysTrayIcon->show();
+}
+
+void MainWindow::createActions()
+{
+    mShowMainAction = new QAction("显示主界面");
+    connect(mShowMainAction,SIGNAL(triggered()),this,SLOT(on_showMainAction()));
+    mExitAppAction = new QAction("退出");
+    connect(mExitAppAction,SIGNAL(triggered()),this,SLOT(on_exitAppAction()));
+    mServiceAction = new QAction("自服务");
+    connect(mServiceAction,SIGNAL(triggered()),this,SLOT(on_SERVICE_clicked()));
+    mAboutAction = new QAction("关于");
+    connect(mAboutAction,SIGNAL(triggered()),this,SLOT(on_ABOUT_clicked()));
+}
+
+void MainWindow::createMenu()
+{
+    mMenu = new QMenu(this);
+    //菜单美化参考http://blog.csdn.net/zhouxiao2009/article/details/22984407
+    mMenu->setStyleSheet("QMenu {background-color:white;}"
+                         "QMenu::item {padding: 2px 25px 2px 25px;border: 1px solid transparent ;}"
+                         "QMenu::item:selected:enabled {border-color:#91c9f7;background: #91c9f7;}"
+                         "QMenu::separator {height: 2px;background: rgb (168, 216, 235);margin-left: 25px;} "
+                         "QMenu::indicator {width: 13px;height: 13px;} ");
+    mMenu->addAction(mShowMainAction);
+
+    mMenu->addSeparator();
+
+    mMenu->addAction(mServiceAction);
+
+    mMenu->addSeparator();
+
+    mMenu->addAction(mAboutAction);
+
+
+    mMenu->addAction(mExitAppAction);
+
+    mSysTrayIcon->setContextMenu(mMenu);
+}
+
+void MainWindow::on_showMainAction()
+{//按下显示主界面
+    this->show();
+    mSysTrayIcon->deleteLater();
+}
+
+void MainWindow::on_exitAppAction()
+{//按下关于程序
+    exit(0);
+}
+void MainWindow::on_activatedSysTrayIcon(QSystemTrayIcon::ActivationReason reason)
+{//按下托盘图标
+    switch(reason){
+    case QSystemTrayIcon::Trigger:
+        //单击托盘图标
+        break;
+    case QSystemTrayIcon::DoubleClick:
+        //双击托盘图标
+        //双击后显示主程序窗口
+        mSysTrayIcon->deleteLater();//一定加上删除图标
+        this->show();
+        break;
+    default:
+        break;
+    }
+}
+
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
 {//窗口拖动，参考http://blog.csdn.net/aqtata/article/details/8902889
@@ -290,7 +383,7 @@ void MainWindow::POST_LOGOUT_Finished(QNetworkReply *reply)
          }
        else if(all.indexOf(error4)!=-1)
          {
-            QTimer::singleShot(1000,[this](){ui->ShowState->setText("注销中......错误!请重试!");});
+            QTimer::singleShot(1000,[this](){ui->ShowState->setText("注销中......ACID错误!请更换程序重试!");});
             QTimer::singleShot(3000,[this](){ui->LogoutButton->setEnabled(true);});
         }
        else if(all.indexOf(error1)!=-1)
@@ -418,7 +511,7 @@ void MainWindow::POST_LOGIN_Finished(QNetworkReply *reply)
          }
         else if(all.indexOf(error4)!=-1)
         {
-                    QTimer::singleShot(1000,[this](){ui->ShowState->setText("登陆中......错误!请重试!");});
+                    QTimer::singleShot(1000,[this](){ui->ShowState->setText("登陆中......ACID错误!请更换程序重试!");});
                     QTimer::singleShot(3000,[this](){ui->LoginButton->setEnabled(true);});
          }
         else if(all.indexOf(error1)!=-1)
