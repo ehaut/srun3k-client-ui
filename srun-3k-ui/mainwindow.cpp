@@ -139,6 +139,15 @@ void MainWindow::Start(void)
       }
    else
     {
+          ui->login_server->setText("http://172.16.154.130");
+          ui->service_server->setText("http://172.16.154.130");
+          ui->mac->setText("02:00:00:00:00:00");
+          ui->login_port->setValue(69);
+          ui->service_port->setValue(8800);
+          ui->acid->setValue(1);
+          ui->type->setValue(10);
+          ui->drop->setValue(0);
+          ui->pop->setValue(1);
           ui->stackedWidget->setCurrentIndex(4);
      }
 
@@ -692,4 +701,17 @@ void MainWindow::on_advanced_save_clicked()
       ui->stackedWidget->setCurrentIndex(1);
       ui->Message_show->setText("请等待程序重新获取公告!");
        QTimer::singleShot(2000, this, SLOT(GetServerInfo()));
+}
+
+void MainWindow::on_setdefaults_clicked()
+{
+    ui->login_server->setText("http://172.16.154.130");
+    ui->service_server->setText("http://172.16.154.130");
+    ui->mac->setText("02:00:00:00:00:00");
+    ui->login_port->setValue(69);
+    ui->service_port->setValue(8800);
+    ui->acid->setValue(1);
+    ui->type->setValue(10);
+    ui->drop->setValue(0);
+    ui->pop->setValue(1);
 }
