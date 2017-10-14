@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "QPushButton"
 #include "QMouseEvent"
 #include "qt_windows.h"
 #include "QtNetwork/QNetworkReply"
@@ -15,11 +14,18 @@
 #include "QSettings"
 unsigned int usedtime;
 QString yourname;
-QString POSTURL= "http://172.16.154.130:69/cgi-bin/srun_portal";
+QString login_server;
+QString login_port;
+QString service_server;
+QString service_port;
+QString mac;
+QString acid;
+QString type;
+QString drop;
+QString pop;
 int file_state=0;
 int set=0;
 int state=0;
-QString acid="1";
 /*下面这些是服务器回传信息基准，用于做反馈处理*/
 QString login_ok="login_ok,1573330604,0,0,0.0,0.0,0,0,0,0,0,1.01.20160715"; //登陆成功
 QString login_ok_short="login_ok";
@@ -38,7 +44,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     this->setWindowFlags(Qt::FramelessWindowHint);//去掉窗口标题栏
     Start();
-    QTimer::singleShot(2000, this, SLOT(GetServerInfo()));
 }
 
 void MainWindow::Start(void)
@@ -57,15 +62,93 @@ void MainWindow::Start(void)
    minButton->setStyleSheet("QPushButton {border-image: url(:/titleButtons/min);}"
                               "QPushButton:hover {border-image: url(:/titleButtons/min_hover);}"
                                "QPushButton:pressed {border-image: url(:/titleButtons/min_pressed);}");//设置最小化等按钮的样式
-   QPushButton *AboutButton= new QPushButton(this);//建立关于按钮
-   connect(AboutButton, SIGNAL(clicked()), this, SLOT(on_ABOUT_clicked()));//连接信号
+   AboutButton= new QPushButton(this);//建立关于按钮
    AboutButton->setToolTip(tr("关于"));
    AboutButton->setGeometry(320,470,20,20);
    AboutButton->setStyleSheet("QPushButton {border-image: url(:/titleButtons/about);}"
                               "QPushButton:hover {border-image: url(:/titleButtons/about_hover);}"
                                "QPushButton:pressed {border-image: url(:/titleButtons/about_pressed);}");
-   ui->stackedWidget->setCurrentIndex(1);
-   ui->Enter->setEnabled(false);
+   AdvancedButton= new QPushButton(this);//建立高级设置按钮
+   AdvancedButton->setToolTip(tr("高级设置"));
+   AdvancedButton->setGeometry(290,470,20,20);
+   AdvancedButton->setStyleSheet("QPushButton {border-image: url(:/titleButtons/advanced);}"
+                              "QPushButton:hover {border-image: url(:/titleButtons/advanced_hover);}"
+                               "QPushButton:pressed {border-image: url(:/titleButtons/advanced_pressed);}");
+   QFile open("server.json");
+      if(open.open(QIODevice::ReadOnly))
+      {
+          QByteArray OPEN_CONFIG=open.readAll();
+          open.close();
+          QJsonDocument config=QJsonDocument::fromJson(OPEN_CONFIG);
+          if(config.isObject())
+          {
+              bool ok;
+              QJsonObject obj=config.object();
+              if(obj.contains("login_server"))
+                 {
+                  login_server=(QString)obj.value("login_server").toString();
+                  ui->login_server->setText(obj.value("login_server").toString());
+                }
+              if(obj.contains("service_server"))
+                 {
+                  service_server=(QString)obj.value("service_server").toString();
+                  ui->service_server->setText(obj.value("service_server").toString());  
+                }
+              if(obj.contains("mac"))
+                 {
+                  mac=(QString)obj.value("mac").toString();
+                  ui->mac->setText(obj.value("mac").toString());
+                }
+              if(obj.contains("login_port"))
+                 {
+                  login_port=(QString)obj.value("login_port").toString();
+                  ui->login_port->setValue(login_port.toInt(&ok,10));
+                }
+              if(obj.contains("service_port"))
+                 {
+                  service_port=(QString)obj.value("service_port").toString();
+                  ui->service_port->setValue(service_port.toInt(&ok,10));
+                }
+              if(obj.contains("acid"))
+                 {
+                  acid=(QString)obj.value("acid").toString();
+                  ui->acid->setValue(acid.toInt(&ok,10));
+                }
+              if(obj.contains("type"))
+                 {
+                  type=(QString)obj.value("type").toString();
+                  ui->type->setValue(type.toInt(&ok,10));
+                }
+              if(obj.contains("drop"))
+                 {
+                  drop=(QString)obj.value("drop").toString();
+                  ui->drop->setValue(drop.toInt(&ok,10));
+                }
+              if(obj.contains("pop"))
+                 {
+                  pop=(QString)obj.value("pop").toString();
+                  ui->pop->setValue(pop.toInt(&ok,10));
+                }
+          }
+          QTimer::singleShot(2000, this, SLOT(GetServerInfo()));
+          ui->stackedWidget->setCurrentIndex(1);
+          ui->Enter->setEnabled(false);
+      }
+   else
+    {
+          ui->login_server->setText("http://172.16.154.130");
+          ui->service_server->setText("http://172.16.154.130");
+          ui->mac->setText("02:00:00:00:00:00");
+          ui->login_port->setValue(69);
+          ui->service_port->setValue(8800);
+          ui->acid->setValue(1);
+          ui->type->setValue(3);
+          ui->drop->setValue(0);
+          ui->pop->setValue(1);
+          ui->advanced_back->hide();
+          ui->stackedWidget->setCurrentIndex(4);
+     }
+
 }
 
 void MainWindow::GetServerInfo(void)
@@ -74,17 +157,20 @@ void MainWindow::GetServerInfo(void)
     ui->stackedWidget->setCurrentIndex(1);
     ui->ShowState->setText("获取服务器公告中...");
     QNetworkAccessManager *GetServerMessageManager = new QNetworkAccessManager(this);
-    GetServerMessageManager->get(QNetworkRequest(QUrl("http://172.16.154.130/get_msg.php")));
+    QString url=login_server+"/get_msg.php";
+    GetServerMessageManager->get(QNetworkRequest(QUrl(url)));
     connect(GetServerMessageManager, &QNetworkAccessManager::finished,[this](QNetworkReply *reply){
            if (reply->error() == QNetworkReply::NoError)
                 {//得到信息
+                   connect(AboutButton, SIGNAL(clicked()), this, SLOT(on_ABOUT_clicked()));//连接信号
+                   connect(AdvancedButton, SIGNAL(clicked()), this, SLOT(on_ADVANCED_clicked()));//连接信号
                  /*自动读取ACID值*/
 //                 QNetworkAccessManager *GetACIDManager = new QNetworkAccessManager(this);
-//                  GetACIDManager->get(QNetworkRequest(QUrl("http://172.16.154.130")));
+//                  GetACIDManager->get(QNetworkRequest(QUrl(login_server)));
 //                  connect(GetACIDManager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_ACID_Finished(QNetworkReply*)));
                  /*自动读取用户状态*/
                   QNetworkAccessManager *GetINFOManager = new QNetworkAccessManager(this);
-                   GetINFOManager->get(QNetworkRequest(QUrl("http://172.16.154.130/cgi-bin/rad_user_info")));
+                   GetINFOManager->get(QNetworkRequest(QUrl(login_server+"/cgi-bin/rad_user_info")));
                    connect(GetINFOManager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_INFO_Finished(QNetworkReply*)));
                  /*自动读取用户信息*/
                   QFile open("config.json");
@@ -144,6 +230,8 @@ void MainWindow::GetServerInfo(void)
            }
            else
                {
+                   connect(AboutButton, SIGNAL(clicked()), this, SLOT(on_ABOUT_clicked()));//连接信号
+                   connect(AdvancedButton, SIGNAL(clicked()), this, SLOT(on_ADVANCED_clicked()));//连接信号
                    QTimer::singleShot(1000,[this](){ui->ShowState->setText("获取服务器公告中...网络错误!");});
                    QTimer::singleShot(3000,[this](){ui->stackedWidget->setCurrentIndex(0);});
                }
@@ -248,7 +336,14 @@ void MainWindow::createActions()
     mServiceAction = new QAction("自服务");
     connect(mServiceAction,SIGNAL(triggered()),this,SLOT(on_SERVICE_clicked()));
     mAboutAction = new QAction("关于");
-    connect(mAboutAction,SIGNAL(triggered()),this,SLOT(on_ABOUT_clicked()));
+    connect(mAboutAction,SIGNAL(triggered()),this,SLOT(on_aboutAppAction()));
+}
+
+void MainWindow::on_aboutAppAction()
+{//按关于按钮
+     ui->stackedWidget->setCurrentIndex(5);
+    this->show();
+    mSysTrayIcon->deleteLater();
 }
 
 void MainWindow::createMenu()
@@ -283,7 +378,7 @@ void MainWindow::on_showMainAction()
 }
 
 void MainWindow::on_exitAppAction()
-{//按下关于程序
+{//按下退出程序
     exit(0);
 }
 void MainWindow::on_activatedSysTrayIcon(QSystemTrayIcon::ActivationReason reason)
@@ -314,13 +409,22 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
 void MainWindow::on_ABOUT_clicked()
 {//关于按钮
-    QDesktopServices::openUrl(QUrl("https://github.com/CHN-STUDENT/SRUN-3K-UI"));
+   ui->stackedWidget->setCurrentIndex(5);
 }
 
 void MainWindow::on_SERVICE_clicked()
 {//自服务按钮
-    QDesktopServices::openUrl(QUrl("http://172.16.154.130:8800/"));
+    QString url=service_server+":"+service_port;
+    qDebug()<<url;
+   QDesktopServices::openUrl(QUrl(url));
 }
+
+void MainWindow::on_ADVANCED_clicked()
+{//高级设置按钮
+    ui->stackedWidget->setCurrentIndex(4);
+}
+
+
 
 void MainWindow::on_AUTO_START_clicked()
 {
@@ -351,16 +455,20 @@ void MainWindow::on_LogoutButton_clicked()
 {
     ui->LogoutButton->setEnabled(false);
     ui->ShowState->setText("注销中...");
-       QString post="&mac=&type=2&action=logout&ac_id=";
+       QString post="&action=logout&ac_id=";
        QNetworkAccessManager *LogoutManger = new QNetworkAccessManager(this);
        QByteArray POST;
        QNetworkRequest request;
        POST.append(post);
        POST.append(acid);
+       POST.append("&mac=");
+       POST.append(mac);
+       POST.append("&type=");
+       POST.append(type);
        POST.append("&username=");
        POST.append(yourname);
        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-       request.setUrl(QUrl(POSTURL));
+       request.setUrl(QUrl(login_server+":"+login_port+"/cgi-bin/srun_portal"));
        LogoutManger->post(request,POST);
        connect(LogoutManger, SIGNAL(finished(QNetworkReply*)),this,SLOT(POST_LOGOUT_Finished(QNetworkReply*)));
 }
@@ -383,7 +491,7 @@ void MainWindow::POST_LOGOUT_Finished(QNetworkReply *reply)
          }
        else if(all.indexOf(error4)!=-1)
          {
-            QTimer::singleShot(1000,[this](){ui->ShowState->setText("注销中......ACID错误!请更换程序重试!");});
+            QTimer::singleShot(1000,[this](){ui->ShowState->setText("注销中......ACID错误!请更改高级设置中的ACID值后重试!");});
             QTimer::singleShot(3000,[this](){ui->LogoutButton->setEnabled(true);});
         }
        else if(all.indexOf(error1)!=-1)
@@ -439,10 +547,17 @@ void MainWindow::on_LoginButton_clicked()
                  }
             }
             QNetworkAccessManager *LoginManger = new QNetworkAccessManager(this);
-            QString post="&action=login&drop=0&pop=1&type=10&n=117&mbytes=0&minutes=0&mac=";
+            QString post="&action=login&n=117&mbytes=0&minutes=0&drop=";
             QByteArray POST;
             QNetworkRequest request;
             POST.append(post);
+            POST.append(drop);
+            POST.append("&pop=");
+            POST.append(pop);
+            POST.append("&type=");
+            POST.append(type);
+            POST.append("&mac=");
+            POST.append(mac);
             POST.append("&ac_id=");
             POST.append(acid);
             POST.append("&username=%7BSRUN3%7D%0D%0A");
@@ -450,7 +565,7 @@ void MainWindow::on_LoginButton_clicked()
             POST.append("&password=");
             POST.append(PASSWD_ENCRYPT.toPercentEncoding());
             request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-            request.setUrl(QUrl(POSTURL));
+            request.setUrl(QUrl(login_server+":"+login_port+"/cgi-bin/srun_portal"));
             LoginManger->post(request,POST);
             connect(LoginManger, SIGNAL(finished(QNetworkReply*)),this,SLOT(POST_LOGIN_Finished(QNetworkReply*)));
             if(file_state==0||set==1)
@@ -487,9 +602,10 @@ void MainWindow::POST_LOGIN_Finished(QNetworkReply *reply)
         if(all.indexOf(login_ok_short)!=-1)
         {
 
+
             QTimer::singleShot(1000,[this](){
                 QNetworkAccessManager *GetINFOManager = new QNetworkAccessManager(this);
-                 GetINFOManager->get(QNetworkRequest(QUrl("http://172.16.154.130/cgi-bin/rad_user_info")));
+                 GetINFOManager->get(QNetworkRequest(QUrl(login_server+"/cgi-bin/rad_user_info")));
                  connect(GetINFOManager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_INFO_Finished(QNetworkReply*)));
                 ui->ShowState->setText("登陆中......成功!");});
             QTimer::singleShot(3000,[this](){ui->stackedWidget->setCurrentIndex(3);ui->LoginButton->setEnabled(true);});
@@ -511,7 +627,7 @@ void MainWindow::POST_LOGIN_Finished(QNetworkReply *reply)
          }
         else if(all.indexOf(error4)!=-1)
         {
-                    QTimer::singleShot(1000,[this](){ui->ShowState->setText("登陆中......ACID错误!请更换程序重试!");});
+                    QTimer::singleShot(1000,[this](){ui->ShowState->setText("登陆中......ACID错误!请更改高级设置中的ACID值后重试!");});
                     QTimer::singleShot(3000,[this](){ui->LoginButton->setEnabled(true);});
          }
         else if(all.indexOf(error1)!=-1)
@@ -554,5 +670,84 @@ void MainWindow::on_Enter_clicked()
 
 void MainWindow::on_SERVICE_2_clicked()
 {
-    QDesktopServices::openUrl(QUrl("http://172.16.154.130:8800/"));
+    QString url=service_server+":"+service_port;
+    QDesktopServices::openUrl(QUrl(url));
+}
+
+void MainWindow::on_advanced_save_clicked()
+{
+    QJsonObject config;
+     config.insert("login_server",QString(ui->login_server->text().trimmed().toLatin1()));
+     login_server=QString(ui->login_server->text().trimmed().toLatin1());
+     config.insert("service_server",QString(ui->service_server->text().trimmed().toLatin1()));
+     service_server=QString(ui->service_server->text().trimmed().toLatin1());
+     config.insert("mac",QString(ui->mac->text().trimmed().toLatin1()));
+     mac=QString(ui->mac->text().trimmed().toLatin1());
+     config.insert("service_port",QString(ui->service_port->text()));
+     service_port=QString(ui->service_port->text());
+     config.insert("login_port",QString(ui->login_port->text()));
+     login_port=QString(ui->login_port->text());
+     config.insert("acid",QString(ui->acid->text()));
+     acid=QString(ui->acid->text());
+     config.insert("type",QString(ui->type->text()));
+     type=QString(ui->type->text());
+     config.insert("drop",QString(ui->drop->text()));
+     drop=QString(ui->drop->text());
+     config.insert("pop",QString(ui->pop->text()));
+     pop=QString(ui->pop->text());
+     QJsonDocument SAVE_CONFIG;
+     SAVE_CONFIG.setObject(config);
+     QFile save("server.json");
+     if(!save.open(QIODevice::WriteOnly))
+      {
+          ui->ShowState->setText("错误!文件保存失败!");
+     }
+     else
+     {
+         ui->ShowState->setText("配置信息已经保存!");
+        save.write(SAVE_CONFIG.toJson());
+     }
+     save.close();
+      ui->stackedWidget->setCurrentIndex(1);
+      ui->Message_show->setText("请等待程序重新获取公告!");
+       QTimer::singleShot(2000, this, SLOT(GetServerInfo()));
+}
+
+void MainWindow::on_setdefaults_clicked()
+{
+    ui->login_server->setText("http://172.16.154.130");
+    ui->service_server->setText("http://172.16.154.130");
+    ui->mac->setText("02:00:00:00:00:00");
+    ui->login_port->setValue(69);
+    ui->service_port->setValue(8800);
+    ui->acid->setValue(1);
+    ui->type->setValue(3);
+    ui->drop->setValue(0);
+    ui->pop->setValue(1);
+}
+
+void MainWindow::on_Enter_2_clicked()
+{
+    if(state==0)
+       {
+             ui->stackedWidget->setCurrentIndex(2);
+
+       }
+    else
+    {
+        ui->stackedWidget->setCurrentIndex(3);
+     }
+}
+
+void MainWindow::on_advanced_back_clicked()
+{
+    if(state==0)
+       {
+             ui->stackedWidget->setCurrentIndex(2);
+
+       }
+    else
+    {
+        ui->stackedWidget->setCurrentIndex(3);
+     }
 }

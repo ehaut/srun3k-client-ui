@@ -5,6 +5,7 @@
 #include "QtNetwork/QNetworkAccessManager"
 #include "QSystemTrayIcon"
 #include "QMenu"
+#include "QPushButton"
 namespace Ui {
 class MainWindow;
 }
@@ -47,12 +48,22 @@ private slots:
     void on_LoginButton_clicked();
     void POST_LOGIN_Finished(QNetworkReply *);
     void on_Enter_clicked();
+    void on_ADVANCED_clicked();
     void on_activatedSysTrayIcon(QSystemTrayIcon::ActivationReason);
     void on_SERVICE_2_clicked();
     void createActions();
     void createMenu();
     void on_showMainAction();
     void on_exitAppAction();
+    void on_aboutAppAction();
+    void on_advanced_save_clicked();
+
+    void on_setdefaults_clicked();
+
+    void on_Enter_2_clicked();
+
+    void on_advanced_back_clicked();
+
 private:
     Ui::MainWindow *ui;
     QSystemTrayIcon *mSysTrayIcon;
@@ -61,6 +72,8 @@ private:
       QAction *mExitAppAction;
       QAction *mServiceAction;
       QAction *mAboutAction;
+      QPushButton *AboutButton;
+      QPushButton *AdvancedButton;
 //    QNetworkAccessManager *manager;
     QTimer *meTimer;
 //     QTimer *RetryTimer;
