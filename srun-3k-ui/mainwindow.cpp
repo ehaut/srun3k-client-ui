@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "QPushButton"
 #include "QMouseEvent"
 #include "qt_windows.h"
 #include "QtNetwork/QNetworkReply"
@@ -63,15 +62,13 @@ void MainWindow::Start(void)
    minButton->setStyleSheet("QPushButton {border-image: url(:/titleButtons/min);}"
                               "QPushButton:hover {border-image: url(:/titleButtons/min_hover);}"
                                "QPushButton:pressed {border-image: url(:/titleButtons/min_pressed);}");//设置最小化等按钮的样式
-   QPushButton *AboutButton= new QPushButton(this);//建立关于按钮
-   connect(AboutButton, SIGNAL(clicked()), this, SLOT(on_ABOUT_clicked()));//连接信号
+   AboutButton= new QPushButton(this);//建立关于按钮
    AboutButton->setToolTip(tr("关于"));
    AboutButton->setGeometry(320,470,20,20);
    AboutButton->setStyleSheet("QPushButton {border-image: url(:/titleButtons/about);}"
                               "QPushButton:hover {border-image: url(:/titleButtons/about_hover);}"
                                "QPushButton:pressed {border-image: url(:/titleButtons/about_pressed);}");
-   QPushButton *AdvancedButton= new QPushButton(this);//建立高级设置按钮
-   connect(AdvancedButton, SIGNAL(clicked()), this, SLOT(on_ADVANCED_clicked()));//连接信号
+   AdvancedButton= new QPushButton(this);//建立高级设置按钮
    AdvancedButton->setToolTip(tr("高级设置"));
    AdvancedButton->setGeometry(290,470,20,20);
    AdvancedButton->setStyleSheet("QPushButton {border-image: url(:/titleButtons/advanced);}"
@@ -148,6 +145,7 @@ void MainWindow::Start(void)
           ui->type->setValue(10);
           ui->drop->setValue(0);
           ui->pop->setValue(1);
+          ui->advanced_back->hide();
           ui->stackedWidget->setCurrentIndex(4);
      }
 
@@ -164,6 +162,8 @@ void MainWindow::GetServerInfo(void)
     connect(GetServerMessageManager, &QNetworkAccessManager::finished,[this](QNetworkReply *reply){
            if (reply->error() == QNetworkReply::NoError)
                 {//得到信息
+                   connect(AboutButton, SIGNAL(clicked()), this, SLOT(on_ABOUT_clicked()));//连接信号
+                   connect(AdvancedButton, SIGNAL(clicked()), this, SLOT(on_ADVANCED_clicked()));//连接信号
                  /*自动读取ACID值*/
 //                 QNetworkAccessManager *GetACIDManager = new QNetworkAccessManager(this);
 //                  GetACIDManager->get(QNetworkRequest(QUrl(login_server)));
@@ -230,6 +230,8 @@ void MainWindow::GetServerInfo(void)
            }
            else
                {
+                   connect(AboutButton, SIGNAL(clicked()), this, SLOT(on_ABOUT_clicked()));//连接信号
+                   connect(AdvancedButton, SIGNAL(clicked()), this, SLOT(on_ADVANCED_clicked()));//连接信号
                    QTimer::singleShot(1000,[this](){ui->ShowState->setText("获取服务器公告中...网络错误!");});
                    QTimer::singleShot(3000,[this](){ui->stackedWidget->setCurrentIndex(0);});
                }
@@ -334,7 +336,14 @@ void MainWindow::createActions()
     mServiceAction = new QAction("自服务");
     connect(mServiceAction,SIGNAL(triggered()),this,SLOT(on_SERVICE_clicked()));
     mAboutAction = new QAction("关于");
-    connect(mAboutAction,SIGNAL(triggered()),this,SLOT(on_ABOUT_clicked()));
+    connect(mAboutAction,SIGNAL(triggered()),this,SLOT(on_aboutAppAction()));
+}
+
+void MainWindow::on_aboutAppAction()
+{//按关于按钮
+     ui->stackedWidget->setCurrentIndex(5);
+    this->show();
+    mSysTrayIcon->deleteLater();
 }
 
 void MainWindow::createMenu()
@@ -369,7 +378,7 @@ void MainWindow::on_showMainAction()
 }
 
 void MainWindow::on_exitAppAction()
-{//按下关于程序
+{//按下退出程序
     exit(0);
 }
 void MainWindow::on_activatedSysTrayIcon(QSystemTrayIcon::ActivationReason reason)
@@ -400,7 +409,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
 void MainWindow::on_ABOUT_clicked()
 {//关于按钮
-    QDesktopServices::openUrl(QUrl("https://github.com/CHN-STUDENT/SRUN-3K-UI/tree/beta"));
+   ui->stackedWidget->setCurrentIndex(5);
 }
 
 void MainWindow::on_SERVICE_clicked()
@@ -593,6 +602,7 @@ void MainWindow::POST_LOGIN_Finished(QNetworkReply *reply)
         if(all.indexOf(login_ok_short)!=-1)
         {
 
+
             QTimer::singleShot(1000,[this](){
                 QNetworkAccessManager *GetINFOManager = new QNetworkAccessManager(this);
                  GetINFOManager->get(QNetworkRequest(QUrl(login_server+"/cgi-bin/rad_user_info")));
@@ -714,4 +724,30 @@ void MainWindow::on_setdefaults_clicked()
     ui->type->setValue(10);
     ui->drop->setValue(0);
     ui->pop->setValue(1);
+}
+
+void MainWindow::on_Enter_2_clicked()
+{
+    if(state==0)
+       {
+             ui->stackedWidget->setCurrentIndex(2);
+
+       }
+    else
+    {
+        ui->stackedWidget->setCurrentIndex(3);
+     }
+}
+
+void MainWindow::on_advanced_back_clicked()
+{
+    if(state==0)
+       {
+             ui->stackedWidget->setCurrentIndex(2);
+
+       }
+    else
+    {
+        ui->stackedWidget->setCurrentIndex(3);
+     }
 }
