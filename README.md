@@ -51,6 +51,9 @@ https://github.com/CHN-STUDENT/SRUN-3K-UI
 Wiki：
 https://github.com/zeng-xs/srun3k-client/wiki/Developer-Guide
 
+安卓和IOS手机版客户端下载：
+https://ffis.me/jiaowu/srun.html
+
 -----------------------
 
 本程序仅供学习和交流研究使用。
