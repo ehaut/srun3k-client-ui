@@ -142,7 +142,7 @@ void MainWindow::Start(void)
           ui->login_port->setValue(69);
           ui->service_port->setValue(8800);
           ui->acid->setValue(1);
-          ui->type->setValue(10);
+          ui->type->setValue(3);
           ui->drop->setValue(0);
           ui->pop->setValue(1);
           ui->advanced_back->hide();
@@ -721,7 +721,7 @@ void MainWindow::on_setdefaults_clicked()
     ui->login_port->setValue(69);
     ui->service_port->setValue(8800);
     ui->acid->setValue(1);
-    ui->type->setValue(10);
+    ui->type->setValue(3);
     ui->drop->setValue(0);
     ui->pop->setValue(1);
 }
