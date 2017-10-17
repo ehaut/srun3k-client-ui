@@ -74,6 +74,8 @@ void MainWindow::Start(void)
    AdvancedButton->setStyleSheet("QPushButton {border-image: url(:/titleButtons/advanced);}"
                               "QPushButton:hover {border-image: url(:/titleButtons/advanced_hover);}"
                                "QPushButton:pressed {border-image: url(:/titleButtons/advanced_pressed);}");
+   AboutButton->hide();//在获取公告前隐藏这两个按钮
+   AdvancedButton->hide();
    QFile open("server.json");
       if(open.open(QIODevice::ReadOnly))
       {
@@ -162,8 +164,6 @@ void MainWindow::GetServerInfo(void)
     connect(GetServerMessageManager, &QNetworkAccessManager::finished,[this](QNetworkReply *reply){
            if (reply->error() == QNetworkReply::NoError)
                 {//得到信息
-                   connect(AboutButton, SIGNAL(clicked()), this, SLOT(on_ABOUT_clicked()));//连接信号
-                   connect(AdvancedButton, SIGNAL(clicked()), this, SLOT(on_ADVANCED_clicked()));//连接信号
                  /*自动读取ACID值*/
 //                 QNetworkAccessManager *GetACIDManager = new QNetworkAccessManager(this);
 //                  GetACIDManager->get(QNetworkRequest(QUrl(login_server)));
@@ -204,35 +204,31 @@ void MainWindow::GetServerInfo(void)
 
                          }
                      }
-                   QTimer::singleShot(1000,[this](){ui->ShowState->setText("获取服务器公告中...成功!");});
+                   QTimer::singleShot(1000,[this](){
+                       ui->ShowState->setText("获取服务器公告中...成功!");
+                       connect(AboutButton, SIGNAL(clicked()), this, SLOT(on_ABOUT_clicked()));//连接信号
+                       connect(AdvancedButton, SIGNAL(clicked()), this, SLOT(on_ADVANCED_clicked()));//连接信号
+                       AboutButton->show();//在获取公告后显示这两个按钮
+                       AdvancedButton->show();
+                   });
                    QTextCodec *codec =QTextCodec::codecForName("GB2312");
                    QString all = codec->toUnicode(reply->readAll());
                    QTimer::singleShot(1000,[this,all](){
                        ui->Message_show->setText(all);
                        ui->Enter->setEnabled(true);
                    });
-                   QTimer::singleShot(10000,[this](){//10s后自动跳转
-                       if(state==0)
-                          {
-                                ui->stackedWidget->setCurrentIndex(2);
-                                if(ui->AUTO_LOGIN->isChecked())
-                                {
-                                    QTimer::singleShot(3000,[this](){ui->LoginButton->setEnabled(true);ui->LoginButton->click();});
-                                }
-                                ui->LoginButton->setEnabled(true);
-                          }
-                       else
-                       {
-                           ui->stackedWidget->setCurrentIndex(3);
-                           ui->LogoutButton->setEnabled(true);
-                        }
-                });
+
            }
            else
                {
+                   state=-1;
                    connect(AboutButton, SIGNAL(clicked()), this, SLOT(on_ABOUT_clicked()));//连接信号
                    connect(AdvancedButton, SIGNAL(clicked()), this, SLOT(on_ADVANCED_clicked()));//连接信号
-                   QTimer::singleShot(1000,[this](){ui->ShowState->setText("获取服务器公告中...网络错误!");});
+                   QTimer::singleShot(1000,[this](){
+                       ui->ShowState->setText("获取服务器公告中...网络错误!");
+                       AboutButton->show();//在获取公告后显示这两个按钮
+                       AdvancedButton->show();
+                   });
                    QTimer::singleShot(3000,[this](){ui->stackedWidget->setCurrentIndex(0);});
                }
              reply->deleteLater();//回收
@@ -246,12 +242,20 @@ void MainWindow::GET_INFO_Finished(QNetworkReply *reply)
         QTextCodec *codec =QTextCodec::codecForName("GB2312");
         QString all = codec->toUnicode(reply->readAll());
         if(all.indexOf("not_online")!=-1)
-        {
+        {//如果检测不在线
             state=0;
+            QTimer::singleShot(10000,[this](){//10s后自动跳转
+                if(ui->stackedWidget->currentIndex()==1)
+                    ui->stackedWidget->setCurrentIndex(2);
+            });
         }
         else
         {
             state=1;
+            QTimer::singleShot(10000,[this](){//10s后自动跳转
+                if(ui->stackedWidget->currentIndex()==1)
+                    ui->stackedWidget->setCurrentIndex(3);
+            });
             QStringList getinfo=all.split(",");
             unsigned int login_time;
             unsigned int server_time;
@@ -424,8 +428,6 @@ void MainWindow::on_ADVANCED_clicked()
     ui->stackedWidget->setCurrentIndex(4);
 }
 
-
-
 void MainWindow::on_AUTO_START_clicked()
 {
     set=1;
@@ -452,7 +454,7 @@ void MainWindow::on_RetryButton_clicked()
 }
 
 void MainWindow::on_LogoutButton_clicked()
-{
+{//按下注销按钮
     ui->LogoutButton->setEnabled(false);
     ui->ShowState->setText("注销中...");
        QString post="&action=logout&ac_id=";
@@ -481,12 +483,12 @@ void MainWindow::POST_LOGOUT_Finished(QNetworkReply *reply)
         QString all = codec->toUnicode(reply->readAll());
         if(all.indexOf(logout_ok)!=-1)
         {
-            QTimer::singleShot(1000,[this](){ui->ShowState->setText("注销中......成功!");});
+            QTimer::singleShot(1000,[this](){state=0;ui->ShowState->setText("注销中......成功!");});
             QTimer::singleShot(3000,[this](){ui->stackedWidget->setCurrentIndex(2);ui->LogoutButton->setEnabled(true);});
          }
        else if(all.indexOf(error5)!=-1)
         {
-            QTimer::singleShot(1000,[this](){ui->ShowState->setText("您不在线，无法完成注销!");});
+            QTimer::singleShot(1000,[this](){state=0;ui->ShowState->setText("您不在线，无法完成注销!");});
             QTimer::singleShot(3000,[this](){ui->stackedWidget->setCurrentIndex(2);ui->LogoutButton->setEnabled(true);});
          }
        else if(all.indexOf(error4)!=-1)
@@ -509,7 +511,7 @@ void MainWindow::POST_LOGOUT_Finished(QNetworkReply *reply)
 }
 
 void MainWindow::on_LoginButton_clicked()
-{
+{//按下登陆按钮
     ui->LoginButton->setEnabled(false);
     ui->ShowState->setText("登陆中...");
         QByteArray NAME_INPUT = ui->NAME_INPUT->text().trimmed().toLatin1();
@@ -601,9 +603,8 @@ void MainWindow::POST_LOGIN_Finished(QNetworkReply *reply)
         QString all = codec->toUnicode(reply->readAll());
         if(all.indexOf(login_ok_short)!=-1)
         {
-
-
             QTimer::singleShot(1000,[this](){
+                state=1;
                 QNetworkAccessManager *GetINFOManager = new QNetworkAccessManager(this);
                  GetINFOManager->get(QNetworkRequest(QUrl(login_server+"/cgi-bin/rad_user_info")));
                  connect(GetINFOManager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_INFO_Finished(QNetworkReply*)));
@@ -651,17 +652,17 @@ void MainWindow::POST_LOGIN_Finished(QNetworkReply *reply)
 }
 
 void MainWindow::on_Enter_clicked()
-{
+{//按下显示服务器公告的确定按钮
     if(state==0)
        {
              ui->stackedWidget->setCurrentIndex(2);
+              ui->LoginButton->setEnabled(true);
              if(ui->AUTO_LOGIN->isChecked())
              {
-                 QTimer::singleShot(3000,[this](){ui->LoginButton->setEnabled(true);ui->LoginButton->click();});
+                 QTimer::singleShot(3000,[this](){ui->LoginButton->click();});
              }
-             ui->LoginButton->setEnabled(true);
        }
-    else
+    else if(state==1)
     {
         ui->stackedWidget->setCurrentIndex(3);
         ui->LogoutButton->setEnabled(true);
@@ -669,13 +670,13 @@ void MainWindow::on_Enter_clicked()
 }
 
 void MainWindow::on_SERVICE_2_clicked()
-{
+{//注销界面的自服务按钮
     QString url=service_server+":"+service_port;
     QDesktopServices::openUrl(QUrl(url));
 }
 
 void MainWindow::on_advanced_save_clicked()
-{
+{//按下高级界面的存储按钮
     QJsonObject config;
      config.insert("login_server",QString(ui->login_server->text().trimmed().toLatin1()));
      login_server=QString(ui->login_server->text().trimmed().toLatin1());
@@ -710,11 +711,12 @@ void MainWindow::on_advanced_save_clicked()
      save.close();
       ui->stackedWidget->setCurrentIndex(1);
       ui->Message_show->setText("请等待程序重新获取公告!");
+      ui->advanced_back->show();
        QTimer::singleShot(2000, this, SLOT(GetServerInfo()));
 }
 
 void MainWindow::on_setdefaults_clicked()
-{
+{//按下高级界面的设置初始值
     ui->login_server->setText("http://172.16.154.130");
     ui->service_server->setText("http://172.16.154.130");
     ui->mac->setText("02:00:00:00:00:00");
@@ -727,27 +729,39 @@ void MainWindow::on_setdefaults_clicked()
 }
 
 void MainWindow::on_Enter_2_clicked()
-{
+{//按下关于界面的确定按钮
     if(state==0)
        {
              ui->stackedWidget->setCurrentIndex(2);
-
+            ui->LoginButton->setEnabled(true);
        }
-    else
+    else if(state==1)
     {
         ui->stackedWidget->setCurrentIndex(3);
+        ui->LogoutButton->setEnabled(true);
      }
+    else
+    {
+        ui->stackedWidget->setCurrentIndex(0);
+        ui->RetryButton->setEnabled(true);
+    }
 }
 
 void MainWindow::on_advanced_back_clicked()
-{
+{//按下高级界面返回按钮
     if(state==0)
        {
              ui->stackedWidget->setCurrentIndex(2);
-
+            ui->LoginButton->setEnabled(true);
        }
-    else
+    else if(state==1)
     {
         ui->stackedWidget->setCurrentIndex(3);
+        ui->LogoutButton->setEnabled(true);
      }
+    else
+    {
+        ui->stackedWidget->setCurrentIndex(0);
+        ui->RetryButton->setEnabled(true);
+    }
 }
