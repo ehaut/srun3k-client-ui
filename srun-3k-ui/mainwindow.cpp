@@ -246,7 +246,14 @@ void MainWindow::GET_INFO_Finished(QNetworkReply *reply)
             state=0;
             QTimer::singleShot(10000,[this](){//10s后自动跳转
                 if(ui->stackedWidget->currentIndex()==1)
+                  {
                     ui->stackedWidget->setCurrentIndex(2);
+                    if(ui->AUTO_LOGIN->isChecked())
+                    {
+                        ui->LoginButton->setEnabled(true);
+                        ui->LoginButton->click();
+                    }
+                  }
             });
         }
         else
