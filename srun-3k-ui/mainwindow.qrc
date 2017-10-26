@@ -14,7 +14,11 @@
         <file alias="advanced_pressed">Resouces/titleButtons/advanced_pressed.png</file>
     </qresource>
     <qresource prefix="/Ico">
-        <file alias="R">Resouces/Ico/myapp(RGB).png</file>
+        <file alias="R">Resouces/Ico/new.png</file>
 		<file alias="SysIcon">Resouces/Ico/myappSysTrayIcon.png</file>
+    </qresource>
+	<qresource prefix="/language">
+        <file alias="widgets.qm">Resouces/language/widgets.qm</file>
+		<file alias="qt_zh_CN.qm">Resouces/language/qt_zh_CN.qm</file>
     </qresource>
 </RCC>

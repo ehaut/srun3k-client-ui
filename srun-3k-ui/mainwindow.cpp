@@ -138,6 +138,7 @@ void MainWindow::Start(void)
       }
    else
     {//不存在服务器信息文件，要求设置
+          ui->advanced_save->setGeometry(30,330,290,50);
           ui->login_server->setText("http://172.16.154.130");
           ui->service_server->setText("http://172.16.154.130");
           ui->mac->setText("02:00:00:00:00:00");
@@ -246,20 +247,23 @@ void MainWindow::AutoJumpTimeSlot()
     AutoJumpTimer->stop();
     disconnect(AutoJumpTimer, SIGNAL(timeout()), this, SLOT(AutoJumpTimeSlot()));
     AutoJumpTimer->deleteLater();
-    if(state==0)
-       {
-             ui->stackedWidget->setCurrentIndex(2);
-              ui->LoginButton->setEnabled(true);
-             if(ui->AUTO_LOGIN->isChecked())
-             {
-                 QTimer::singleShot(3000,[this](){ui->LoginButton->click();});
-             }
-       }
-    else if(state==1)
-    {
-        ui->stackedWidget->setCurrentIndex(3);
-        ui->LogoutButton->setEnabled(true);
-     }
+    if(ui->stackedWidget->currentIndex()==1)
+    {//如果自动跳转发现仍然停留在获取公告页面
+        if(state==0)
+           {
+                 ui->stackedWidget->setCurrentIndex(2);
+                  ui->LoginButton->setEnabled(true);
+                 if(ui->AUTO_LOGIN->isChecked())
+                 {
+                     QTimer::singleShot(3000,[this](){ui->LoginButton->click();});
+                 }
+           }
+        else if(state==1)
+        {
+            ui->stackedWidget->setCurrentIndex(3);
+            ui->LogoutButton->setEnabled(true);
+         }
+    }
 }
 
 
@@ -752,6 +756,7 @@ void MainWindow::on_advanced_save_clicked()
       ui->stackedWidget->setCurrentIndex(1);
       ui->Message_show->setText("请等待程序重新获取公告!");
       ui->advanced_back->show();
+      ui->advanced_save->setGeometry(30,330,170,50);
        QTimer::singleShot(2000, this, SLOT(GetServerInfo()));
 }
 
