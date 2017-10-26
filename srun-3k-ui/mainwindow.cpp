@@ -450,7 +450,7 @@ void MainWindow::on_ABOUT_clicked()
 void MainWindow::on_SERVICE_clicked()
 {//自服务按钮
     QString url=service_server+":"+service_port;
-    qDebug()<<url;
+   // qDebug()<<url;
    QDesktopServices::openUrl(QUrl(url));
 }
 
@@ -601,7 +601,7 @@ void MainWindow::on_LoginButton_clicked()
             request.setUrl(QUrl(login_server+":"+login_port+"/cgi-bin/srun_portal"));
             LoginManger->post(request,POST);
             connect(LoginManger, SIGNAL(finished(QNetworkReply*)),this,SLOT(POST_LOGIN_Finished(QNetworkReply*)));
-            if((file_state==0&&file_state==-1)||set==1)
+            if((file_state==0||file_state==-1)||set==1)
             {
                 QJsonObject info;
                  info.insert("username",QString(NAME_INPUT));
