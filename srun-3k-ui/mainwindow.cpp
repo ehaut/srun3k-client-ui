@@ -179,8 +179,12 @@ void MainWindow::GetServerInfo(void)
                                 QJsonObject obj=INFO.object();
                                 if(obj.contains("username"))
                                    { ui->NAME_INPUT->setText(obj.value("username").toString());}
-                                if(obj.contains("password"))
-                                   {ui->PASSWD_INPUT->setText(obj.value("password").toString());}
+                                if(obj.contains("password"))    
+                                   {
+
+                                   QString PASSWD=obj.value("password").toString();
+                                    ui->PASSWD_INPUT->setText(QByteArray::fromBase64(PASSWD.toLatin1()));
+                                }
                                 if(obj.contains("auto_start"))
                                 {
                                     bool auto_start=obj.value("auto_start").toBool();
@@ -248,6 +252,8 @@ void MainWindow::GET_INFO_Finished(QNetworkReply *reply)
         {//如果检测不在线
             state=0;
             ui->stackedWidget->setCurrentIndex(2);
+            setTabOrder(ui->NAME_INPUT,ui->PASSWD_INPUT);
+            setTabOrder(ui->PASSWD_INPUT,ui->NAME_INPUT);
         }
         else
         {
@@ -581,7 +587,7 @@ void MainWindow::on_LoginButton_clicked()
             {
                 QJsonObject info;
                  info.insert("username",QString(NAME_INPUT));
-                 info.insert("password",QString(PASSWD_INPUT));
+                 info.insert("password",QString(PASSWD_INPUT.toBase64()));
                   bool auto_login=ui->AUTO_LOGIN->isChecked();
                  info.insert("auto_login",auto_login);
                  bool auto_start=ui->AUTO_START->isChecked();
@@ -710,9 +716,10 @@ void MainWindow::on_advanced_save_clicked()
 //     ui->Enter->setEnabled(false);
 //      ui->stackedWidget->setCurrentIndex(1);
 //      ui->Message_show->setText("请等待程序重新获取公告!");
+      GetServerInfo();
       ui->advanced_back->show();
       ui->advanced_save->setGeometry(30,330,170,50);
-       QTimer::singleShot(2000, this, SLOT(GetServerInfo()));
+
 }
 
 void MainWindow::on_setdefaults_clicked()
@@ -760,3 +767,4 @@ void MainWindow::on_ShowServerMessage_clicked()
 {
       ui->stackedWidget->setCurrentIndex(1);
 }
+
