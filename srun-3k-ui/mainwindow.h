@@ -43,7 +43,7 @@ private slots:
     void GET_INFO_Finished(QNetworkReply*);
 
     void TimeSlot();
-    void AutoJumpTimeSlot();
+//    void AutoJumpTimeSlot();
     void on_LogoutButton_clicked();
     void POST_LOGOUT_Finished(QNetworkReply *);
     void on_LoginButton_clicked();
@@ -66,6 +66,8 @@ private slots:
     void on_advanced_back_clicked();
 
 
+    void on_ShowServerMessage_clicked();
+
 private:
     Ui::MainWindow *ui;
     QSystemTrayIcon *mSysTrayIcon;
@@ -78,7 +80,7 @@ private:
       QPushButton *AdvancedButton;
 //    QNetworkAccessManager *manager;
     QTimer *meTimer;
-    QTimer *AutoJumpTimer;
+//    QTimer *AutoJumpTimer;
 //     QTimer *RetryTimer;
 //     QTimer *WaitTimer;
 };
