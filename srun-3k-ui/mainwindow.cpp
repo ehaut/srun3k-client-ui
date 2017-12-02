@@ -48,8 +48,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::Start(void)
 {//开始设置界面关闭按钮，关于按钮
-   ui->NAME_INPUT->setAttribute(Qt::WA_InputMethodEnabled, false);
-   ui->PASSWD_INPUT->setAttribute(Qt::WA_InputMethodEnabled, false);
    QPushButton *closeButton= new QPushButton(this);//建立关闭按钮
    connect(closeButton, SIGNAL(clicked()), this, SLOT(Close()));//连接关闭信号
    closeButton->setGeometry(305,0,43,33);
@@ -134,11 +132,12 @@ void MainWindow::Start(void)
                   ui->pop->setValue(pop.toInt(&ok,10));
                 }
           }
-          GetServerInfo();//获取服务器信息
+          QTimer::singleShot(2000, this, SLOT(GetServerInfo()));//获取服务器信息
+          ui->stackedWidget->setCurrentIndex(1);//进入公告页面
+          ui->Enter->setEnabled(false);//等获取完成后才可以确认
       }
    else
     {//不存在服务器信息文件，要求设置
-          ui->advanced_save->setGeometry(30,330,290,50);
           ui->login_server->setText("http://172.16.154.130");
           ui->service_server->setText("http://172.16.154.130");
           ui->mac->setText("02:00:00:00:00:00");
@@ -155,92 +154,115 @@ void MainWindow::Start(void)
 }
 
 void MainWindow::GetServerInfo(void)
-{
+{//得到服务器公告和acid值
+    ui->Enter->setEnabled(false);
+    ui->stackedWidget->setCurrentIndex(1);
+    ui->ShowState->setText("获取服务器公告中...");
     QNetworkAccessManager *GetServerMessageManager = new QNetworkAccessManager(this);
     QString url=login_server+"/get_msg.php";
     GetServerMessageManager->get(QNetworkRequest(QUrl(url)));
     connect(GetServerMessageManager, &QNetworkAccessManager::finished,[this](QNetworkReply *reply){
            if (reply->error() == QNetworkReply::NoError)
                 {//得到信息
-                    /*自动读取用户状态*/
-                      QNetworkAccessManager *GetINFOManager = new QNetworkAccessManager(this);
-                      GetINFOManager->get(QNetworkRequest(QUrl(login_server+"/cgi-bin/rad_user_info")));
-                      connect(GetINFOManager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_INFO_Finished(QNetworkReply*)));
-                    /*自动读取用户信息*/
-                     QFile open("config.json");
-                        if(open.open(QIODevice::ReadOnly))
-                        {
-                            file_state=1;
-                            QByteArray OPEN_INFO=open.readAll();
-                            open.close();
-                            QJsonDocument INFO=QJsonDocument::fromJson(OPEN_INFO);
-                            if(INFO.isObject())
-                            {
-                                QJsonObject obj=INFO.object();
-                                if(obj.contains("username"))
-                                   { ui->NAME_INPUT->setText(obj.value("username").toString());}
-                                if(obj.contains("password"))    
-                                   {
+                 /*自动读取ACID值*/
+//                 QNetworkAccessManager *GetACIDManager = new QNetworkAccessManager(this);
+//                  GetACIDManager->get(QNetworkRequest(QUrl(login_server)));
+//                  connect(GetACIDManager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_ACID_Finished(QNetworkReply*)));
+                 /*自动读取用户状态*/
+                  QNetworkAccessManager *GetINFOManager = new QNetworkAccessManager(this);
+                   GetINFOManager->get(QNetworkRequest(QUrl(login_server+"/cgi-bin/rad_user_info")));
+                   connect(GetINFOManager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_INFO_Finished(QNetworkReply*)));
+                 /*自动读取用户信息*/
+                  QFile open("config.json");
+                     if(open.open(QIODevice::ReadOnly))
+                     {
+                         file_state=1;
+                         QByteArray OPEN_INFO=open.readAll();
+                         open.close();
+                         QJsonDocument INFO=QJsonDocument::fromJson(OPEN_INFO);
+                         if(INFO.isObject())
+                         {
+                             QJsonObject obj=INFO.object();
+                             if(obj.contains("username"))
+                                { ui->NAME_INPUT->setText(obj.value("username").toString());}
+                             if(obj.contains("password"))
+                                {ui->PASSWD_INPUT->setText(obj.value("password").toString());}
+                             if(obj.contains("auto_start"))
+                             {
+                                 bool auto_start=obj.value("auto_start").toBool();
+                                if(auto_start)
+                                  ui->AUTO_START->setCheckState(Qt::Checked);
+                             }
+                             if(obj.contains("auto_login"))
+                             {
+                                 bool auto_login=obj.value("auto_login").toBool();
+                                if(auto_login)
+                                 {
+                                      ui->AUTO_LOGIN->setCheckState(Qt::Checked);
+                                }
+                             }
 
-                                   QString PASSWD=obj.value("password").toString();
-                                    ui->PASSWD_INPUT->setText(QByteArray::fromBase64(PASSWD.toLatin1()));
-                                }
-                                if(obj.contains("auto_start"))
-                                {
-                                    bool auto_start=obj.value("auto_start").toBool();
-                                   if(auto_start)
-                                     ui->AUTO_START->setCheckState(Qt::Checked);
-                                }
-                                if(obj.contains("auto_login"))
-                                {
-                                    bool auto_login=obj.value("auto_login").toBool();
-                                   if(auto_login)
-                                    {
-                                         ui->AUTO_LOGIN->setCheckState(Qt::Checked);
-                                   }
-                                }
-
-                            }
-                        }
-                      /*对这次公告进行转码*/
-                      QTextCodec *codec =QTextCodec::codecForName("GB2312");
-                       QString all = codec->toUnicode(reply->readAll());
+                         }
+                     }
+                   QTimer::singleShot(1000,[this](){//获取公告成功显示
+                       ui->ShowState->setText("获取服务器公告中...成功!");
+                       connect(AboutButton, SIGNAL(clicked()), this, SLOT(on_ABOUT_clicked()));//连接信号
+                       connect(AdvancedButton, SIGNAL(clicked()), this, SLOT(on_ADVANCED_clicked()));//连接信号
+                       AboutButton->show();//在获取公告后显示这两个按钮
+                       AdvancedButton->show();
+                   });
+                   QTextCodec *codec =QTextCodec::codecForName("GB2312");
+                   QString all = codec->toUnicode(reply->readAll());
+                   QTimer::singleShot(1000,[this,all](){
                        ui->Message_show->setText(all);
-                       /*自动读取上次公告*/
-                       QFile m("lastservermessage.txt");
-                       if(m.open(QIODevice::ReadWrite))
-                       {//读取上次公告文件
-                           QString ServerMessage=m.readAll();
-                           if(ServerMessage!=all)
-                           {//服务器公告更新
-                               ui->ShowServerMessage->setText("显示(新)公告");
-                               /*自动重写公告*/
-                               QFile save("lastservermessage.txt");
-                               m.write(all.toUtf8());
-                               m.close();
-                           }
-                       }
-                       else
-                       {//如果读取不到上次公告文件
-                           ui->ShowServerMessage->setText("显示(新)公告");
-                           /*自动重写公告*/
-                           m.write(all.toUtf8());
-                           m.close();
-                       }
+                       ui->Enter->setEnabled(true);
+                   });
+                   /*启动10s自动跳转计时器*/
+                   AutoJumpTimer = new QTimer(this);
+                   connect(AutoJumpTimer, SIGNAL(timeout()), this, SLOT(AutoJumpTimeSlot()));
+                   AutoJumpTimer->start(20000);
+                   AutoJumpTimer->setSingleShot(true);//单次定时器
 
+           }
+           else
+               {
+                   state=-1;
+                   connect(AboutButton, SIGNAL(clicked()), this, SLOT(on_ABOUT_clicked()));//连接信号
+                   connect(AdvancedButton, SIGNAL(clicked()), this, SLOT(on_ADVANCED_clicked()));//连接信号
+                   QTimer::singleShot(1000,[this](){
+                       ui->ShowState->setText("获取服务器公告中...网络错误!");
+                       AboutButton->show();//在获取公告后显示这两个按钮
+                       AdvancedButton->show();
+                   });
+                   QTimer::singleShot(3000,[this](){ui->stackedWidget->setCurrentIndex(0);});
                }
-             else
-                {
-                    ui->ShowState->setText("网络错误!");
-                    ui->stackedWidget->setCurrentIndex(0);
-                }
-           connect(AboutButton, SIGNAL(clicked()), this, SLOT(on_ABOUT_clicked()));//连接信号
-           connect(AdvancedButton, SIGNAL(clicked()), this, SLOT(on_ADVANCED_clicked()));//连接信号
-           AboutButton->show();//在获取公告后显示这两个按钮
-           AdvancedButton->show();
-           reply->deleteLater();//回收
-     });
+             reply->deleteLater();//回收
+        });
 }
+
+void MainWindow::AutoJumpTimeSlot()
+{
+    /*关闭连接，删除信号*/
+    AutoJumpTimer->stop();
+    disconnect(AutoJumpTimer, SIGNAL(timeout()), this, SLOT(AutoJumpTimeSlot()));
+    AutoJumpTimer->deleteLater();
+    if(state==0)
+       {
+             ui->stackedWidget->setCurrentIndex(2);
+              ui->LoginButton->setEnabled(true);
+             if(ui->AUTO_LOGIN->isChecked())
+             {
+                 QTimer::singleShot(3000,[this](){ui->LoginButton->click();});
+             }
+       }
+    else if(state==1)
+    {
+        ui->stackedWidget->setCurrentIndex(3);
+        ui->LogoutButton->setEnabled(true);
+     }
+}
+
+
 void MainWindow::GET_INFO_Finished(QNetworkReply *reply)
 {
     static int run=0;
@@ -250,15 +272,11 @@ void MainWindow::GET_INFO_Finished(QNetworkReply *reply)
         QString all = codec->toUnicode(reply->readAll());
         if(all.indexOf("not_online")!=-1)
         {//如果检测不在线
-            state=0;
-            ui->stackedWidget->setCurrentIndex(2);
-            setTabOrder(ui->NAME_INPUT,ui->PASSWD_INPUT);
-            setTabOrder(ui->PASSWD_INPUT,ui->NAME_INPUT);
+            state=0;          
         }
         else
         {
             state=1;
-            ui->stackedWidget->setCurrentIndex(3);
             QStringList getinfo=all.split(",");
             unsigned int login_time;
             unsigned int server_time;
@@ -587,7 +605,7 @@ void MainWindow::on_LoginButton_clicked()
             {
                 QJsonObject info;
                  info.insert("username",QString(NAME_INPUT));
-                 info.insert("password",QString(PASSWD_INPUT.toBase64()));
+                 info.insert("password",QString(PASSWD_INPUT));
                   bool auto_login=ui->AUTO_LOGIN->isChecked();
                  info.insert("auto_login",auto_login);
                  bool auto_start=ui->AUTO_START->isChecked();
@@ -668,7 +686,24 @@ void MainWindow::POST_LOGIN_Finished(QNetworkReply *reply)
 
 void MainWindow::on_Enter_clicked()
 {//按下显示服务器公告的确定按钮
-    ui->stackedWidget->setCurrentIndex(3);//返回登陆成功页面
+    /*停止10s自动跳转倒计时*/
+    AutoJumpTimer->stop();
+    disconnect(AutoJumpTimer, SIGNAL(timeout()), this, SLOT(AutoJumpTimeSlot()));
+    AutoJumpTimer->deleteLater();
+    if(state==0)
+       {
+             ui->stackedWidget->setCurrentIndex(2);
+              ui->LoginButton->setEnabled(true);
+             if(ui->AUTO_LOGIN->isChecked())
+             {
+                 QTimer::singleShot(3000,[this](){ui->LoginButton->click();});
+             }
+       }
+    else if(state==1)
+    {
+        ui->stackedWidget->setCurrentIndex(3);
+        ui->LogoutButton->setEnabled(true);
+     }
 }
 
 void MainWindow::on_SERVICE_2_clicked()
@@ -711,15 +746,13 @@ void MainWindow::on_advanced_save_clicked()
         save.write(SAVE_CONFIG.toJson());
      }
      save.close();
-//     AboutButton->hide();//在获取公告前隐藏这两个按钮
-//     AdvancedButton->hide();
-//     ui->Enter->setEnabled(false);
-//      ui->stackedWidget->setCurrentIndex(1);
-//      ui->Message_show->setText("请等待程序重新获取公告!");
-      GetServerInfo();
+     AboutButton->hide();//在获取公告前隐藏这两个按钮
+     AdvancedButton->hide();
+     ui->Enter->setEnabled(false);
+      ui->stackedWidget->setCurrentIndex(1);
+      ui->Message_show->setText("请等待程序重新获取公告!");
       ui->advanced_back->show();
-      ui->advanced_save->setGeometry(30,330,170,50);
-
+       QTimer::singleShot(2000, this, SLOT(GetServerInfo()));
 }
 
 void MainWindow::on_setdefaults_clicked()
@@ -747,6 +780,11 @@ void MainWindow::on_Enter_2_clicked()
         ui->stackedWidget->setCurrentIndex(3);
         ui->LogoutButton->setEnabled(true);
      }
+    else
+    {
+        ui->stackedWidget->setCurrentIndex(0);
+        ui->RetryButton->setEnabled(true);
+    }
 }
 
 void MainWindow::on_advanced_back_clicked()
@@ -761,10 +799,9 @@ void MainWindow::on_advanced_back_clicked()
         ui->stackedWidget->setCurrentIndex(3);
         ui->LogoutButton->setEnabled(true);
      }
+    else
+    {
+        ui->stackedWidget->setCurrentIndex(0);
+        ui->RetryButton->setEnabled(true);
+    }
 }
-
-void MainWindow::on_ShowServerMessage_clicked()
-{
-      ui->stackedWidget->setCurrentIndex(1);
-}
-
