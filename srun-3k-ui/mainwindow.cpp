@@ -78,7 +78,8 @@ void MainWindow::Start(void)
                                "QPushButton:pressed {border-image: url(:/titleButtons/advanced_pressed);}");
    AboutButton->hide();//在获取公告前隐藏这两个按钮
    AdvancedButton->hide();
-   QFile open("server.json");
+   QString serverconfig=QCoreApplication::applicationDirPath()+"/server.json";
+   QFile open(serverconfig);
       if(open.open(QIODevice::ReadOnly))
       {//打开服务器信息文件
           QByteArray OPEN_CONFIG=open.readAll();
@@ -167,16 +168,17 @@ void MainWindow::GetServerInfo(void)
                       GetINFOManager->get(QNetworkRequest(QUrl(login_server+"/cgi-bin/rad_user_info")));
                       connect(GetINFOManager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_INFO_Finished(QNetworkReply*)));
                     /*自动读取用户信息*/
-                     QFile open("config.json");
-                        if(open.open(QIODevice::ReadOnly))
+                      QString userconfig=QCoreApplication::applicationDirPath()+"/config.json";
+                     QFile u(userconfig);
+                        if(u.open(QIODevice::ReadOnly))
                         {
                             file_state=1;
-                            QByteArray OPEN_INFO=open.readAll();
-                            open.close();
-                            QJsonDocument INFO=QJsonDocument::fromJson(OPEN_INFO);
-                            if(INFO.isObject())
+                            QByteArray OPEN_USERINFO=u.readAll();
+                            u.close();
+                            QJsonDocument USERINFO=QJsonDocument::fromJson(OPEN_USERINFO);
+                            if(USERINFO.isObject())
                             {
-                                QJsonObject obj=INFO.object();
+                                QJsonObject obj=USERINFO.object();
                                 if(obj.contains("username"))
                                    { ui->NAME_INPUT->setText(obj.value("username").toString());}
                                 if(obj.contains("password"))    
@@ -207,7 +209,8 @@ void MainWindow::GetServerInfo(void)
                        QString all = codec->toUnicode(reply->readAll());
                        ui->Message_show->setText(all);
                        /*自动读取上次公告*/
-                       QFile m("lastservermessage.txt");
+                       QString servermessage=QCoreApplication::applicationDirPath()+"/lastservermessage.txt";
+                       QFile m(servermessage);
                        if(m.open(QIODevice::ReadWrite))
                        {//读取上次公告文件
                            QString ServerMessage=m.readAll();
@@ -219,6 +222,8 @@ void MainWindow::GetServerInfo(void)
                                m.write(all.toUtf8());
                                m.close();
                            }
+                           else
+                               m.close();
                        }
                        else
                        {//如果读取不到上次公告文件
@@ -598,7 +603,8 @@ void MainWindow::on_LoginButton_clicked()
                  info.insert("auto_start",auto_start);
                  QJsonDocument SAVE_INFO;
                  SAVE_INFO.setObject(info);
-                 QFile save("config.json");
+                 QString userconfig=QCoreApplication::applicationDirPath()+"/config.json";
+                QFile save(userconfig);
                  if(!save.open(QIODevice::WriteOnly))
                   {
                       ui->ShowState->setText("错误!文件保存失败!");
@@ -704,7 +710,8 @@ void MainWindow::on_advanced_save_clicked()
      pop=QString(ui->pop->text());
      QJsonDocument SAVE_CONFIG;
      SAVE_CONFIG.setObject(config);
-     QFile save("server.json");
+     QString serverconfig=QCoreApplication::applicationDirPath()+"/server.json";
+     QFile save(serverconfig);
      if(!save.open(QIODevice::WriteOnly))
       {
           ui->ShowState->setText("错误!文件保存失败!");
