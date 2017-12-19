@@ -76,6 +76,7 @@ void MainWindow::Start(void)
    AdvancedButton->setStyleSheet("QPushButton {border-image: url(:/titleButtons/advanced);}"
                               "QPushButton:hover {border-image: url(:/titleButtons/advanced_hover);}"
                                "QPushButton:pressed {border-image: url(:/titleButtons/advanced_pressed);}");
+ connect(ui->About_show, SIGNAL(anchorClicked(const QUrl&)),this, SLOT(anchorClickedSlot(const QUrl&)));
    AboutButton->hide();//在获取公告前隐藏这两个按钮
    AdvancedButton->hide();
    QString serverconfig=QCoreApplication::applicationDirPath()+"/server.json";
@@ -257,8 +258,6 @@ void MainWindow::GET_INFO_Finished(QNetworkReply *reply)
         {//如果检测不在线
             state=0;
             ui->stackedWidget->setCurrentIndex(2);
-            setTabOrder(ui->NAME_INPUT,ui->PASSWD_INPUT);
-            setTabOrder(ui->PASSWD_INPUT,ui->NAME_INPUT);
             if(ui->AUTO_LOGIN->isChecked())
              {
                  QTimer::singleShot(3000,[this](){ui->LoginButton->click();});
@@ -779,3 +778,7 @@ void MainWindow::on_ShowServerMessage_clicked()
       ui->stackedWidget->setCurrentIndex(1);
 }
 
+void MainWindow::anchorClickedSlot(const QUrl &url)
+{
+     QDesktopServices::openUrl(url);
+}

@@ -41,7 +41,7 @@ private slots:
 //    void GET_ACID_Finished(QNetworkReply*);
 
     void GET_INFO_Finished(QNetworkReply*);
-
+    void anchorClickedSlot(const QUrl &);
     void TimeSlot();
 //    void AutoJumpTimeSlot();
     void on_LogoutButton_clicked();
