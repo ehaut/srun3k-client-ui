@@ -50,6 +50,7 @@ void MainWindow::Start(void)
 {//开始设置界面关闭按钮，关于按钮
    ui->NAME_INPUT->setAttribute(Qt::WA_InputMethodEnabled, false);
    ui->PASSWD_INPUT->setAttribute(Qt::WA_InputMethodEnabled, false);
+   ui->stackedWidget->setCurrentIndex(2);
    QPushButton *closeButton= new QPushButton(this);//建立关闭按钮
    connect(closeButton, SIGNAL(clicked()), this, SLOT(Close()));//连接关闭信号
    closeButton->setGeometry(305,0,43,33);
@@ -98,7 +99,7 @@ void MainWindow::Start(void)
               if(obj.contains("service_server"))
                  {
                   service_server=(QString)obj.value("service_server").toString();
-                  ui->service_server->setText(obj.value("service_server").toString());  
+                  ui->service_server->setText(obj.value("service_server").toString());
                 }
               if(obj.contains("mac"))
                  {
@@ -153,6 +154,44 @@ void MainWindow::Start(void)
           ui->advanced_back->hide();//只允许保存，不允许返回
           ui->stackedWidget->setCurrentIndex(4);//初始化界面
      }
+   /*自动读取用户信息*/
+    QString userconfig=QCoreApplication::applicationDirPath()+"/config.json";
+    QFile u(userconfig);
+    if(u.open(QIODevice::ReadOnly))
+    {
+       file_state=1;
+       QByteArray OPEN_USERINFO=u.readAll();
+       u.close();
+       QJsonDocument USERINFO=QJsonDocument::fromJson(OPEN_USERINFO);
+       if(USERINFO.isObject())
+       {
+           QJsonObject obj=USERINFO.object();
+           if(obj.contains("username"))
+              { ui->NAME_INPUT->setText(obj.value("username").toString());}
+           if(obj.contains("password"))
+              {
+
+              QString PASSWD=obj.value("password").toString();
+               ui->PASSWD_INPUT->setText(QByteArray::fromBase64(PASSWD.toLatin1()));
+           }
+           if(obj.contains("auto_start"))
+           {
+               bool auto_start=obj.value("auto_start").toBool();
+              if(auto_start)
+                ui->AUTO_START->setCheckState(Qt::Checked);
+           }
+           if(obj.contains("auto_login"))
+           {
+               bool auto_login=obj.value("auto_login").toBool();
+              if(auto_login)
+               {
+                    ui->AUTO_LOGIN->setCheckState(Qt::Checked);
+              }
+           }
+
+       }
+    }
+
 
 }
 
@@ -168,43 +207,6 @@ void MainWindow::GetServerInfo(void)
                       QNetworkAccessManager *GetINFOManager = new QNetworkAccessManager(this);
                       GetINFOManager->get(QNetworkRequest(QUrl(login_server+"/cgi-bin/rad_user_info")));
                       connect(GetINFOManager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_INFO_Finished(QNetworkReply*)));
-                    /*自动读取用户信息*/
-                      QString userconfig=QCoreApplication::applicationDirPath()+"/config.json";
-                     QFile u(userconfig);
-                        if(u.open(QIODevice::ReadOnly))
-                        {
-                            file_state=1;
-                            QByteArray OPEN_USERINFO=u.readAll();
-                            u.close();
-                            QJsonDocument USERINFO=QJsonDocument::fromJson(OPEN_USERINFO);
-                            if(USERINFO.isObject())
-                            {
-                                QJsonObject obj=USERINFO.object();
-                                if(obj.contains("username"))
-                                   { ui->NAME_INPUT->setText(obj.value("username").toString());}
-                                if(obj.contains("password"))    
-                                   {
-
-                                   QString PASSWD=obj.value("password").toString();
-                                    ui->PASSWD_INPUT->setText(QByteArray::fromBase64(PASSWD.toLatin1()));
-                                }
-                                if(obj.contains("auto_start"))
-                                {
-                                    bool auto_start=obj.value("auto_start").toBool();
-                                   if(auto_start)
-                                     ui->AUTO_START->setCheckState(Qt::Checked);
-                                }
-                                if(obj.contains("auto_login"))
-                                {
-                                    bool auto_login=obj.value("auto_login").toBool();
-                                   if(auto_login)
-                                    {
-                                         ui->AUTO_LOGIN->setCheckState(Qt::Checked);
-                                   }
-                                }
-
-                            }
-                        }
                       /*对这次公告进行转码*/
                       QTextCodec *codec =QTextCodec::codecForName("GB2312");
                        QString all = codec->toUnicode(reply->readAll());
@@ -212,28 +214,40 @@ void MainWindow::GetServerInfo(void)
                        /*自动读取上次公告*/
                        QString servermessage=QCoreApplication::applicationDirPath()+"/lastservermessage.txt";
                        QFile m(servermessage);
-                       if(m.open(QIODevice::ReadWrite))
+                       if(m.open(QIODevice::ReadOnly))
                        {//读取上次公告文件
-                           QString ServerMessage=m.readAll();
+                           QTextStream op(&m);
+                           QString ServerMessage=op.readAll();
+                           m.close();//关闭上次读的动作
                            if(ServerMessage!=all)
                            {//服务器公告更新
                                ui->ShowServerMessage->setText("显示(新)公告");
                                /*自动重写公告*/
-                               QFile save("lastservermessage.txt");
-                               m.write(all.toUtf8());
-                               m.close();
+                                QFile r(servermessage);
+                                if(r.open(QIODevice::WriteOnly|QIODevice::Truncate))
+                                {
+                                    QTextStream ts(&r);
+                                    ts<<all;
+                                    r.close();
+                                }
+                                else
+                                    ui->Message_show->setText("无法将服务器公告写入文件!");
                            }
-                           else
-                               m.close();
                        }
                        else
                        {//如果读取不到上次公告文件
                            ui->ShowServerMessage->setText("显示(新)公告");
                            /*自动重写公告*/
-                           m.write(all.toUtf8());
-                           m.close();
+                            QFile r(servermessage);
+                            if(r.open(QIODevice::WriteOnly|QIODevice::Truncate))
+                            {
+                                QTextStream ts(&r);
+                                ts<<all;
+                                r.close();
+                            }
+                            else
+                                ui->Message_show->setText("无法将服务器公告写入文件!");
                        }
-
                }
              else
                 {
@@ -271,7 +285,7 @@ void MainWindow::GET_INFO_Finished(QNetworkReply *reply)
             unsigned int login_time;
             unsigned int server_time;
             yourname=QString(getinfo.at(0));
-           ui->NAME->setText(("用户名："+QString(getinfo.at(0))));
+           ui->NAME->setText(("用户名 ："+QString(getinfo.at(0))));
             QString temp1=getinfo.at(1);
             login_time=temp1.toInt();
             QString temp2=getinfo.at(2);
@@ -281,7 +295,7 @@ void MainWindow::GET_INFO_Finished(QNetworkReply *reply)
             ui->DATA->setText(("流   量 ："+QString::number(data,'g',6)+"GB"));
             QString temp4=getinfo.at(7);
             usedtime=temp4.toInt()+server_time-login_time;
-            ui->IP->setText(("地   址  : "+QString(getinfo.at(8))));
+            ui->IP->setText(("地   址 ："+QString(getinfo.at(8))));
             reply->deleteLater();//回收
             if(run==0)
             {//第一次运行
@@ -604,7 +618,7 @@ void MainWindow::on_LoginButton_clicked()
                  SAVE_INFO.setObject(info);
                  QString userconfig=QCoreApplication::applicationDirPath()+"/config.json";
                 QFile save(userconfig);
-                 if(!save.open(QIODevice::WriteOnly))
+                 if(!save.open(QIODevice::WriteOnly | QIODevice::Truncate))
                   {
                       ui->ShowState->setText("错误!文件保存失败!");
                  }
@@ -711,7 +725,7 @@ void MainWindow::on_advanced_save_clicked()
      SAVE_CONFIG.setObject(config);
      QString serverconfig=QCoreApplication::applicationDirPath()+"/server.json";
      QFile save(serverconfig);
-     if(!save.open(QIODevice::WriteOnly))
+     if(!save.open(QIODevice::WriteOnly | QIODevice::Truncate))
       {
           ui->ShowState->setText("错误!文件保存失败!");
      }
