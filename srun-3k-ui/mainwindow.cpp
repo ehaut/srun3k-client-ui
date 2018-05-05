@@ -195,7 +195,7 @@ void MainWindow::Start(void)
 
 }
 
-void MainWindow::GetServerInfo()
+void MainWindow::GetServerInfo(void)
 {
     QNetworkAccessManager *GetServerMessageManager = new QNetworkAccessManager(this);
     QString url=login_server+"/get_msg.php";
@@ -204,12 +204,9 @@ void MainWindow::GetServerInfo()
            if (reply->error() == QNetworkReply::NoError)
                 {//得到信息
                     /*自动读取用户状态*/
-                       QNetworkAccessManager *GetINFOManager = new QNetworkAccessManager(this);
-                       bool connect_result;
-                       Q_ASSERT(connect_result);
-                       connect(GetINFOManager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_INFO_Finished(QNetworkReply*)));
-                       QNetworkReply* reply = GetINFOManager->get(QNetworkRequest(QUrl(login_server+"/cgi-bin/rad_user_info")));
-                       reply->setProperty("0","mode");//mode 0 为初始检查用户状态和正常检查用户状态
+                      QNetworkAccessManager *GetINFOManager = new QNetworkAccessManager(this);
+                      GetINFOManager->get(QNetworkRequest(QUrl(login_server+"/cgi-bin/rad_user_info")));
+                      connect(GetINFOManager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_INFO_Finished(QNetworkReply*)));
                       /*对这次公告进行转码*/
                       QTextCodec *codec =QTextCodec::codecForName("GB2312");
                        QString all = codec->toUnicode(reply->readAll());
@@ -266,7 +263,6 @@ void MainWindow::GetServerInfo()
 }
 void MainWindow::GET_INFO_Finished(QNetworkReply *reply)
 {
-    int mode = reply->property("mode").toInt();
     static int run=0;
     if (reply->error() == QNetworkReply::NoError)
      {//得到信息
@@ -274,10 +270,6 @@ void MainWindow::GET_INFO_Finished(QNetworkReply *reply)
         QString all = codec->toUnicode(reply->readAll());
         if(all.indexOf("not_online")!=-1)
         {//如果检测不在线
-            if(mode==1)
-            {//用来检测处理在其他设备注销的情况
-                ui->ShowState->setText("您已经可能在其他设备注销!");
-            }
             state=0;
             ui->stackedWidget->setCurrentIndex(2);
             if(ui->AUTO_LOGIN->isChecked())
@@ -287,10 +279,6 @@ void MainWindow::GET_INFO_Finished(QNetworkReply *reply)
         }
         else
         {
-            if(mode==2)
-            {//用来检测处理在其他设备登陆的情况
-                ui->ShowState->setText("您已经可能在其他设备登陆!");
-            }
             state=1;
             ui->stackedWidget->setCurrentIndex(3);
             QStringList getinfo=all.split(",");
@@ -502,17 +490,8 @@ void MainWindow::on_RetryButton_clicked()
 
 void MainWindow::on_LogoutButton_clicked()
 {//按下注销按钮
-    /*先检查一遍在线状态，防止已经在其他设备注销过*/
-    QNetworkAccessManager *GetINFOManager = new QNetworkAccessManager(this);
-    bool connect_result;
-    Q_ASSERT(connect_result);
-    connect(GetINFOManager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_INFO_Finished(QNetworkReply*)));
-    QNetworkReply* reply = GetINFOManager->get(QNetworkRequest(QUrl(login_server+"/cgi-bin/rad_user_info")));
-    reply->setProperty("1","mode");//用来检测处理在其他设备注销的情况
-    if(state!=0)
-    { //如果检测仍然在线才注销
-        ui->LogoutButton->setEnabled(false);
-        ui->ShowState->setText("注销中...");
+    ui->LogoutButton->setEnabled(false);
+    ui->ShowState->setText("注销中...");
        QString post="&action=logout&ac_id=";
        QNetworkAccessManager *LogoutManger = new QNetworkAccessManager(this);
        QByteArray POST;
@@ -529,7 +508,6 @@ void MainWindow::on_LogoutButton_clicked()
        request.setUrl(QUrl(login_server+":"+login_port+"/cgi-bin/srun_portal"));
        LogoutManger->post(request,POST);
        connect(LogoutManger, SIGNAL(finished(QNetworkReply*)),this,SLOT(POST_LOGOUT_Finished(QNetworkReply*)));
-    }
 }
 
 void MainWindow::POST_LOGOUT_Finished(QNetworkReply *reply)
@@ -569,6 +547,8 @@ void MainWindow::POST_LOGOUT_Finished(QNetworkReply *reply)
 
 void MainWindow::on_LoginButton_clicked()
 {//按下登陆按钮
+    ui->LoginButton->setEnabled(false);
+    ui->ShowState->setText("登陆中...");
         QByteArray NAME_INPUT = ui->NAME_INPUT->text().trimmed().toLatin1();
         QByteArray PASSWD_INPUT = ui->PASSWD_INPUT->text().toLatin1();
         if(NAME_INPUT.isEmpty()||PASSWD_INPUT.isEmpty()||(NAME_INPUT.isEmpty()&&PASSWD_INPUT.isEmpty()))
@@ -578,88 +558,76 @@ void MainWindow::on_LoginButton_clicked()
         }
         else
         {
-            ui->LoginButton->setEnabled(false);
-            ui->ShowState->setText("登陆中...");
-            /*先检查一遍在线状态，防止已经在其他设备登陆过*/
-            QNetworkAccessManager *GetINFOManager = new QNetworkAccessManager(this);
-            bool connect_result;
-            Q_ASSERT(connect_result);
-            connect(GetINFOManager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_INFO_Finished(QNetworkReply*)));
-            QNetworkReply* reply = GetINFOManager->get(QNetworkRequest(QUrl(login_server+"/cgi-bin/rad_user_info")));
-            reply->setProperty("2","mode");//用来检测处理在其他设备登陆的情况
-            if(state!=1)
+            char *name = NAME_INPUT.data();
+            char *password = PASSWD_INPUT.data();
+            QByteArray NAME_ENCRYPT="";
+            for (;*name!='\0';name++)
+            {//用户名加密
+                NAME_ENCRYPT.append(QString(*name+4));
+            }
+            QByteArray PASSWD_ENCRYPT="";
+            char key[]= "1234567890";
+            for (int i = 0; *(password+i)!='\0'; ++i)
+            {//这是密码加密函数
+                 int ki = *(password+i) ^ key[strlen(key) - i%strlen(key) - 1];
+                 QString _l =  (QChar)((ki & 0x0f) + 0x36);
+                 QString _h =  (QChar)((ki >> 4 & 0x0f) + 0x63);
+                 if (i % 2 == 0)
+                 {
+                     PASSWD_ENCRYPT.append(_l);
+                     PASSWD_ENCRYPT.append(_h);
+                 }
+                 else
+                 {
+                     PASSWD_ENCRYPT.append(_h);
+                     PASSWD_ENCRYPT.append(_l);
+                 }
+            }
+            QNetworkAccessManager *LoginManger = new QNetworkAccessManager(this);
+            QString post="&action=login&n=117&mbytes=0&minutes=0&drop=";
+            QByteArray POST;
+            QNetworkRequest request;
+            POST.append(post);
+            POST.append(drop);
+            POST.append("&pop=");
+            POST.append(pop);
+            POST.append("&type=");
+            POST.append(type);
+            POST.append("&mac=");
+            POST.append(mac);
+            POST.append("&ac_id=");
+            POST.append(acid);
+            POST.append("&username=%7BSRUN3%7D%0D%0A");
+            POST.append(NAME_ENCRYPT.toPercentEncoding());
+            POST.append("&password=");
+            POST.append(PASSWD_ENCRYPT.toPercentEncoding());
+            request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+            request.setUrl(QUrl(login_server+":"+login_port+"/cgi-bin/srun_portal"));
+            LoginManger->post(request,POST);
+            connect(LoginManger, SIGNAL(finished(QNetworkReply*)),this,SLOT(POST_LOGIN_Finished(QNetworkReply*)));
+            if((file_state==0||file_state==-1)||set==1)
             {
-                char *name = NAME_INPUT.data();
-                char *password = PASSWD_INPUT.data();
-                QByteArray NAME_ENCRYPT="";
-                for (;*name!='\0';name++)
-                {//用户名加密
-                    NAME_ENCRYPT.append(QString(*name+4));
-                }
-                QByteArray PASSWD_ENCRYPT="";
-                char key[]= "1234567890";
-                for (int i = 0; *(password+i)!='\0'; ++i)
-                {//这是密码加密函数
-                     int ki = *(password+i) ^ key[strlen(key) - i%strlen(key) - 1];
-                     QString _l =  (QChar)((ki & 0x0f) + 0x36);
-                     QString _h =  (QChar)((ki >> 4 & 0x0f) + 0x63);
-                     if (i % 2 == 0)
-                     {
-                         PASSWD_ENCRYPT.append(_l);
-                         PASSWD_ENCRYPT.append(_h);
-                     }
-                     else
-                     {
-                         PASSWD_ENCRYPT.append(_h);
-                         PASSWD_ENCRYPT.append(_l);
-                     }
-                }
-                QNetworkAccessManager *LoginManger = new QNetworkAccessManager(this);
-                QString post="&action=login&n=117&mbytes=0&minutes=0&drop=";
-                QByteArray POST;
-                QNetworkRequest request;
-                POST.append(post);
-                POST.append(drop);
-                POST.append("&pop=");
-                POST.append(pop);
-                POST.append("&type=");
-                POST.append(type);
-                POST.append("&mac=");
-                POST.append(mac);
-                POST.append("&ac_id=");
-                POST.append(acid);
-                POST.append("&username=%7BSRUN3%7D%0D%0A");
-                POST.append(NAME_ENCRYPT.toPercentEncoding());
-                POST.append("&password=");
-                POST.append(PASSWD_ENCRYPT.toPercentEncoding());
-                request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-                request.setUrl(QUrl(login_server+":"+login_port+"/cgi-bin/srun_portal"));
-                LoginManger->post(request,POST);
-                connect(LoginManger, SIGNAL(finished(QNetworkReply*)),this,SLOT(POST_LOGIN_Finished(QNetworkReply*)));
-                if((file_state==0||file_state==-1)||set==1)
-                {
-                    QJsonObject info;
-                     info.insert("username",QString(NAME_INPUT));
-                     info.insert("password",QString(PASSWD_INPUT.toBase64()));
-                      bool auto_login=ui->AUTO_LOGIN->isChecked();
-                     info.insert("auto_login",auto_login);
-                     bool auto_start=ui->AUTO_START->isChecked();
-                     info.insert("auto_start",auto_start);
-                     QJsonDocument SAVE_INFO;
-                     SAVE_INFO.setObject(info);
-                     QString userconfig=QCoreApplication::applicationDirPath()+"/config.json";
-                    QFile save(userconfig);
-                     if(!save.open(QIODevice::WriteOnly | QIODevice::Truncate))
-                      {
-                          ui->ShowState->setText("错误!文件保存失败!");
-                     }
-                     else
-                     {
-                        save.write(SAVE_INFO.toJson());
-                     }
-                     save.close();
-                }
-           }
+                QJsonObject info;
+                 info.insert("username",QString(NAME_INPUT));
+                 info.insert("password",QString(PASSWD_INPUT.toBase64()));
+                  bool auto_login=ui->AUTO_LOGIN->isChecked();
+                 info.insert("auto_login",auto_login);
+                 bool auto_start=ui->AUTO_START->isChecked();
+                 info.insert("auto_start",auto_start);
+                 QJsonDocument SAVE_INFO;
+                 SAVE_INFO.setObject(info);
+                 QString userconfig=QCoreApplication::applicationDirPath()+"/config.json";
+                QFile save(userconfig);
+                 if(!save.open(QIODevice::WriteOnly | QIODevice::Truncate))
+                  {
+                      ui->ShowState->setText("错误!文件保存失败!");
+                 }
+                 else
+                 {
+                    save.write(SAVE_INFO.toJson());
+                 }
+                 save.close();
+            }
         }
 }
 
@@ -671,14 +639,11 @@ void MainWindow::POST_LOGIN_Finished(QNetworkReply *reply)
         QString all = codec->toUnicode(reply->readAll());
         if(all.indexOf(login_ok_short)!=-1)
         {
-            QTimer::singleShot(1000,[this](){//登陆成功后获取详情信息
+            QTimer::singleShot(1000,[this](){
                 state=1;
-                 QNetworkAccessManager *GetINFOManager = new QNetworkAccessManager(this);
-                 bool connect_result;
-                 Q_ASSERT(connect_result);
+                QNetworkAccessManager *GetINFOManager = new QNetworkAccessManager(this);
+                 GetINFOManager->get(QNetworkRequest(QUrl(login_server+"/cgi-bin/rad_user_info")));
                  connect(GetINFOManager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_INFO_Finished(QNetworkReply*)));
-                 QNetworkReply* reply = GetINFOManager->get(QNetworkRequest(QUrl(login_server+"/cgi-bin/rad_user_info")));
-                 reply->setProperty("0","mode");//mode 0 为初始检查用户状态和正常检查用户状态
                 ui->ShowState->setText("登陆中......成功!");});
             QTimer::singleShot(3000,[this](){ui->stackedWidget->setCurrentIndex(3);ui->LoginButton->setEnabled(true);});
          }
