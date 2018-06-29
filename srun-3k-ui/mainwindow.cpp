@@ -6,6 +6,7 @@
 #include "QtNetwork/QNetworkRequest"
 #include "QTextCodec"
 #include "QJsonObject"
+#include "QJsonArray"
 #include "QJsonDocument"
 #include "QFile"
 #include "QTimer"
@@ -37,6 +38,7 @@ QString error4="login_error#INFO failed, BAS respond timeout.";            //ACI
 QString error5="login_error#You are not online.";	                  //你不在线
 QString error6="login_error#E2901: (Third party 1)Status_Err";           //状态错误，一般指欠费
 QString error7="login_error#E2901: (Third party 1)User Locked";          //用户锁定，一般也指欠费
+QString error8="ip_already_online_error"; //IP已经在线
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -198,7 +200,7 @@ void MainWindow::Start(void)
 void MainWindow::GetServerInfo(void)
 {
     QNetworkAccessManager *GetServerMessageManager = new QNetworkAccessManager(this);
-    QString url=login_server+"/get_msg.php";
+    QString url=login_server+"/v2/srun_portal_message";
     GetServerMessageManager->get(QNetworkRequest(QUrl(url)));
     connect(GetServerMessageManager, &QNetworkAccessManager::finished,[this](QNetworkReply *reply){
            if (reply->error() == QNetworkReply::NoError)
@@ -207,47 +209,59 @@ void MainWindow::GetServerInfo(void)
                       QNetworkAccessManager *GetINFOManager = new QNetworkAccessManager(this);
                       GetINFOManager->get(QNetworkRequest(QUrl(login_server+"/cgi-bin/rad_user_info")));
                       connect(GetINFOManager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_INFO_Finished(QNetworkReply*)));
-                      /*对这次公告进行转码*/
-                      QTextCodec *codec =QTextCodec::codecForName("GB2312");
-                       QString all = codec->toUnicode(reply->readAll());
-                       ui->Message_show->setText(all);
-                       /*自动读取上次公告*/
-                       QString servermessage=QCoreApplication::applicationDirPath()+"/lastservermessage.txt";
-                       QFile m(servermessage);
-                       if(m.open(QIODevice::ReadOnly))
-                       {//读取上次公告文件
-                           QTextStream op(&m);
-                           QString ServerMessage=op.readAll();
-                           m.close();//关闭上次读的动作
-                           if(ServerMessage!=all)
-                           {//服务器公告更新
-                               ui->ShowServerMessage->setText("显示(新)公告");
-                               /*自动重写公告*/
-                                QFile r(servermessage);
-                                if(r.open(QIODevice::WriteOnly|QIODevice::Truncate))
-                                {
-                                    QTextStream ts(&r);
-                                    ts<<all;
-                                    r.close();
-                                }
-                                else
-                                    ui->Message_show->setText("无法将服务器公告写入文件!");
-                           }
-                       }
-                       else
-                       {//如果读取不到上次公告文件
-                           ui->ShowServerMessage->setText("显示(新)公告");
-                           /*自动重写公告*/
-                            QFile r(servermessage);
-                            if(r.open(QIODevice::WriteOnly|QIODevice::Truncate))
-                            {
-                                QTextStream ts(&r);
-                                ts<<all;
-                                r.close();
-                            }
-                            else
-                                ui->Message_show->setText("无法将服务器公告写入文件!");
-                       }
+                      //QTextCodec *codec =QTextCodec::codecForName("GB2312");
+                      QByteArray all =reply->readAll();
+                      QJsonDocument info = QJsonDocument::fromJson(all);
+                      QJsonObject obj=info.object();
+                      if(obj.contains("Data"))
+                      {
+
+                            QJsonValue value=obj.value("Data");
+                            QJsonArray message=value.toArray();
+                            QJsonValue info = message.at(0);
+                            QString display="<h3>"+\
+                            info.toObject().value("Title").toString()+"</h3>------------------<br>"+\
+                            info.toObject().value("Content").toString();
+                            ui->Message_show->setText(display);
+                            /*自动读取上次公告*/
+                              QString servermessage=QCoreApplication::applicationDirPath()+"/lastservermessage.txt";
+                              QFile m(servermessage);
+                              if(m.open(QIODevice::ReadOnly))
+                              {//读取上次公告文件
+                                  QTextStream op(&m);
+                                  QString ServerMessage=op.readAll();
+                                  m.close();//关闭上次读的动作
+                                  if(ServerMessage!=display)
+                                  {//服务器公告更新
+                                      ui->ShowServerMessage->setText("显示(新)公告");
+                                      /*自动重写公告*/
+                                       QFile r(servermessage);
+                                       if(r.open(QIODevice::WriteOnly|QIODevice::Truncate))
+                                       {
+                                           QTextStream ts(&r);
+                                           ts<<display;
+                                           r.close();
+                                       }
+                                       else
+                                           ui->Message_show->setText("无法将服务器公告写入文件!");
+                                  }
+                              }
+                              else
+                              {//如果读取不到上次公告文件
+                                  ui->ShowServerMessage->setText("显示(新)公告");
+                                  /*自动重写公告*/
+                                   QFile r(servermessage);
+                                   if(r.open(QIODevice::WriteOnly|QIODevice::Truncate))
+                                   {
+                                       QTextStream ts(&r);
+                                       ts<<display;
+                                       r.close();
+                                   }
+                                   else
+                                       ui->Message_show->setText("无法将服务器公告写入文件!");
+                              }
+                      }
+
                }
              else
                 {
@@ -274,7 +288,7 @@ void MainWindow::GET_INFO_Finished(QNetworkReply *reply)
             ui->stackedWidget->setCurrentIndex(2);
             if(ui->AUTO_LOGIN->isChecked())
              {
-                 QTimer::singleShot(3000,[this](){ui->LoginButton->click();});
+                 QTimer::singleShot(30,[this](){ui->LoginButton->click();});
              }
         }
         else
@@ -496,14 +510,22 @@ void MainWindow::on_LogoutButton_clicked()
        QNetworkAccessManager *LogoutManger = new QNetworkAccessManager(this);
        QByteArray POST;
        QNetworkRequest request;
+       //fixed logout issue
+       char *name=yourname.toLatin1().data();
+       QByteArray NAME_ENCRYPT="";
+       for (;*name!='\0';name++)
+       {//用户名加密
+           NAME_ENCRYPT.append(QString(*name+4));
+       }
        POST.append(post);
        POST.append(acid);
        POST.append("&mac=");
        POST.append(mac);
        POST.append("&type=");
        POST.append(type);
-       POST.append("&username=");
-       POST.append(yourname);
+       POST.append("&username=%7BSRUN3%7D%0D%0A");
+       //POST.append(yourname);
+       POST.append(NAME_ENCRYPT.toPercentEncoding());
        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
        request.setUrl(QUrl(login_server+":"+login_port+"/cgi-bin/srun_portal"));
        LogoutManger->post(request,POST);
@@ -518,29 +540,29 @@ void MainWindow::POST_LOGOUT_Finished(QNetworkReply *reply)
         QString all = codec->toUnicode(reply->readAll());
         if(all.indexOf(logout_ok)!=-1)
         {
-            QTimer::singleShot(1000,[this](){state=0;ui->ShowState->setText("注销中......成功!");});
-            QTimer::singleShot(3000,[this](){ui->stackedWidget->setCurrentIndex(2);ui->LogoutButton->setEnabled(true);});
+            QTimer::singleShot(10,[this](){state=0;ui->ShowState->setText("注销中......成功!");});
+            QTimer::singleShot(30,[this](){ui->stackedWidget->setCurrentIndex(2);ui->LogoutButton->setEnabled(true);});
          }
        else if(all.indexOf(error5)!=-1)
         {
-            QTimer::singleShot(1000,[this](){state=0;ui->ShowState->setText("您不在线，无法完成注销!");});
-            QTimer::singleShot(3000,[this](){ui->stackedWidget->setCurrentIndex(2);ui->LogoutButton->setEnabled(true);});
+            QTimer::singleShot(10,[this](){state=0;ui->ShowState->setText("您不在线，无法完成注销!");});
+            QTimer::singleShot(30,[this](){ui->stackedWidget->setCurrentIndex(2);ui->LogoutButton->setEnabled(true);});
          }
        else if(all.indexOf(error4)!=-1)
          {
-            QTimer::singleShot(1000,[this](){ui->ShowState->setText("注销中......ACID错误!请更改高级设置中的ACID值后重试!");});
-            QTimer::singleShot(3000,[this](){ui->LogoutButton->setEnabled(true);});
+            QTimer::singleShot(10,[this](){ui->ShowState->setText("注销中......ACID错误!请更改高级设置中的ACID值后重试!");});
+            QTimer::singleShot(30,[this](){ui->LogoutButton->setEnabled(true);});
         }
        else if(all.indexOf(error1)!=-1)
         {
-            QTimer::singleShot(1000,[this](){ui->ShowState->setText("注销中......错误!请重试!");});
-            QTimer::singleShot(3000,[this](){ui->LogoutButton->setEnabled(true);});
+            QTimer::singleShot(10,[this](){ui->ShowState->setText("注销中......错误!请重试!");});
+            QTimer::singleShot(30,[this](){ui->LogoutButton->setEnabled(true);});
         }
     }
     else
     {
-        QTimer::singleShot(1000,[this](){ui->ShowState->setText("注销中......网络错误!请重试!");});
-        QTimer::singleShot(3000,[this](){ui->LogoutButton->setEnabled(true);});
+        QTimer::singleShot(10,[this](){ui->ShowState->setText("注销中......网络错误!请重试!");});
+        QTimer::singleShot(30,[this](){ui->LogoutButton->setEnabled(true);});
     }
    reply->deleteLater();//回收
 }
@@ -639,52 +661,57 @@ void MainWindow::POST_LOGIN_Finished(QNetworkReply *reply)
         QString all = codec->toUnicode(reply->readAll());
         if(all.indexOf(login_ok_short)!=-1)
         {
-            QTimer::singleShot(1000,[this](){
+            QTimer::singleShot(10,[this](){
                 state=1;
                 QNetworkAccessManager *GetINFOManager = new QNetworkAccessManager(this);
                  GetINFOManager->get(QNetworkRequest(QUrl(login_server+"/cgi-bin/rad_user_info")));
                  connect(GetINFOManager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_INFO_Finished(QNetworkReply*)));
                 ui->ShowState->setText("登陆中......成功!");});
-            QTimer::singleShot(3000,[this](){ui->stackedWidget->setCurrentIndex(3);ui->LoginButton->setEnabled(true);});
+            QTimer::singleShot(30,[this](){ui->stackedWidget->setCurrentIndex(3);ui->LoginButton->setEnabled(true);});
          }
         else if((all.indexOf(error6)!=-1)||(all.indexOf(error7)!=-1))
         {
-                    QTimer::singleShot(1000,[this](){ui->ShowState->setText("您已欠费，无法使用，请充值!");});
-                    QTimer::singleShot(3000,[this](){ui->LoginButton->setEnabled(true);});
+                    QTimer::singleShot(10,[this](){ui->ShowState->setText("您已欠费，无法使用，请充值!");});
+                    QTimer::singleShot(30,[this](){ui->LoginButton->setEnabled(true);});
          }
         else if(all.indexOf(error2)!=-1)
         {
                     file_state=-1;//密码错误或者用户名错误就会重写储存登陆信息
-                    QTimer::singleShot(1000,[this](){ui->ShowState->setText("密码错误，请检查输入后重试!");});
-                    QTimer::singleShot(3000,[this](){ui->LoginButton->setEnabled(true);});
+                    QTimer::singleShot(10,[this](){ui->ShowState->setText("密码错误，请检查输入后重试!");});
+                    QTimer::singleShot(30,[this](){ui->LoginButton->setEnabled(true);});
          }
         else if(all.indexOf(error3)!=-1)
         {
                     file_state=-1;//密码错误或者用户名错误就会重写储存登陆信息
-                    QTimer::singleShot(1000,[this](){ui->ShowState->setText("用户名错误，请检查输入后重试!");});
-                    QTimer::singleShot(3000,[this](){ui->LoginButton->setEnabled(true);});
+                    QTimer::singleShot(10,[this](){ui->ShowState->setText("用户名错误，请检查输入后重试!");});
+                    QTimer::singleShot(30,[this](){ui->LoginButton->setEnabled(true);});
          }
         else if(all.indexOf(error4)!=-1)
         {
-                    QTimer::singleShot(1000,[this](){ui->ShowState->setText("登陆中......ACID错误!请更改高级设置中的ACID值后重试!");});
-                    QTimer::singleShot(3000,[this](){ui->LoginButton->setEnabled(true);});
+                    QTimer::singleShot(10,[this](){ui->ShowState->setText("登陆中......ACID错误!请更改高级设置中的ACID值后重试!");});
+                    QTimer::singleShot(30,[this](){ui->LoginButton->setEnabled(true);});
          }
         else if(all.indexOf(error1)!=-1)
         {
-                    QTimer::singleShot(1000,[this](){ui->ShowState->setText("登陆中......错误!请重试!");});
-                    QTimer::singleShot(3000,[this](){ui->LoginButton->setEnabled(true);});
+                    QTimer::singleShot(10,[this](){ui->ShowState->setText("登陆中......错误!请重试!");});
+                    QTimer::singleShot(30,[this](){ui->LoginButton->setEnabled(true);});
+         }
+        else if(all.indexOf(error8)!=-1)
+        {
+                    QTimer::singleShot(10,[this](){ui->ShowState->setText("登陆中......当前用户已经在线!请重试!");});
+                    QTimer::singleShot(30,[this](){ui->LoginButton->setEnabled(true);});
          }
         else
         {
-                    QTimer::singleShot(1000,[this](){ui->ShowState->setText("登陆中......错误!请重试!");});
-                    QTimer::singleShot(3000,[this](){ui->LoginButton->setEnabled(true);});
+                    QTimer::singleShot(10,[this](){ui->ShowState->setText("登陆中......错误!请重试!");});
+                    QTimer::singleShot(30,[this](){ui->LoginButton->setEnabled(true);});
          }
 
     }
     else
     {
-        QTimer::singleShot(1000,[this](){ui->ShowState->setText("登陆中......网络错误!请重试!");});
-        QTimer::singleShot(3000,[this](){ui->LoginButton->setEnabled(true);});
+        QTimer::singleShot(10,[this](){ui->ShowState->setText("登陆中......网络错误!请重试!");});
+        QTimer::singleShot(30,[this](){ui->LoginButton->setEnabled(true);});
     }
    reply->deleteLater();//回收
 }
