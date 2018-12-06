@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="NetClient">
+    <output-path>$PROJECT_DIR$/out/artifacts/NetClient</output-path>
+    <root id="archive" name="NetClient.jar">
+      <element id="module-output" name="team.AnotherKnife.srun3000_webLogin" />
+    </root>
+  </artifact>
+</component>
