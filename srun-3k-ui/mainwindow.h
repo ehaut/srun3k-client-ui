@@ -9,6 +9,9 @@
 #include <QMenu>
 #include <QPainter>
 #include <QPixmap>
+#include "network.h"
+#include "version.h"
+
 
 namespace Ui {
 class MainWindow;
@@ -23,6 +26,7 @@ public:
     ~MainWindow();
 
 protected:
+    Ui::MainWindow *ui;
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
@@ -32,8 +36,10 @@ private slots:
     void Close();
     void Min();
     void on_activatedSysTrayIcon(QSystemTrayIcon::ActivationReason reason);
+    void on_checkUpdateButton_clicked();
+    void anchorClickedSlot(const QUrl &url);
+
 private:
-    Ui::MainWindow *ui;
     bool mDrag;
     QPoint mDragPos;
     QRect mLocation;
@@ -41,13 +47,14 @@ private:
     QPushButton *closeButton;
     QPushButton *minButton;
     QSystemTrayIcon *mSysTrayIcon;
-    QMenu *mMenu;
+    QMenu *mMenu=nullptr;
     QAction *mShowMainAction;
     QAction *mExitAppAction;
     QAction *mServiceAction;
     QAction *mAboutAction;
     QPushButton *AboutButton;
     QPushButton *AdvancedButton;
+    network *n;
 };
 
 #endif // MAINWINDOW_H

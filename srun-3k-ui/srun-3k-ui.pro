@@ -25,10 +25,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+        version.cpp \
+        network.cpp \
+        storage.cpp
 
 HEADERS += \
-        mainwindow.h
+        mainwindow.h \
+        version.h \
+        network.h \
+        storage.h
 
 FORMS += \
         mainwindow.ui
@@ -41,3 +47,13 @@ QMAKE_CFLAGS += -std=c99
 CONFIG += c++11
 
 RC_FILE += main.rc
+
+DEFINES += USE_OPENSSL\
+CURL_STATICLIB\
+DBUILDING_LIBCURL\
+DCURL_STATICLIB
+
+LIBS += -L$$PWD/libcurl/lib/ -lcurl -lssl -lcrypto -lz -lws2_32 -lwldap32
+
+INCLUDEPATH += $$PWD/libcurl/include
+DEPENDPATH += $$PWD/libcurl/include

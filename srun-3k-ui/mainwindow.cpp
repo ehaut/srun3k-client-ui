@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QDesktopServices>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -12,7 +14,6 @@ MainWindow::MainWindow(QWidget *parent) :
     mDrag = false;
     ui->widgetTitle->installEventFilter(this);
     ui->labelTitle->setAlignment(Qt::AlignCenter);
-    //给缩放的图片label处理鼠标的按下、移动、弹起消息，进行缩放窗口功能
     setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #2980b9;}");
     closeButton= new QPushButton(this);//建立关闭按钮
     connect(closeButton, SIGNAL(clicked()), this, SLOT(Close()));//连接关闭信号
@@ -40,7 +41,9 @@ MainWindow::MainWindow(QWidget *parent) :
     AdvancedButton->setStyleSheet("QPushButton {border-image: url(:/titleButtons/advanced);}"
                               "QPushButton:hover {border-image: url(:/titleButtons/advanced_hover);}"
                                "QPushButton:pressed {border-image: url(:/titleButtons/advanced_pressed);}");
+    connect(ui->aboutBox, SIGNAL(anchorClicked(const QUrl&)),this, SLOT(anchorClickedSlot(const QUrl&)));
 
+    n=new network();
 }
 
 void MainWindow::paintEvent(QPaintEvent *event)
@@ -110,8 +113,17 @@ void MainWindow::Min()
 
 void MainWindow::on_showMainAction()
 {//按下显示主界面
-    this->show();
+    if(mMenu!=nullptr)
+    {
+         delete mMenu;
+         delete mShowMainAction;
+         delete mExitAppAction;
+         delete mServiceAction;
+         delete mAboutAction;
+     }
     mSysTrayIcon->deleteLater();
+    mMenu=nullptr;
+    this->show();
 }
 
 void MainWindow::on_activatedSysTrayIcon(QSystemTrayIcon::ActivationReason reason)
@@ -123,8 +135,7 @@ void MainWindow::on_activatedSysTrayIcon(QSystemTrayIcon::ActivationReason reaso
     case QSystemTrayIcon::DoubleClick:
         //双击托盘图标
         //双击后显示主程序窗口
-        mSysTrayIcon->deleteLater();//一定加上删除图标
-        this->show();
+        on_showMainAction();
         break;
     default:
         break;
@@ -144,9 +155,10 @@ MainWindow::~MainWindow()
         delete mMenu;
         delete mShowMainAction;
         delete mExitAppAction;
-    //    delete mServiceAction;
-    //    delete mAboutAction;
+        delete mServiceAction;
+        delete mAboutAction;
     }
+    delete n;
     delete AdvancedButton;
     delete AboutButton;
     delete closeButton;
@@ -179,3 +191,58 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)//鼠标释放事件
 }
 
 
+
+void MainWindow::anchorClickedSlot(const QUrl &url)
+{
+     QDesktopServices::openUrl(url);
+}
+
+
+void MainWindow::on_checkUpdateButton_clicked()
+{
+    QStringList list;
+    ui->statusBar->setText("检查更新中...");
+    if(checkVersion(list,n)!=-1)
+    {
+        ui->statusBar->setText("检查更新中...成功！");
+        setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #1aad18;}");
+        ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                        "QWidget#widgetBottom{background:#1aad18;}");
+
+        if(checkVersion(list,n)==0)
+        {
+            QString s="当前版本";
+            QString v;
+            v.sprintf("%s",version);
+            s=s+" "+v+" 已经为最新版本！感谢您的使用！";
+            ui->aboutBox->setText(s);
+        }
+        if(checkVersion(list,n)==1)
+        {
+            /**
+              list[0] version
+              list[1] date
+              list[2] author
+              list[3] sha1
+              list[4] url
+            */
+            QString s="当前版本";
+            QString v;
+            v.sprintf("%s",version);
+            QString ehaut=ui->eHautIco->text();
+            QString url=QString("<a href = \"%1\">%2</a>").arg(list.at(4)).arg(ehaut);
+            s=s+" "+v+" 。最新版本 "+list.at(0)+" ,发布于 "+list.at(1)+" 。\n\n <=====================\n      点击左边蜗牛下载最新版！ \n\n备用地址："+list.at(4);
+
+            ui->eHautIco->setText(url);
+            ui->eHautIco->setOpenExternalLinks(true);
+            ui->aboutBox->setText(s);
+        }
+    }
+    else
+    {
+        ui->statusBar->setText("检查更新中...服务器连接失败！");
+        setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #E05D6F;}");
+        ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                        "QWidget#widgetBottom{background:#E05D6F;}");
+    }
+}
