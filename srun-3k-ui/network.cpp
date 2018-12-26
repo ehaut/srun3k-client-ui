@@ -1,4 +1,5 @@
 #include "network.h"
+#include "QDebug"
 
 size_t network::writefunc(void *ptr,size_t size,size_t nmemb,std::string &str)
 {
@@ -20,6 +21,7 @@ QString network::httpGet(const char * url)
     {//如果非正常初始化
         exit(-1);
     }
+
     curl_easy_setopt(curl,CURLOPT_URL,url);//设置GET地址
     curl_easy_setopt(curl,CURLOPT_SSL_VERIFYPEER,false);//设定为不验证证书和HOST
     curl_easy_setopt(curl,CURLOPT_SSL_VERIFYHOST,false);
@@ -88,8 +90,9 @@ QString network::urlEncode(const QString input)
     return reback;
 }
 
-QStringList network::parseUserInfo(const QString userinfo,int &usedTime)
+QStringList network::parseUserInfo(const QString userinfo,int &usedTime,bool &isOnline)
 {
+
     /**
         list[0] username
         list[1] ip
@@ -97,27 +100,52 @@ QStringList network::parseUserInfo(const QString userinfo,int &usedTime)
         list[3] time
     */
     QStringList list;
-    QStringList getinfo=userinfo.split(",");
+    if(userinfo.indexOf("not_online")==-1)
+    {
+        isOnline=true;
+        QStringList getinfo=userinfo.split(",");
 
-    int loginTime=getinfo.at(1).toInt();
-    int serverTime=getinfo.at(2).toInt();
-    usedTime=getinfo.at(7).toInt()+serverTime-loginTime;
-    double data=getinfo.at(6).toDouble()/1073741824;
+        int loginTime=getinfo.at(1).toInt();
+        int serverTime=getinfo.at(2).toInt();
+        usedTime=getinfo.at(7).toInt()+serverTime-loginTime;
+        double data=getinfo.at(6).toDouble()/1073741824;
 
-    list<<getinfo.at(0);
-    list<<getinfo.at(8);
-    list<<QString::number(data,'g',6);
-    list<<QString::number(usedTime);
+
+        list<<getinfo.at(0);
+        list<<getinfo.at(8);
+        list<<QString::number(data,'g',6);
+        list<<QString::number(usedTime);
+    }
+    else
+         isOnline=false;
     return list;
 
 }
 
-QString network::parseServerReback(QString getReback)
+QString network::parseServerReback(QString getReback,int &status)
 {
-    QStringList list=serverReback.split(",");
-    for(int i=0;i<list.size();i++)
+
+    if(getReback.isEmpty())
+        status=-2;
+    else
     {
-        return list.at(i).split("@").at(1);
+        QStringList list=serverReback.split(",");
+        for(int i=0;i<list.size();i++)
+        {
+            if(i==0)
+                status=1;
+            else if(i==1)
+                status=0;
+            else
+            {
+                status=-1;
+            }
+            if(getReback.indexOf(list.at(i).split("@").at(0))!=-1)
+            {
+                getReback=list.at(i).split("@").at(1);
+                break;
+            }
+        }
     }
     return getReback;
 }

@@ -167,7 +167,7 @@ QLabel#labelTitle{
         </rect>
        </property>
        <property name="currentIndex">
-        <number>5</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="networkErrorPage">
         <widget class="QPushButton" name="RetryButton">
@@ -362,7 +362,7 @@ p, li { white-space: pre-wrap; }
             <property name="font">
              <font>
               <family>微软雅黑</family>
-              <pointsize>12</pointsize>
+              <pointsize>14</pointsize>
              </font>
             </property>
             <property name="text">
@@ -725,7 +725,7 @@ background:#127e10;
     color: #000;</string>
          </property>
          <property name="text">
-          <string>地    址：255.255.255.255</string>
+          <string>地    址：%1</string>
          </property>
         </widget>
         <widget class="QLabel" name="nameLable">
@@ -751,7 +751,7 @@ border: 1px solid #D9D9D6;
     color: #000;</string>
          </property>
          <property name="text">
-          <string>用户名:  201600000000</string>
+          <string>用户名:   %1</string>
          </property>
         </widget>
         <widget class="QLabel" name="dataLable">
@@ -777,7 +777,7 @@ border: 1px solid #D9D9D6;
     color: #000;</string>
          </property>
          <property name="text">
-          <string>流    量：0.00000 GB</string>
+          <string>流    量：%1 GB</string>
          </property>
         </widget>
         <widget class="QLabel" name="infoLable">
@@ -831,7 +831,7 @@ border: 1px solid #D9D9D6;
     color: #000;</string>
          </property>
          <property name="text">
-          <string>时    间：000 小时 00 分 00 秒</string>
+          <string>时    间：%1 小时 %2 分 %3 秒</string>
          </property>
         </widget>
         <widget class="QPushButton" name="serviceButtonInLogoutPage">
@@ -1020,7 +1020,7 @@ QMenu::indicator {width: 13px;height: 13px;} </string>
           <string>http://172.16.154.130</string>
          </property>
         </widget>
-        <widget class="QLineEdit" name="serviceServerPortSpinbox">
+        <widget class="QLineEdit" name="serviceServerLineEdit">
          <property name="geometry">
           <rect>
            <x>40</x>
@@ -1127,7 +1127,7 @@ background:#0b4a73;
           <string>端口:</string>
          </property>
         </widget>
-        <widget class="QSpinBox" name="serviceServerLineEdit">
+        <widget class="QSpinBox" name="serviceServerPortSpinbox">
          <property name="geometry">
           <rect>
            <x>260</x>
