@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "QMouseEvent"
-#include "qt_windows.h"
+//#include "qt_windows.h"
 #include "QtNetwork/QNetworkReply"
 #include "QtNetwork/QNetworkRequest"
 #include "QTextCodec"
@@ -45,6 +45,11 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     this->setWindowFlags(Qt::FramelessWindowHint);//去掉窗口标题栏
+    setWindowFlags(Qt::FramelessWindowHint);
+    setAttribute(Qt::WA_TranslucentBackground);
+    setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #2980b9;}");
+    mLocation = this->geometry();
+    mDrag = false;
     Start();
 }
 
@@ -353,9 +358,25 @@ void MainWindow::TimeSlot()
 
 MainWindow::~MainWindow()
 {
-    delete ui;
-}
 
+//    if(mMenu!=nullptr)
+//      {
+//           delete mMenu;
+//           delete mShowMainAction;
+//           delete mExitAppAction;
+//           delete mServiceAction;
+//           delete mAboutAction;
+//       }
+       if(meTimer!=nullptr)
+       {
+           meTimer->stop();
+           delete meTimer;
+       }
+       delete AdvancedButton;
+       delete AboutButton;
+       delete ui;
+
+}
 void MainWindow::Close()
 {
     this->close();
@@ -396,7 +417,9 @@ void MainWindow::on_aboutAppAction()
 {//按关于按钮
      ui->stackedWidget->setCurrentIndex(5);
     this->show();
-    mSysTrayIcon->deleteLater();
+     mSysTrayIcon->deleteLater();
+     mMenu->deleteLater();
+      mMenu=nullptr;
 }
 
 void MainWindow::createMenu()
@@ -428,6 +451,8 @@ void MainWindow::on_showMainAction()
 {//按下显示主界面
     this->show();
     mSysTrayIcon->deleteLater();
+    mMenu->deleteLater();
+    mMenu=nullptr;
 }
 
 void MainWindow::on_exitAppAction()
@@ -452,12 +477,37 @@ void MainWindow::on_activatedSysTrayIcon(QSystemTrayIcon::ActivationReason reaso
 }
 
 
-void MainWindow::mousePressEvent(QMouseEvent *event)
-{//窗口拖动，参考http://blog.csdn.net/aqtata/article/details/8902889
-    if (ReleaseCapture())
-        SendMessage(HWND(this->winId()), WM_SYSCOMMAND, SC_MOVE + HTCAPTION, 0);
-    event->ignore();
+
+void MainWindow::mousePressEvent(QMouseEvent *e)//鼠标按下事件
+{
+    if (e->button() == Qt::LeftButton)
+    {
+        mDrag = true;
+        mDragPos = e->globalPos() - pos();
+        e->accept();
+    }
 }
+
+void MainWindow::mouseMoveEvent(QMouseEvent *e)//鼠标移动事件
+{
+    if (mDrag && (e->buttons() && Qt::LeftButton))
+    {
+        move(e->globalPos() - mDragPos);
+        e->accept();
+    }
+}
+
+void MainWindow::mouseReleaseEvent(QMouseEvent *e)//鼠标释放事件
+{
+    mDrag = false;
+}
+
+//void MainWindow::mousePressEvent(QMouseEvent *event)
+//{//窗口拖动，参考http://blog.csdn.net/aqtata/article/details/8902889
+//    if (ReleaseCapture())
+//        SendMessage(HWND(this->winId()), WM_SYSCOMMAND, SC_MOVE + HTCAPTION, 0);
+//    event->ignore();
+//}
 
 
 void MainWindow::on_ABOUT_clicked()

@@ -19,8 +19,9 @@ public:
     ~MainWindow();
 
 protected:
-    void mousePressEvent(QMouseEvent *event);
-
+    void mouseReleaseEvent(QMouseEvent *e);
+    void mouseMoveEvent(QMouseEvent *e);
+    void mousePressEvent(QMouseEvent *e);
 private slots:
     void Close();
     void Min();
@@ -69,20 +70,26 @@ private slots:
     void on_ShowServerMessage_clicked();
 
 private:
+    QPoint mDragPos;
+    QRect mLocation;
+    QFont mIconFont;
+    bool mDrag;
+    bool isUserinfoExists;
+    bool isServerinfoExist;
     Ui::MainWindow *ui;
     QSystemTrayIcon *mSysTrayIcon;
     QMenu *mMenu;
-      QAction *mShowMainAction;
-      QAction *mExitAppAction;
-      QAction *mServiceAction;
-      QAction *mAboutAction;
-      QPushButton *AboutButton;
-      QPushButton *AdvancedButton;
-//    QNetworkAccessManager *manager;
+    QAction *mShowMainAction;
+    QAction *mExitAppAction;
+    QAction *mServiceAction;
+    QAction *mAboutAction;
+    QPushButton *AboutButton;
+    QPushButton *AdvancedButton;
+    //    QNetworkAccessManager *manager;
     QTimer *meTimer;
-//    QTimer *AutoJumpTimer;
-//     QTimer *RetryTimer;
-//     QTimer *WaitTimer;
+    //    QTimer *AutoJumpTimer;
+    //     QTimer *RetryTimer;
+    //     QTimer *WaitTimer;
 };
 
 #endif // MAINWINDOW_H
