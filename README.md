@@ -4,7 +4,7 @@ A GUI Software for Srun3k Client for HAUT
 
 e 河工大-新河南工业大学校园网PC客户端（Windows版） V2.0.0
 
-[DEMO](Resouces\png\demo.png)
+![DEMO](srun-3k-ui/Resouces/png/demo.png)
 
 
 -------
