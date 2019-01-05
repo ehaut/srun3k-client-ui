@@ -2,10 +2,21 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "QtNetwork/QNetworkAccessManager"
-#include "QSystemTrayIcon"
-#include "QMenu"
-#include "QPushButton"
+#include <QMouseEvent>
+#include <QPushButton>
+#include <QSystemTrayIcon>
+#include <QAction>
+#include <QMenu>
+#include <QPainter>
+#include <QPixmap>
+#include <QDesktopServices>
+#include <QTimer>
+#include <QSettings>
+#include "network.h"
+#include "version.h"
+#include "storage.h"
+
+
 namespace Ui {
 class MainWindow;
 }
@@ -15,81 +26,67 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    QStringList serverConfig;
+    QStringList userConfig;
 
 protected:
-    void mouseReleaseEvent(QMouseEvent *e);
-    void mouseMoveEvent(QMouseEvent *e);
-    void mousePressEvent(QMouseEvent *e);
+    Ui::MainWindow *ui;
+    void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void paintEvent(QPaintEvent *event);
+
 private slots:
+    void on_showMainAction();
     void Close();
     void Min();
+    void on_activatedSysTrayIcon(QSystemTrayIcon::ActivationReason reason);
+    void on_checkUpdateButton_clicked();
+    void anchorClickedSlot(const QUrl &url);
+    void on_setDefaultButton_clicked();
+    void on_saveButtonInadvanceSettingsPage_clicked();
+    void getServerInfo();
+    void getUserInfo(bool);
+    void showMessage();
     void on_ABOUT_clicked();
-
-    void on_SERVICE_clicked();
-
-    void Start();
-
-    void GetServerInfo();
-
-    void on_AUTO_START_clicked();
-
-    void on_AUTO_LOGIN_clicked();
-
-    void on_RetryButton_clicked();
-
-//    void GET_ACID_Finished(QNetworkReply*);
-
-    void GET_INFO_Finished(QNetworkReply*);
-    void anchorClickedSlot(const QUrl &);
-    void TimeSlot();
-//    void AutoJumpTimeSlot();
-    void on_LogoutButton_clicked();
-    void POST_LOGOUT_Finished(QNetworkReply *);
-    void on_LoginButton_clicked();
-    void POST_LOGIN_Finished(QNetworkReply *);
-    void on_Enter_clicked();
     void on_ADVANCED_clicked();
-    void on_activatedSysTrayIcon(QSystemTrayIcon::ActivationReason);
-    void on_SERVICE_2_clicked();
-    void createActions();
-    void createMenu();
-    void on_showMainAction();
-    void on_exitAppAction();
-    void on_aboutAppAction();
-    void on_advanced_save_clicked();
-
-    void on_setdefaults_clicked();
-
-    void on_Enter_2_clicked();
-
-    void on_advanced_back_clicked();
-
-
-    void on_ShowServerMessage_clicked();
+    void on_ENTER_clicked();
+    void TimeSlot();
+    void on_RetryButton_clicked();
+    void on_SERVICE_clicked();
+    void on_mABOUT_clicked();
+    void on_logoutButton_clicked();
+    void on_autoStartCheckBox_clicked();
+    void on_autoLoginCheckBox_clicked();
+    void on_loginButton_clicked(bool);
 
 private:
+    bool mDrag;
+    bool isUserinfoExists=false;
+    bool isServerinfoExist=false;
     QPoint mDragPos;
     QRect mLocation;
     QFont mIconFont;
-    bool mDrag;
-    bool isUserinfoExists;
-    bool isServerinfoExist;
-    Ui::MainWindow *ui;
+    QPushButton *closeButton;
+    QPushButton *minButton;
     QSystemTrayIcon *mSysTrayIcon;
-    QMenu *mMenu;
+    QMenu *mMenu=nullptr;
     QAction *mShowMainAction;
     QAction *mExitAppAction;
     QAction *mServiceAction;
     QAction *mAboutAction;
     QPushButton *AboutButton;
     QPushButton *AdvancedButton;
-    //    QNetworkAccessManager *manager;
-    QTimer *meTimer;
-    //    QTimer *AutoJumpTimer;
-    //     QTimer *RetryTimer;
-    //     QTimer *WaitTimer;
+    network *n;
+    storage *s;
+    int usedtime;
+    bool isOnline=false;
+    int status;
+    QTimer *meTimer=nullptr;
+    QString logoutname;
+    bool set=false;
 };
 
 #endif // MAINWINDOW_H

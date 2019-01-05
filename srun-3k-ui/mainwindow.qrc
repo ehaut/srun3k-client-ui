@@ -12,6 +12,7 @@
 		<file alias="advanced">Resouces/titleButtons/advanced.png</file>
         <file alias="advanced_hover">Resouces/titleButtons/advanced_hover.png</file>
         <file alias="advanced_pressed">Resouces/titleButtons/advanced_pressed.png</file>
+		<file alias="boxshadow">Resouces/titleButtons/boxshadow.png</file>
     </qresource>
     <qresource prefix="/Ico">
         <file alias="R">Resouces/Ico/new.png</file>
@@ -20,5 +21,8 @@
 	<qresource prefix="/language">
         <file alias="widgets.qm">Resouces/language/widgets.qm</file>
 		<file alias="qt_zh_CN.qm">Resouces/language/qt_zh_CN.qm</file>
+    </qresource>
+	<qresource prefix="/png">
+        <file alias="HAUT">Resouces/png/haut.jpg</file>
     </qresource>
 </RCC>

@@ -1,429 +1,267 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "QMouseEvent"
-//#include "qt_windows.h"
-#include "QtNetwork/QNetworkReply"
-#include "QtNetwork/QNetworkRequest"
-#include "QTextCodec"
-#include "QJsonObject"
-#include "QJsonArray"
-#include "QJsonDocument"
-#include "QFile"
-#include "QTimer"
-#include "QDesktopServices"
-#include "QUrl"
-#include "QSettings"
-unsigned int usedtime;
-QString yourname;
-QString login_server;
-QString login_port;
-QString service_server;
-QString service_port;
-QString mac;
-QString acid;
-QString type;
-QString drop;
-QString pop;
-int file_state=0;
-int set=0;
-int state=0;
-/*下面这些是服务器回传信息基准，用于做反馈处理*/
-QString login_ok="login_ok,1573330604,0,0,0.0,0.0,0,0,0,0,0,1.01.20160715"; //登陆成功
-QString login_ok_short="login_ok";
-QString logout_ok="logout_ok";										      //注销成功
-QString error1="missing_required_parameters_error";                         //缺少参数
-QString error2="login_error#E2553: Password is error.";                     //密码错误
-QString error3="login_error#E2531: User not found.";                        //用户未找到
-QString error4="login_error#INFO failed, BAS respond timeout.";            //ACID错误
-QString error5="login_error#You are not online.";	                  //你不在线
-QString error6="login_error#E2901: (Third party 1)Status_Err";           //状态错误，一般指欠费
-QString error7="login_error#E2901: (Third party 1)User Locked";          //用户锁定，一般也指欠费
-QString error8="ip_already_online_error"; //IP已经在线
+//#include "QDebug"
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setWindowFlags(Qt::FramelessWindowHint);//去掉窗口标题栏
     setWindowFlags(Qt::FramelessWindowHint);
     setAttribute(Qt::WA_TranslucentBackground);
-    setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #2980b9;}");
     mLocation = this->geometry();
     mDrag = false;
-    Start();
-}
-
-void MainWindow::Start(void)
-{//开始设置界面关闭按钮，关于按钮
-   ui->NAME_INPUT->setAttribute(Qt::WA_InputMethodEnabled, false);
-   ui->PASSWD_INPUT->setAttribute(Qt::WA_InputMethodEnabled, false);
-   ui->stackedWidget->setCurrentIndex(2);
-   QPushButton *closeButton= new QPushButton(this);//建立关闭按钮
-   connect(closeButton, SIGNAL(clicked()), this, SLOT(Close()));//连接关闭信号
-   closeButton->setGeometry(305,0,43,33);
-   closeButton->setToolTip(tr("关闭"));//设置鼠标移至按钮上的提示信息
-   closeButton->setStyleSheet("QPushButton {border-image: url(:/titleButtons/close);}"
+    ui->widgetTitle->installEventFilter(this);
+    ui->labelTitle->setAlignment(Qt::AlignCenter);
+    setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #2980b9;}");
+    closeButton= new QPushButton(this);//建立关闭按钮
+    connect(closeButton, SIGNAL(clicked()), this, SLOT(Close()));//连接关闭信号
+    closeButton->setGeometry(595,0,43,33);
+    closeButton->setToolTip(tr("关闭"));//设置鼠标移至按钮上的提示信息
+    closeButton->setStyleSheet("QPushButton {border-image: url(:/titleButtons/close);}"
                               "QPushButton:hover {border-image: url(:/titleButtons/close_hover);}"
                                "QPushButton:pressed {border-image: url(:/titleButtons/close_pressed);}");//设置关闭等按钮的样式
-   QPushButton *minButton= new QPushButton(this);//建立最小化按钮
-   connect(minButton, SIGNAL(clicked()), this, SLOT(Min()));//连接关闭信号
-   minButton->setGeometry(262,0,43,33);
-   minButton->setToolTip(tr("最小化"));//设置鼠标移至按钮上的提示信息
-   minButton->setStyleSheet("QPushButton {border-image: url(:/titleButtons/min);}"
+    minButton= new QPushButton(this);//建立最小化按钮
+    connect(minButton, SIGNAL(clicked()), this, SLOT(Min()));//连接关闭信号
+    minButton->setGeometry(550,0,43,33);
+    minButton->setToolTip(tr("最小化"));//设置鼠标移至按钮上的提示信息
+    minButton->setStyleSheet("QPushButton {border-image: url(:/titleButtons/min);}"
                               "QPushButton:hover {border-image: url(:/titleButtons/min_hover);}"
                                "QPushButton:pressed {border-image: url(:/titleButtons/min_pressed);}");//设置最小化等按钮的样式
-   AboutButton= new QPushButton(this);//建立关于按钮
-   AboutButton->setToolTip(tr("关于"));
-   AboutButton->setGeometry(320,470,20,20);
-   AboutButton->setStyleSheet("QPushButton {border-image: url(:/titleButtons/about);}"
+    AboutButton= new QPushButton(this);//建立关于按钮
+    AboutButton->setToolTip(tr("关于"));
+    AboutButton->setGeometry(610,295,20,20);
+    AboutButton->setStyleSheet("QPushButton {border-image: url(:/titleButtons/about);}"
                               "QPushButton:hover {border-image: url(:/titleButtons/about_hover);}"
                                "QPushButton:pressed {border-image: url(:/titleButtons/about_pressed);}");
-   AdvancedButton= new QPushButton(this);//建立高级设置按钮
-   AdvancedButton->setToolTip(tr("高级设置"));
-   AdvancedButton->setGeometry(290,470,20,20);
-   AdvancedButton->setStyleSheet("QPushButton {border-image: url(:/titleButtons/advanced);}"
+    AdvancedButton= new QPushButton(this);//建立高级设置按钮
+    AdvancedButton->setToolTip(tr("高级设置"));
+    AdvancedButton->setGeometry(580,295,20,20);
+    AdvancedButton->setStyleSheet("QPushButton {border-image: url(:/titleButtons/advanced);}"
                               "QPushButton:hover {border-image: url(:/titleButtons/advanced_hover);}"
                                "QPushButton:pressed {border-image: url(:/titleButtons/advanced_pressed);}");
- connect(ui->About_show, SIGNAL(anchorClicked(const QUrl&)),this, SLOT(anchorClickedSlot(const QUrl&)));
-   AboutButton->hide();//在获取公告前隐藏这两个按钮
-   AdvancedButton->hide();
-   QString serverconfig=QCoreApplication::applicationDirPath()+"/server.json";
-   QFile open(serverconfig);
-      if(open.open(QIODevice::ReadOnly))
-      {//打开服务器信息文件
-          QByteArray OPEN_CONFIG=open.readAll();
-          open.close();
-          QJsonDocument config=QJsonDocument::fromJson(OPEN_CONFIG);
-          if(config.isObject())
-          {//存在的话读入
-              bool ok;
-              QJsonObject obj=config.object();
-              if(obj.contains("login_server"))
-                 {
-                  login_server=(QString)obj.value("login_server").toString();
-                  ui->login_server->setText(obj.value("login_server").toString());
-                }
-              if(obj.contains("service_server"))
-                 {
-                  service_server=(QString)obj.value("service_server").toString();
-                  ui->service_server->setText(obj.value("service_server").toString());
-                }
-              if(obj.contains("mac"))
-                 {
-                  mac=(QString)obj.value("mac").toString();
-                  ui->mac->setText(obj.value("mac").toString());
-                }
-              if(obj.contains("login_port"))
-                 {
-                  login_port=(QString)obj.value("login_port").toString();
-                  ui->login_port->setValue(login_port.toInt(&ok,10));
-                }
-              if(obj.contains("service_port"))
-                 {
-                  service_port=(QString)obj.value("service_port").toString();
-                  ui->service_port->setValue(service_port.toInt(&ok,10));
-                }
-              if(obj.contains("acid"))
-                 {
-                  acid=(QString)obj.value("acid").toString();
-                  ui->acid->setValue(acid.toInt(&ok,10));
-                }
-              if(obj.contains("type"))
-                 {
-                  type=(QString)obj.value("type").toString();
-                  ui->type->setValue(type.toInt(&ok,10));
-                }
-              if(obj.contains("drop"))
-                 {
-                  drop=(QString)obj.value("drop").toString();
-                  ui->drop->setValue(drop.toInt(&ok,10));
-                }
-              if(obj.contains("pop"))
-                 {
-                  pop=(QString)obj.value("pop").toString();
-                  ui->pop->setValue(pop.toInt(&ok,10));
-                }
-          }
-          GetServerInfo();//获取服务器信息
-      }
-   else
-    {//不存在服务器信息文件，要求设置
-          ui->advanced_save->setGeometry(30,330,290,50);
-          ui->login_server->setText("http://172.16.154.130");
-          ui->service_server->setText("http://172.16.154.130");
-          ui->mac->setText("02:00:00:00:00:00");
-          ui->login_port->setValue(69);
-          ui->service_port->setValue(8800);
-          ui->acid->setValue(1);
-          ui->type->setValue(3);
-          ui->drop->setValue(0);
-          ui->pop->setValue(1);//上面都是设置初始化值
-          ui->advanced_back->hide();//只允许保存，不允许返回
-          ui->stackedWidget->setCurrentIndex(4);//初始化界面
-     }
-   /*自动读取用户信息*/
-    QString userconfig=QCoreApplication::applicationDirPath()+"/config.json";
-    QFile u(userconfig);
-    if(u.open(QIODevice::ReadOnly))
+    connect(ui->aboutBox, SIGNAL(anchorClicked(const QUrl&)),this, SLOT(anchorClickedSlot(const QUrl&)));
+    connect(ui->messageButtonInLogoutPage, SIGNAL(clicked()),this, SLOT(showMessage()));
+    connect(ui->messageButtonInLoginPage, SIGNAL(clicked()),this, SLOT(showMessage()));
+    connect(ui->backButtonInadvanceSettingsPage, SIGNAL(clicked()),this, SLOT(on_ENTER_clicked()));
+    connect(ui->enterInMessagePage, SIGNAL(clicked()),this, SLOT(on_ENTER_clicked()));
+    connect(ui->enterButtonInAboutPage, SIGNAL(clicked()),this, SLOT(on_ENTER_clicked()));
+    connect(ui->serviceButtonInLoginPage, SIGNAL(clicked()),this, SLOT(on_SERVICE_clicked()));
+    connect(ui->serviceButtonInLogoutPage, SIGNAL(clicked()),this, SLOT(on_SERVICE_clicked()));
+    ui->usernameLineEdit->setAttribute(Qt::WA_InputMethodEnabled, false);
+    ui->passwordLineEdit->setAttribute(Qt::WA_InputMethodEnabled, false);
+    ui->stackedWidget->setCurrentIndex(2);
+    AboutButton->hide();//在获取公告前隐藏这两个按钮
+    AdvancedButton->hide();
+    n=new network();
+    s=new storage();
+    ui->Ladvanced->setText("初始化设置：");
+    ui->backButtonInadvanceSettingsPage->hide();
+    isServerinfoExist=s->readServerConfigFromFile(serverConfig);
+    if(isServerinfoExist)
     {
-       file_state=1;
-       QByteArray OPEN_USERINFO=u.readAll();
-       u.close();
-       QJsonDocument USERINFO=QJsonDocument::fromJson(OPEN_USERINFO);
-       if(USERINFO.isObject())
-       {
-           QJsonObject obj=USERINFO.object();
-           if(obj.contains("username"))
-              { ui->NAME_INPUT->setText(obj.value("username").toString());}
-           if(obj.contains("password"))
-              {
 
-              QString PASSWD=obj.value("password").toString();
-               ui->PASSWD_INPUT->setText(QByteArray::fromBase64(PASSWD.toLatin1()));
-           }
-           if(obj.contains("auto_start"))
-           {
-               bool auto_start=obj.value("auto_start").toBool();
-              if(auto_start)
-                ui->AUTO_START->setCheckState(Qt::Checked);
-           }
-           if(obj.contains("auto_login"))
-           {
-               bool auto_login=obj.value("auto_login").toBool();
-              if(auto_login)
-               {
-                    ui->AUTO_LOGIN->setCheckState(Qt::Checked);
-              }
-           }
-
-       }
+        ui->Ladvanced->setText("高级设置：");
+        ui->loginServerLineEdit->setText(serverConfig.at(0));
+        ui->serviceServerLineEdit->setText(serverConfig.at(1));
+        ui->macLineEdit->setText(serverConfig.at(2));
+        ui->loginServerPortSpinbox->setValue(serverConfig.at(3).toInt());
+        ui->serviceServerPortSpinbox->setValue(serverConfig.at(4).toInt());
+        ui->acidSpinBox->setValue(serverConfig.at(5).toInt());
+        ui->typeSpinBox->setValue(serverConfig.at(6).toInt());
+        ui->dropSpinBox->setValue(serverConfig.at(7).toInt());
+        ui->popSpinBox->setValue(serverConfig.at(8).toInt());
+        ui->backButtonInadvanceSettingsPage->show();
+        getServerInfo();
     }
-
-
-}
-
-void MainWindow::GetServerInfo(void)
-{
-    QNetworkAccessManager *GetServerMessageManager = new QNetworkAccessManager(this);
-    QString url=login_server+"/v2/srun_portal_message";
-    GetServerMessageManager->get(QNetworkRequest(QUrl(url)));
-    connect(GetServerMessageManager, &QNetworkAccessManager::finished,[this](QNetworkReply *reply){
-           if (reply->error() == QNetworkReply::NoError)
-                {//得到信息
-                    /*自动读取用户状态*/
-                      QNetworkAccessManager *GetINFOManager = new QNetworkAccessManager(this);
-                      GetINFOManager->get(QNetworkRequest(QUrl(login_server+"/cgi-bin/rad_user_info")));
-                      connect(GetINFOManager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_INFO_Finished(QNetworkReply*)));
-                      //QTextCodec *codec =QTextCodec::codecForName("GB2312");
-                      QByteArray all =reply->readAll();
-                      QJsonDocument info = QJsonDocument::fromJson(all);
-                      QJsonObject obj=info.object();
-                      if(obj.contains("Data"))
-                      {
-
-                            QJsonValue value=obj.value("Data");
-                            QJsonArray message=value.toArray();
-                            QJsonValue info = message.at(0);
-                            QString display="<h3>"+\
-                            info.toObject().value("Title").toString()+"</h3>------------------<br>"+\
-                            info.toObject().value("Content").toString();
-                            ui->Message_show->setText(display);
-                            /*自动读取上次公告*/
-                              QString servermessage=QCoreApplication::applicationDirPath()+"/lastservermessage.txt";
-                              QFile m(servermessage);
-                              if(m.open(QIODevice::ReadOnly))
-                              {//读取上次公告文件
-                                  QTextStream op(&m);
-                                  QString ServerMessage=op.readAll();
-                                  m.close();//关闭上次读的动作
-                                  if(ServerMessage!=display)
-                                  {//服务器公告更新
-                                      ui->ShowServerMessage->setText("显示(新)公告");
-                                      /*自动重写公告*/
-                                       QFile r(servermessage);
-                                       if(r.open(QIODevice::WriteOnly|QIODevice::Truncate))
-                                       {
-                                           QTextStream ts(&r);
-                                           ts<<display;
-                                           r.close();
-                                       }
-                                       else
-                                           ui->Message_show->setText("无法将服务器公告写入文件!");
-                                  }
-                              }
-                              else
-                              {//如果读取不到上次公告文件
-                                  ui->ShowServerMessage->setText("显示(新)公告");
-                                  /*自动重写公告*/
-                                   QFile r(servermessage);
-                                   if(r.open(QIODevice::WriteOnly|QIODevice::Truncate))
-                                   {
-                                       QTextStream ts(&r);
-                                       ts<<display;
-                                       r.close();
-                                   }
-                                   else
-                                       ui->Message_show->setText("无法将服务器公告写入文件!");
-                              }
-                      }
-
-               }
-             else
-                {
-                    ui->ShowState->setText("网络错误!");
-                    ui->stackedWidget->setCurrentIndex(0);
-                }
-           connect(AboutButton, SIGNAL(clicked()), this, SLOT(on_ABOUT_clicked()));//连接信号
-           connect(AdvancedButton, SIGNAL(clicked()), this, SLOT(on_ADVANCED_clicked()));//连接信号
-           AboutButton->show();//在获取公告后显示这两个按钮
-           AdvancedButton->show();
-           reply->deleteLater();//回收
-     });
-}
-void MainWindow::GET_INFO_Finished(QNetworkReply *reply)
-{
-    static int run=0;
-    if (reply->error() == QNetworkReply::NoError)
-     {//得到信息
-        QTextCodec *codec =QTextCodec::codecForName("GB2312");
-        QString all = codec->toUnicode(reply->readAll());
-        if(all.indexOf("not_online")!=-1)
-        {//如果检测不在线
-            state=0;
-            ui->stackedWidget->setCurrentIndex(2);
-            if(ui->AUTO_LOGIN->isChecked())
-             {
-                 QTimer::singleShot(30,[this](){ui->LoginButton->click();});
-             }
+    else
+    {
+        ui->stackedWidget->setCurrentIndex(4);
+        on_setDefaultButton_clicked();
+    }
+    isUserinfoExists=s->readuserConfigFromFile(userConfig);
+    if(isUserinfoExists)
+    {
+        ui->usernameLineEdit->setText(userConfig.at(0));
+        ui->passwordLineEdit->setText(userConfig.at(1));
+        if(userConfig.at(2)=="true")
+            ui->autoStartCheckBox->setCheckState(Qt::Checked);
+        if(userConfig.at(3)=="true")
+         {
+            ui->autoLoginCheckBox->setCheckState(Qt::Checked);
         }
-        else
-        {
-            state=1;
+    }
+
+}
+
+void MainWindow::showMessage(void)
+{
+    ui->stackedWidget->setCurrentIndex(1);
+}
+
+void MainWindow::on_ABOUT_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(5);
+}
+
+void MainWindow::on_ADVANCED_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(4);
+}
+
+void MainWindow::on_ENTER_clicked()
+{
+    if(!n->isTimeOut)
+    {
+        if(isOnline)
             ui->stackedWidget->setCurrentIndex(3);
-            QStringList getinfo=all.split(",");
-            unsigned int login_time;
-            unsigned int server_time;
-            yourname=QString(getinfo.at(0));
-           ui->NAME->setText(("用户名 ："+QString(getinfo.at(0))));
-            QString temp1=getinfo.at(1);
-            login_time=temp1.toInt();
-            QString temp2=getinfo.at(2);
-            server_time=temp2.toInt();
-            QString temp3=getinfo.at(6);
-            double data=temp3.toDouble()/1073741824;
-            ui->DATA->setText(("流   量 ："+QString::number(data,'g',6)+"GB"));
-            QString temp4=getinfo.at(7);
-            usedtime=temp4.toInt()+server_time-login_time;
-            ui->IP->setText(("地   址 ："+QString(getinfo.at(8))));
-            reply->deleteLater();//回收
-            if(run==0)
-            {//第一次运行
-                meTimer=new QTimer(this);  //this说明是当前类对象的定时器
-                connect(meTimer,SIGNAL(timeout()),this,SLOT(TimeSlot()));  //把信号与槽进行连接
-            }
-            else
-            {//以后每一次运行
-                meTimer->stop();
-                disconnect(meTimer,SIGNAL(timeout()),this,SLOT(TimeSlot()));//断开信号
-                connect(meTimer,SIGNAL(timeout()),this,SLOT(TimeSlot()));  //把信号与槽进行连接
-            }
-            meTimer->start(1000);
-            run++;
-            ui->LoginButton->setEnabled(true);
+        else
+            ui->stackedWidget->setCurrentIndex(2);
+    }
+    else
+         ui->stackedWidget->setCurrentIndex(0);
+
+}
+
+void MainWindow::getServerInfo(void)
+{
+     ui->statusBar->setText("获取服务器信息中...");
+     setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #3498DB;}");
+     ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                     "QWidget#widgetBottom{background:#3498DB;}");
+     QString url=serverConfig.at(0)+"/v2/srun_portal_message";
+     QString reback=n->httpGet(url.toStdString().c_str());
+     if(!n->isTimeOut)
+     {
+         QStringList serverMessage=n->parseServerMessage(reback);
+         ui->statusBar->setText("获取服务器信息中...成功！");
+         setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #1aad18;}");
+         ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                         "QWidget#widgetBottom{background:#1aad18;}");
+        ui->messageLable->setText(serverMessage.at(0));
+        ui->messageBox->setText(serverMessage.at(1));
+        getUserInfo(true);
      }
-    reply->deleteLater();//回收
+     else
+     {
+         ui->statusBar->setText("获取服务器信息中...服务器连接失败！");
+         setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #E05D6F;}");
+         ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                         "QWidget#widgetBottom{background:#E05D6F;}");
+         ui->stackedWidget->setCurrentIndex(0);
+     }
+     AboutButton->show();
+     AdvancedButton->show();
+     connect(AboutButton, SIGNAL(clicked()), this, SLOT(on_ABOUT_clicked()));//连接信号
+     connect(AdvancedButton, SIGNAL(clicked()), this, SLOT(on_ADVANCED_clicked()));//连接信号
+}
+
+
+void MainWindow::getUserInfo(bool showmode)
+{
+    if(showmode)
+    {
+        ui->statusBar->setText("获取用户状态中...");
+        setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #3498DB;}");
+        ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                        "QWidget#widgetBottom{background:#3498DB;}");
+    }
+    QString url=serverConfig.at(0)+":"+serverConfig.at(3)+"/cgi-bin/rad_user_info";
+    QStringList list=n->parseUserInfo(n->httpGet(url.toStdString().c_str()),usedtime,isOnline);
+    if(showmode)
+    {
+        ui->statusBar->setText("获取用户状态中...成功！");
+        setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #1aad18;}");
+        ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                        "QWidget#widgetBottom{background:#1aad18;}");
+    }
+    if(!isOnline)
+    {
+        ui->stackedWidget->setCurrentIndex(2);
+        if(ui->autoLoginCheckBox->isChecked())
+         {
+             QTimer::singleShot(30,[this](){on_loginButton_clicked(true);});
+         }
+    }
+    else
+    {
+        /**
+            list[0] username
+            list[1] ip
+            list[2] data
+            list[3] time
+        */
+        QString name=ui->nameLable->text();
+        name=name.arg(list.at(0));
+        logoutname=list.at(0);
+        ui->nameLable->setText(name);
+        QString ip=ui->ipLable->text();
+        ip=ip.arg(list.at(1));
+        ui->ipLable->setText(ip);
+        QString data=ui->dataLable->text();
+        data=data.arg(list.at(2));
+        ui->dataLable->setText(data);
+        QString time="时    间：%1 小时 %2 分 %3 秒";
+        time=time.arg(QString::number(usedtime/3600,10)).arg(QString::number(usedtime/60%60,10)).arg(QString::number(usedtime%60,10));
+        ui->timeLable->setText(time);
+        if(meTimer==nullptr)
+        {
+            meTimer=new QTimer(this);  //this说明是当前类对象的定时器
+            connect(meTimer,SIGNAL(timeout()),this,SLOT(TimeSlot()));  //把信号与槽进行连接
+        }
+        meTimer->start(1000);
+        ui->stackedWidget->setCurrentIndex(3);
     }
 }
-void MainWindow::TimeSlot()
+
+void MainWindow::paintEvent(QPaintEvent *event)
 {
-//   ui->TIME_H->setText(QString::number(usedtime/3600,10));
-//   ui->TIME_M->setText(QString::number(usedtime/60%60,10));
-//   ui->TIME_S->setText(QString::number(usedtime%60,10));
-   ui->TIME->setText(("时   间 ："+QString::number(usedtime/3600,10)+"小时"+QString::number(usedtime/60%60,10)+"分"+QString::number(usedtime%60,10)+"秒"));
-   usedtime++;
+    QPainterPath path;
+    path.setFillRule(Qt::WindingFill);
+    path.addRect(10, 10, this->width()-20, this->height()-20);
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.fillPath(path, QBrush(Qt::transparent));
+    QColor color(0,0,0,50);
+    int arr[10] = {150,120,80,50,40,30,20,10,5,5};
+    for(int i=0; i<10; i++)
+    {
+        QPainterPath path;
+        path.setFillRule(Qt::WindingFill);
+        if(i == 5)
+            path.addRect(10-i-1, 10-i-1, this->width()-(10-i)*2, this->height()-(10-i)*2);
+        else
+            path.addRoundedRect(10-i-1, 10-i-1, this->width()-(10-i)*2, this->height()-(10-i)*2,2,2);
+
+        color.setAlpha(arr[i]);
+        painter.setPen(color);
+        painter.drawPath(path);
+     }
 }
 
-//void MainWindow::GET_ACID_Finished(QNetworkReply *reply)
-//{
-//    if (reply->error() == QNetworkReply::NoError)
-//    {
-//        QString ac_id=reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl().fileName();
-//        QRegExp p("index_(\\d+).html");
-//        int pos=ac_id.indexOf(p);
-//        if(pos>=0)
-//        acid= QString(p.cap(1));
-//    }
-//   reply->deleteLater();//回收
-//}
-
-MainWindow::~MainWindow()
-{
-
-//    if(mMenu!=nullptr)
-//      {
-//           delete mMenu;
-//           delete mShowMainAction;
-//           delete mExitAppAction;
-//           delete mServiceAction;
-//           delete mAboutAction;
-//       }
-       if(meTimer!=nullptr)
-       {
-           meTimer->stop();
-           delete meTimer;
-       }
-       delete AdvancedButton;
-       delete AboutButton;
-       delete ui;
-
-}
-void MainWindow::Close()
-{
-    this->close();
-}
 
 void MainWindow::Min()
 {//最小化到托盘，参考http://blog.csdn.net/zhuyunfei/article/details/51433822
     this->hide();
     //新建QSystemTrayIcon对象
-       mSysTrayIcon = new QSystemTrayIcon(this);
-       //新建托盘要显示的icon
-       QIcon icon = QIcon(":/Ico/SysIcon");
-       //将icon设到QSystemTrayIcon对象中
-       mSysTrayIcon->setIcon(icon);
-       //当鼠标移动到托盘上的图标时，会显示此处设置的内容
-       mSysTrayIcon->setToolTip("校园网登录器");
-       //在系统托盘显示此对象
-       connect(mSysTrayIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),this,SLOT(on_activatedSysTrayIcon(QSystemTrayIcon::ActivationReason)));
-           //连接按下图标之后
-       createActions();
-       createMenu();
-       mSysTrayIcon->show();
-}
-
-void MainWindow::createActions()
-{
+    mSysTrayIcon = new QSystemTrayIcon(this);
+    //新建托盘要显示的icon
+    QIcon icon = QIcon(":/Ico/SysIcon");
+    //将icon设到QSystemTrayIcon对象中
+    mSysTrayIcon->setIcon(icon);
+    //当鼠标移动到托盘上的图标时，会显示此处设置的内容
+    mSysTrayIcon->setToolTip("校园网登录器");
+    //在系统托盘显示此对象
+    connect(mSysTrayIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),this,SLOT(on_activatedSysTrayIcon(QSystemTrayIcon::ActivationReason)));
+       //连接按下图标之后
     mShowMainAction = new QAction("显示主界面");
     connect(mShowMainAction,SIGNAL(triggered()),this,SLOT(on_showMainAction()));
     mExitAppAction = new QAction("退出");
-    connect(mExitAppAction,SIGNAL(triggered()),this,SLOT(on_exitAppAction()));
+    connect(mExitAppAction,SIGNAL(triggered()),this,SLOT(Close()));
     mServiceAction = new QAction("自服务");
     connect(mServiceAction,SIGNAL(triggered()),this,SLOT(on_SERVICE_clicked()));
     mAboutAction = new QAction("关于");
-    connect(mAboutAction,SIGNAL(triggered()),this,SLOT(on_aboutAppAction()));
-}
-
-void MainWindow::on_aboutAppAction()
-{//按关于按钮
-     ui->stackedWidget->setCurrentIndex(5);
-    this->show();
-     mSysTrayIcon->deleteLater();
-     mMenu->deleteLater();
-      mMenu=nullptr;
-}
-
-void MainWindow::createMenu()
-{
+    connect(mAboutAction,SIGNAL(triggered()),this,SLOT(on_mABOUT_clicked()));
     mMenu = new QMenu(this);
     //菜单美化参考http://blog.csdn.net/zhouxiao2009/article/details/22984407
     mMenu->setStyleSheet("QMenu {background-color:white;}"
@@ -432,33 +270,45 @@ void MainWindow::createMenu()
                          "QMenu::separator {height: 2px;background: rgb (168, 216, 235);margin-left: 25px;} "
                          "QMenu::indicator {width: 13px;height: 13px;} ");
     mMenu->addAction(mShowMainAction);
-
     mMenu->addSeparator();
-
     mMenu->addAction(mServiceAction);
-
     mMenu->addSeparator();
-
     mMenu->addAction(mAboutAction);
-
-
     mMenu->addAction(mExitAppAction);
-
     mSysTrayIcon->setContextMenu(mMenu);
+    mSysTrayIcon->show();
 }
+
+void MainWindow::on_SERVICE_clicked()
+{
+    ui->statusBar->setText("打开自服务中...");
+    setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #3498DB;}");
+    ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                    "QWidget#widgetBottom{background:#3498DB;}");
+    QString url=serverConfig.at(1)+":"+serverConfig.at(4);
+    //qDebug()<<url;
+    QDesktopServices::openUrl(QUrl(url));
+    ui->statusBar->setText("打开自服务中...成功！");
+    setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #1aad18;}");
+    ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                    "QWidget#widgetBottom{background:#1aad18;}");
+}
+
+void MainWindow::on_mABOUT_clicked()
+{
+    on_showMainAction();
+    ui->stackedWidget->setCurrentIndex(5);
+}
+
 
 void MainWindow::on_showMainAction()
 {//按下显示主界面
-    this->show();
     mSysTrayIcon->deleteLater();
     mMenu->deleteLater();
     mMenu=nullptr;
+    this->show();
 }
 
-void MainWindow::on_exitAppAction()
-{//按下退出程序
-    exit(0);
-}
 void MainWindow::on_activatedSysTrayIcon(QSystemTrayIcon::ActivationReason reason)
 {//按下托盘图标
     switch(reason){
@@ -468,15 +318,42 @@ void MainWindow::on_activatedSysTrayIcon(QSystemTrayIcon::ActivationReason reaso
     case QSystemTrayIcon::DoubleClick:
         //双击托盘图标
         //双击后显示主程序窗口
-        mSysTrayIcon->deleteLater();//一定加上删除图标
-        this->show();
+        on_showMainAction();
         break;
     default:
         break;
     }
 }
 
+void MainWindow::Close()
+{
+    qApp->exit(0);
+}
 
+
+MainWindow::~MainWindow()
+{
+   if(mMenu!=nullptr)
+   {
+        delete mMenu;
+        delete mShowMainAction;
+        delete mExitAppAction;
+        delete mServiceAction;
+        delete mAboutAction;
+    }
+    if(meTimer!=nullptr)
+    {
+        meTimer->stop();
+        delete meTimer;
+    }
+    delete n;
+    delete s;
+    delete AdvancedButton;
+    delete AboutButton;
+    delete closeButton;
+    delete minButton;
+    delete ui;
+}
 
 void MainWindow::mousePressEvent(QMouseEvent *e)//鼠标按下事件
 {
@@ -502,374 +379,362 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)//鼠标释放事件
     mDrag = false;
 }
 
-//void MainWindow::mousePressEvent(QMouseEvent *event)
-//{//窗口拖动，参考http://blog.csdn.net/aqtata/article/details/8902889
-//    if (ReleaseCapture())
-//        SendMessage(HWND(this->winId()), WM_SYSCOMMAND, SC_MOVE + HTCAPTION, 0);
-//    event->ignore();
-//}
 
-
-void MainWindow::on_ABOUT_clicked()
-{//关于按钮
-   ui->stackedWidget->setCurrentIndex(5);
-}
-
-void MainWindow::on_SERVICE_clicked()
-{//自服务按钮
-    QString url=service_server+":"+service_port;
-   // qDebug()<<url;
-   QDesktopServices::openUrl(QUrl(url));
-}
-
-void MainWindow::on_ADVANCED_clicked()
-{//高级设置按钮
-    ui->stackedWidget->setCurrentIndex(4);
-}
-
-void MainWindow::on_AUTO_START_clicked()
-{
-    set=1;
-     QSettings *reg=new QSettings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",QSettings::NativeFormat);
-    if(ui->AUTO_START->isChecked())
-    {
-        reg->setValue("srun3k",QApplication::applicationFilePath().replace("/", "\\"));
-    }
-    else
-    {
-
-        reg->setValue("srun3k","");
-    }
-}
-
-void MainWindow::on_AUTO_LOGIN_clicked()
-{
-    set=1;
-}
-
-void MainWindow::on_RetryButton_clicked()
-{//重试按钮2s延时
-    QTimer::singleShot(2000, this, SLOT(GetServerInfo()));
-}
-
-void MainWindow::on_LogoutButton_clicked()
-{//按下注销按钮
-    ui->LogoutButton->setEnabled(false);
-    ui->ShowState->setText("注销中...");
-       QString post="&action=logout&ac_id=";
-       QNetworkAccessManager *LogoutManger = new QNetworkAccessManager(this);
-       QByteArray POST;
-       QNetworkRequest request;
-       //fixed logout issue
-       char *name=yourname.toLatin1().data();
-       QByteArray NAME_ENCRYPT="";
-       for (;*name!='\0';name++)
-       {//用户名加密
-           NAME_ENCRYPT.append(QString(*name+4));
-       }
-       POST.append(post);
-       POST.append(acid);
-       POST.append("&mac=");
-       POST.append(mac);
-       POST.append("&type=");
-       POST.append(type);
-       POST.append("&username=%7BSRUN3%7D%0D%0A");
-       //POST.append(yourname);
-       POST.append(NAME_ENCRYPT.toPercentEncoding());
-       request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-       request.setUrl(QUrl(login_server+":"+login_port+"/cgi-bin/srun_portal"));
-       LogoutManger->post(request,POST);
-       connect(LogoutManger, SIGNAL(finished(QNetworkReply*)),this,SLOT(POST_LOGOUT_Finished(QNetworkReply*)));
-}
-
-void MainWindow::POST_LOGOUT_Finished(QNetworkReply *reply)
-{
-    if (reply->error() == QNetworkReply::NoError)
-    {
-        QTextCodec *codec =QTextCodec::codecForName("GB2312");
-        QString all = codec->toUnicode(reply->readAll());
-        if(all.indexOf(logout_ok)!=-1)
-        {
-            QTimer::singleShot(10,[this](){state=0;ui->ShowState->setText("注销中......成功!");});
-            QTimer::singleShot(30,[this](){ui->stackedWidget->setCurrentIndex(2);ui->LogoutButton->setEnabled(true);});
-         }
-       else if(all.indexOf(error5)!=-1)
-        {
-            QTimer::singleShot(10,[this](){state=0;ui->ShowState->setText("您不在线，无法完成注销!");});
-            QTimer::singleShot(30,[this](){ui->stackedWidget->setCurrentIndex(2);ui->LogoutButton->setEnabled(true);});
-         }
-       else if(all.indexOf(error4)!=-1)
-         {
-            QTimer::singleShot(10,[this](){ui->ShowState->setText("注销中......ACID错误!请更改高级设置中的ACID值后重试!");});
-            QTimer::singleShot(30,[this](){ui->LogoutButton->setEnabled(true);});
-        }
-       else if(all.indexOf(error1)!=-1)
-        {
-            QTimer::singleShot(10,[this](){ui->ShowState->setText("注销中......错误!请重试!");});
-            QTimer::singleShot(30,[this](){ui->LogoutButton->setEnabled(true);});
-        }
-    }
-    else
-    {
-        QTimer::singleShot(10,[this](){ui->ShowState->setText("注销中......网络错误!请重试!");});
-        QTimer::singleShot(30,[this](){ui->LogoutButton->setEnabled(true);});
-    }
-   reply->deleteLater();//回收
-}
-
-void MainWindow::on_LoginButton_clicked()
-{//按下登陆按钮
-    ui->LoginButton->setEnabled(false);
-    ui->ShowState->setText("登陆中...");
-        QByteArray NAME_INPUT = ui->NAME_INPUT->text().trimmed().toLatin1();
-        QByteArray PASSWD_INPUT = ui->PASSWD_INPUT->text().toLatin1();
-        if(NAME_INPUT.isEmpty()||PASSWD_INPUT.isEmpty()||(NAME_INPUT.isEmpty()&&PASSWD_INPUT.isEmpty()))
-        {
-            ui->ShowState->setText("错误!请输入您的用户名和密码登陆!");
-            ui->LoginButton->setEnabled(true);
-        }
-        else
-        {
-            char *name = NAME_INPUT.data();
-            char *password = PASSWD_INPUT.data();
-            QByteArray NAME_ENCRYPT="";
-            for (;*name!='\0';name++)
-            {//用户名加密
-                NAME_ENCRYPT.append(QString(*name+4));
-            }
-            QByteArray PASSWD_ENCRYPT="";
-            char key[]= "1234567890";
-            for (int i = 0; *(password+i)!='\0'; ++i)
-            {//这是密码加密函数
-                 int ki = *(password+i) ^ key[strlen(key) - i%strlen(key) - 1];
-                 QString _l =  (QChar)((ki & 0x0f) + 0x36);
-                 QString _h =  (QChar)((ki >> 4 & 0x0f) + 0x63);
-                 if (i % 2 == 0)
-                 {
-                     PASSWD_ENCRYPT.append(_l);
-                     PASSWD_ENCRYPT.append(_h);
-                 }
-                 else
-                 {
-                     PASSWD_ENCRYPT.append(_h);
-                     PASSWD_ENCRYPT.append(_l);
-                 }
-            }
-            QNetworkAccessManager *LoginManger = new QNetworkAccessManager(this);
-            QString post="&action=login&n=117&mbytes=0&minutes=0&drop=";
-            QByteArray POST;
-            QNetworkRequest request;
-            POST.append(post);
-            POST.append(drop);
-            POST.append("&pop=");
-            POST.append(pop);
-            POST.append("&type=");
-            POST.append(type);
-            POST.append("&mac=");
-            POST.append(mac);
-            POST.append("&ac_id=");
-            POST.append(acid);
-            POST.append("&username=%7BSRUN3%7D%0D%0A");
-            POST.append(NAME_ENCRYPT.toPercentEncoding());
-            POST.append("&password=");
-            POST.append(PASSWD_ENCRYPT.toPercentEncoding());
-            request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-            request.setUrl(QUrl(login_server+":"+login_port+"/cgi-bin/srun_portal"));
-            LoginManger->post(request,POST);
-            connect(LoginManger, SIGNAL(finished(QNetworkReply*)),this,SLOT(POST_LOGIN_Finished(QNetworkReply*)));
-            if((file_state==0||file_state==-1)||set==1)
-            {
-                QJsonObject info;
-                 info.insert("username",QString(NAME_INPUT));
-                 info.insert("password",QString(PASSWD_INPUT.toBase64()));
-                  bool auto_login=ui->AUTO_LOGIN->isChecked();
-                 info.insert("auto_login",auto_login);
-                 bool auto_start=ui->AUTO_START->isChecked();
-                 info.insert("auto_start",auto_start);
-                 QJsonDocument SAVE_INFO;
-                 SAVE_INFO.setObject(info);
-                 QString userconfig=QCoreApplication::applicationDirPath()+"/config.json";
-                QFile save(userconfig);
-                 if(!save.open(QIODevice::WriteOnly | QIODevice::Truncate))
-                  {
-                      ui->ShowState->setText("错误!文件保存失败!");
-                 }
-                 else
-                 {
-                    save.write(SAVE_INFO.toJson());
-                 }
-                 save.close();
-            }
-        }
-}
-
-void MainWindow::POST_LOGIN_Finished(QNetworkReply *reply)
-{
-    if (reply->error() == QNetworkReply::NoError)
-    {
-        QTextCodec *codec =QTextCodec::codecForName("GB2312");
-        QString all = codec->toUnicode(reply->readAll());
-        if(all.indexOf(login_ok_short)!=-1)
-        {
-            QTimer::singleShot(10,[this](){
-                state=1;
-                QNetworkAccessManager *GetINFOManager = new QNetworkAccessManager(this);
-                 GetINFOManager->get(QNetworkRequest(QUrl(login_server+"/cgi-bin/rad_user_info")));
-                 connect(GetINFOManager, SIGNAL(finished(QNetworkReply*)),this,SLOT(GET_INFO_Finished(QNetworkReply*)));
-                ui->ShowState->setText("登陆中......成功!");});
-            QTimer::singleShot(30,[this](){ui->stackedWidget->setCurrentIndex(3);ui->LoginButton->setEnabled(true);});
-         }
-        else if((all.indexOf(error6)!=-1)||(all.indexOf(error7)!=-1))
-        {
-                    QTimer::singleShot(10,[this](){ui->ShowState->setText("您已欠费，无法使用，请充值!");});
-                    QTimer::singleShot(30,[this](){ui->LoginButton->setEnabled(true);});
-         }
-        else if(all.indexOf(error2)!=-1)
-        {
-                    file_state=-1;//密码错误或者用户名错误就会重写储存登陆信息
-                    QTimer::singleShot(10,[this](){ui->ShowState->setText("密码错误，请检查输入后重试!");});
-                    QTimer::singleShot(30,[this](){ui->LoginButton->setEnabled(true);});
-         }
-        else if(all.indexOf(error3)!=-1)
-        {
-                    file_state=-1;//密码错误或者用户名错误就会重写储存登陆信息
-                    QTimer::singleShot(10,[this](){ui->ShowState->setText("用户名错误，请检查输入后重试!");});
-                    QTimer::singleShot(30,[this](){ui->LoginButton->setEnabled(true);});
-         }
-        else if(all.indexOf(error4)!=-1)
-        {
-                    QTimer::singleShot(10,[this](){ui->ShowState->setText("登陆中......ACID错误!请更改高级设置中的ACID值后重试!");});
-                    QTimer::singleShot(30,[this](){ui->LoginButton->setEnabled(true);});
-         }
-        else if(all.indexOf(error1)!=-1)
-        {
-                    QTimer::singleShot(10,[this](){ui->ShowState->setText("登陆中......错误!请重试!");});
-                    QTimer::singleShot(30,[this](){ui->LoginButton->setEnabled(true);});
-         }
-        else if(all.indexOf(error8)!=-1)
-        {
-                    QTimer::singleShot(10,[this](){ui->ShowState->setText("登陆中......当前用户已经在线!请重试!");});
-                    QTimer::singleShot(30,[this](){ui->LoginButton->setEnabled(true);});
-         }
-        else
-        {
-                    QTimer::singleShot(10,[this](){ui->ShowState->setText("登陆中......错误!请重试!");});
-                    QTimer::singleShot(30,[this](){ui->LoginButton->setEnabled(true);});
-         }
-
-    }
-    else
-    {
-        QTimer::singleShot(10,[this](){ui->ShowState->setText("登陆中......网络错误!请重试!");});
-        QTimer::singleShot(30,[this](){ui->LoginButton->setEnabled(true);});
-    }
-   reply->deleteLater();//回收
-}
-
-void MainWindow::on_Enter_clicked()
-{//按下显示服务器公告的确定按钮
-    ui->stackedWidget->setCurrentIndex(3);//返回登陆成功页面
-}
-
-void MainWindow::on_SERVICE_2_clicked()
-{//注销界面的自服务按钮
-    QString url=service_server+":"+service_port;
-    QDesktopServices::openUrl(QUrl(url));
-}
-
-void MainWindow::on_advanced_save_clicked()
-{//按下高级界面的存储按钮
-    QJsonObject config;
-     config.insert("login_server",QString(ui->login_server->text().trimmed().toLatin1()));
-     login_server=QString(ui->login_server->text().trimmed().toLatin1());
-     config.insert("service_server",QString(ui->service_server->text().trimmed().toLatin1()));
-     service_server=QString(ui->service_server->text().trimmed().toLatin1());
-     config.insert("mac",QString(ui->mac->text().trimmed().toLatin1()));
-     mac=QString(ui->mac->text().trimmed().toLatin1());
-     config.insert("service_port",QString(ui->service_port->text()));
-     service_port=QString(ui->service_port->text());
-     config.insert("login_port",QString(ui->login_port->text()));
-     login_port=QString(ui->login_port->text());
-     config.insert("acid",QString(ui->acid->text()));
-     acid=QString(ui->acid->text());
-     config.insert("type",QString(ui->type->text()));
-     type=QString(ui->type->text());
-     config.insert("drop",QString(ui->drop->text()));
-     drop=QString(ui->drop->text());
-     config.insert("pop",QString(ui->pop->text()));
-     pop=QString(ui->pop->text());
-     QJsonDocument SAVE_CONFIG;
-     SAVE_CONFIG.setObject(config);
-     QString serverconfig=QCoreApplication::applicationDirPath()+"/server.json";
-     QFile save(serverconfig);
-     if(!save.open(QIODevice::WriteOnly | QIODevice::Truncate))
-      {
-          ui->ShowState->setText("错误!文件保存失败!");
-     }
-     else
-     {
-         ui->ShowState->setText("配置信息已经保存!");
-        save.write(SAVE_CONFIG.toJson());
-     }
-     save.close();
-//     AboutButton->hide();//在获取公告前隐藏这两个按钮
-//     AdvancedButton->hide();
-//     ui->Enter->setEnabled(false);
-//      ui->stackedWidget->setCurrentIndex(1);
-//      ui->Message_show->setText("请等待程序重新获取公告!");
-      GetServerInfo();
-      ui->advanced_back->show();
-      ui->advanced_save->setGeometry(30,330,170,50);
-
-}
-
-void MainWindow::on_setdefaults_clicked()
-{//按下高级界面的设置初始值
-    ui->login_server->setText("http://172.16.154.130");
-    ui->service_server->setText("http://172.16.154.130");
-    ui->mac->setText("02:00:00:00:00:00");
-    ui->login_port->setValue(69);
-    ui->service_port->setValue(8800);
-    ui->acid->setValue(1);
-    ui->type->setValue(3);
-    ui->drop->setValue(0);
-    ui->pop->setValue(1);
-}
-
-void MainWindow::on_Enter_2_clicked()
-{//按下关于界面的确定按钮
-    if(state==0)
-       {
-            ui->stackedWidget->setCurrentIndex(2);
-            ui->LoginButton->setEnabled(true);
-       }
-    else if(state==1)
-    {
-        ui->stackedWidget->setCurrentIndex(3);
-        ui->LogoutButton->setEnabled(true);
-     }
-}
-
-void MainWindow::on_advanced_back_clicked()
-{//按下高级界面返回按钮
-    if(state==0)
-       {
-             ui->stackedWidget->setCurrentIndex(2);
-            ui->LoginButton->setEnabled(true);
-       }
-    else if(state==1)
-    {
-        ui->stackedWidget->setCurrentIndex(3);
-        ui->LogoutButton->setEnabled(true);
-     }
-}
-
-void MainWindow::on_ShowServerMessage_clicked()
-{
-      ui->stackedWidget->setCurrentIndex(1);
-}
 
 void MainWindow::anchorClickedSlot(const QUrl &url)
 {
      QDesktopServices::openUrl(url);
+}
+
+
+void MainWindow::on_checkUpdateButton_clicked()
+{
+    ui->enterButtonInAboutPage->setEnabled(false);
+    ui->checkUpdateButton->setEnabled(false);
+    QStringList list;
+    ui->statusBar->setText("检查更新中...");
+    setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #3498DB;}");
+    ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                    "QWidget#widgetBottom{background:#3498DB;}");
+    if(isOnline)
+    {
+        int c=checkVersion(list,n);
+        if(c!=-1)
+        {
+            ui->statusBar->setText("检查更新中...成功！");
+            setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #1aad18;}");
+            ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                            "QWidget#widgetBottom{background:#1aad18;}");
+
+            ui->aboutBox->setStyleSheet("QTextBrowser{padding:5px 5px 5px 5px;"
+                                        "border-radius:5px 5px 5px 5px;"
+                                        "border: 1px solid #3498DB;}");
+
+            if(c==0)
+            {
+                QString s="当前版本";
+                QString v;
+                v.sprintf("%s",version);
+                s=s+" "+v+" 已经为最新版本！感谢您的使用！\n\n-- E-HAUT 小组敬上";
+                ui->aboutBox->setText(s);
+            }
+            if(c==1)
+            {
+                /**
+                  list[0] version
+                  list[1] date
+                  list[2] author
+                  list[3] sha1
+                  list[4] url
+                */
+
+                QString s="当前版本";
+                QString v;
+                v.sprintf("%s",version);
+                QString ehaut=ui->eHautIco->text();
+                QString url=QString("<a href = \"%1\">%2</a>").arg(list.at(4)).arg(ehaut);
+                s=s+" "+v+" 。最新版本 "+list.at(0)+" ,发布于 "+list.at(1)+" 。<br><br> &#60;===================== <br>&nbsp;&nbsp;&nbsp;&nbsp;点击左边蜗牛下载最新版！<br><br>备用地址："+QString("<a href = \"%1\">%2</a>").arg(list.at(4)).arg("点我下载！");
+
+                ui->eHautIco->setText(url);
+                ui->eHautIco->setOpenExternalLinks(true);
+                ui->aboutBox->setHtml(s);
+            }
+          }
+        else
+        {
+            ui->stackedWidget->setCurrentIndex(0);
+            ui->statusBar->setText("检查更新中...服务器连接失败！");
+            setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #E05D6F;}");
+            ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                            "QWidget#widgetBottom{background:#E05D6F;}");
+        }
+    }
+    else
+    {
+        ui->stackedWidget->setCurrentIndex(0);
+        ui->statusBar->setText("检查更新中...服务器连接失败！");
+        setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #E05D6F;}");
+        ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                        "QWidget#widgetBottom{background:#E05D6F;}");
+    }
+    ui->enterButtonInAboutPage->setEnabled(true);
+    ui->checkUpdateButton->setEnabled(true);
+}
+
+void MainWindow::on_setDefaultButton_clicked()
+{
+//    static QString serverSettings="loginServerLineEdit"
+//            "serviceServerLineEdit"
+//            "macLineEdit"
+//            "loginServerPortSpinbox"
+//            "serviceServerPortSpinbox"
+//            "acidSpinBox"
+//            "typeSpinBox"
+//            "dropSpinBox"
+//            "popSpinBox";
+    ui->loginServerLineEdit->setText("http://172.16.154.130");
+    ui->serviceServerLineEdit->setText("http://172.16.154.130");
+    ui->macLineEdit->setText("02:00:00:00:00:00");
+    ui->loginServerPortSpinbox->setValue(69);
+    ui->serviceServerPortSpinbox->setValue(8800);
+    ui->acidSpinBox->setValue(1);
+    ui->typeSpinBox->setValue(3);
+    ui->dropSpinBox->setValue(0);
+    ui->popSpinBox->setValue(1);
+}
+
+void MainWindow::on_saveButtonInadvanceSettingsPage_clicked()
+{
+     ui->statusBar->setText("保存服务器信息中...");
+     setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #3498DB;}");
+     ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                     "QWidget#widgetBottom{background:#3498DB;}");
+     serverConfig.clear();
+     serverConfig<<(ui->loginServerLineEdit->text().toUtf8());
+     serverConfig<<(ui->serviceServerLineEdit->text().toUtf8());
+     serverConfig<<(ui->macLineEdit->text().toUtf8());
+     serverConfig<<(ui->loginServerPortSpinbox->text().trimmed());
+     serverConfig<<(ui->serviceServerPortSpinbox->text().trimmed());
+     serverConfig<<(ui->acidSpinBox->text().trimmed());
+     serverConfig<<(ui->typeSpinBox->text().trimmed());
+     serverConfig<<(ui->dropSpinBox->text().trimmed());
+     serverConfig<<(ui->popSpinBox->text().trimmed());
+     if(s->saveserverConfigToFile(serverConfig))
+     {
+         ui->statusBar->setText("保存服务器信息中...成功！");
+         setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #1aad18;}");
+         ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                         "QWidget#widgetBottom{background:#1aad18;}");
+         getServerInfo();
+          ui->Ladvanced->setText("高级设置：");
+         ui->backButtonInadvanceSettingsPage->show();
+     }
+     else
+     {
+         ui->statusBar->setText("保存服务器信息中...失败！");
+         setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #E05D6F;}");
+         ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                         "QWidget#widgetBottom{background:#E05D6F;}");
+     }
+}
+
+
+void MainWindow::TimeSlot()
+{
+    QString time="时    间：%1 小时 %2 分 %3 秒";
+    time=time.arg(QString::number(usedtime/3600,10)).arg(QString::number(usedtime/60%60,10)).arg(QString::number(usedtime%60,10));
+    ui->timeLable->setText(time);
+    usedtime++;
+}
+
+void MainWindow::on_RetryButton_clicked()
+{
+    ui->RetryButton->setEnabled(false);
+    QTimer::singleShot(2000, this, SLOT(getServerInfo()));
+    ui->RetryButton->setEnabled(true);
+}
+
+void MainWindow::on_logoutButton_clicked()
+{
+    ui->logoutButton->setEnabled(false);
+    ui->statusBar->setText("注销中...");
+    setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #3498DB;}");
+    ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                    "QWidget#widgetBottom{background:#3498DB;}");
+    QString post="&action=logout&ac_id=";
+    QString nameEncrypt;
+    nameEncrypt.append(s->usernameEncrypt(logoutname));
+    post=post+serverConfig.at(5)+"&mac="+serverConfig.at(2)+"&type="+serverConfig.at(6)+"&username=%7BSRUN3%7D%0D%0A"+n->urlEncode(nameEncrypt);
+    QString url=serverConfig.at(0)+":"+serverConfig.at(3)+"/cgi-bin/srun_portal";
+    QString reback=n->httpPost(url.toStdString().c_str(),post.toStdString().c_str());
+    if(!n->isTimeOut)
+    {
+        int status;
+        reback=n->parseServerReback(reback,status);
+        if(status==1)
+        {
+           isOnline=false;
+           ui->statusBar->setText("注销中...成功！");
+           setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #1aad18;}");
+           ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                           "QWidget#widgetBottom{background:#1aad18;}");
+           meTimer->stop();
+           ui->stackedWidget->setCurrentIndex(2);
+        }
+        else if(status==6)
+        {
+           isOnline=false;
+           ui->stackedWidget->setCurrentIndex(2);
+        }
+        else
+        {
+
+            ui->statusBar->setText(reback);
+            setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #E05D6F;}");
+            ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                            "QWidget#widgetBottom{background:#E05D6F;}");
+        }
+    }
+    else
+    {
+        ui->statusBar->setText("注销中...网络错误！");
+        setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #E05D6F;}");
+        ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                        "QWidget#widgetBottom{background:#E05D6F;}");
+        ui->stackedWidget->setCurrentIndex(0);
+        isOnline=false;
+    }
+    ui->logoutButton->setEnabled(true);
+}
+
+void MainWindow::on_autoStartCheckBox_clicked()
+{
+    set=true;
+    QSettings *reg=new QSettings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",QSettings::NativeFormat);
+    if(ui->autoStartCheckBox->isChecked())
+    {
+      reg->setValue("srun3k",QApplication::applicationFilePath().replace("/", "\\"));
+    }
+    else
+    {
+
+      reg->setValue("srun3k","");
+    }
+}
+
+void MainWindow::on_autoLoginCheckBox_clicked()
+{
+     set=true;
+}
+
+void MainWindow::on_loginButton_clicked(bool showmode)
+{
+    ui->loginButton->setEnabled(false);
+    QString username=ui->usernameLineEdit->text().trimmed();
+    QString password=ui->passwordLineEdit->text().trimmed();
+    if(username.isEmpty())
+    {
+        ui->statusBar->setText("请输入您的用户名以便登陆");
+        setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #E05D6F;}");
+        ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                        "QWidget#widgetBottom{background:#E05D6F;}");
+        ui->usernameLineEdit->setFocus();
+        ui->loginButton->setEnabled(true);
+        return;
+    }
+    if(password.isEmpty())
+    {
+        ui->statusBar->setText("请输入您的密码以便登陆");
+        setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #E05D6F;}");
+        ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                        "QWidget#widgetBottom{background:#E05D6F;}");
+        ui->passwordLineEdit->setFocus();
+        ui->loginButton->setEnabled(true);
+        return;
+    }
+    if(showmode)
+    {
+        ui->statusBar->setText("登陆中...");
+        setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #3498DB;}");
+        ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                        "QWidget#widgetBottom{background:#3498DB;}");
+    }
+    QString post="&action=login&n=117&mbytes=0&minutes=0&ac_id=";
+    QString nameEncrypt;
+    nameEncrypt.append(s->usernameEncrypt(username));
+    QString passwordEncrypt;
+    passwordEncrypt.append(s->passwordEncrypy(password));
+    post=post+serverConfig.at(5)+"&mac="+serverConfig.at(2)+"&type="+serverConfig.at(6)+"&username=%7BSRUN3%7D%0D%0A"+n->urlEncode(nameEncrypt)+"&password="+n->urlEncode(passwordEncrypt);
+    post=post+"&drop="+serverConfig.at(7)+"&pop="+serverConfig.at(8);
+    QString url=serverConfig.at(0)+":"+serverConfig.at(3)+"/cgi-bin/srun_portal";
+    QString reback=n->httpPost(url.toStdString().c_str(),post.toStdString().c_str());
+    //qDebug()<<n->isTimeOut;
+    if(!n->isTimeOut)
+    {
+        int status;
+        reback=n->parseServerReback(reback,status);
+        //qDebug()<<reback<<" "<<status;
+        if(status==0)
+        {
+           isOnline=false;
+           ui->statusBar->setText("登陆中...成功！");
+           setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #1aad18;}");
+           ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                           "QWidget#widgetBottom{background:#1aad18;}");
+
+           if(set==true||isUserinfoExists==false)
+           {
+               QStringList list;
+               list<<username;
+               list<<password;
+               QString autoStart=(ui->autoStartCheckBox->isChecked())?"true":"false";
+               QString autoLogin=(ui->autoLoginCheckBox->isChecked())?"true":"false";
+               list<<autoStart;
+               list<<autoLogin;
+               bool saveState=s->saveUserConfigToFile(list);
+               if(saveState)
+               {
+                   ui->statusBar->setText("登陆成功且您的信息已经保存！");
+                   setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #1aad18;}");
+                   ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                                   "QWidget#widgetBottom{background:#1aad18;}");
+               }
+               else
+               {
+                   ui->statusBar->setText("登陆成功但您的信息未保存！");
+                   setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #E05D6F;}");
+                   ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                                   "QWidget#widgetBottom{background:#E05D6F;}");
+               }
+           }
+           ui->stackedWidget->setCurrentIndex(3);
+           getUserInfo(false);
+        }
+        else if(status==5)
+        {
+            ui->statusBar->setText("ACID错误...正在自动尝试");
+            setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #3498DB;}");
+            ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                            "QWidget#widgetBottom{background:#3498DB;}");
+            if(serverConfig.at(5)=="1")
+            {
+                 ui->acidSpinBox->setValue(2);
+            }
+            if(serverConfig.at(5)=="2")
+            {
+                 ui->acidSpinBox->setValue(1);
+            }
+            serverConfig.clear();
+            serverConfig<<(ui->loginServerLineEdit->text().toUtf8());
+            serverConfig<<(ui->serviceServerLineEdit->text().toUtf8());
+            serverConfig<<(ui->macLineEdit->text().toUtf8());
+            serverConfig<<(ui->loginServerPortSpinbox->text().trimmed());
+            serverConfig<<(ui->serviceServerPortSpinbox->text().trimmed());
+            serverConfig<<(ui->acidSpinBox->text().trimmed());
+            serverConfig<<(ui->typeSpinBox->text().trimmed());
+            serverConfig<<(ui->dropSpinBox->text().trimmed());
+            serverConfig<<(ui->popSpinBox->text().trimmed());
+            s->saveserverConfigToFile(serverConfig);
+            set=true;
+            on_loginButton_clicked(false);
+        }
+        else
+        {
+
+            ui->statusBar->setText(reback);
+            setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #E05D6F;}");
+            ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                            "QWidget#widgetBottom{background:#E05D6F;}");
+        }
+    }
+    else
+    {
+        ui->statusBar->setText("登陆中...网络错误！");
+        setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #E05D6F;}");
+        ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                        "QWidget#widgetBottom{background:#E05D6F;}");
+        ui->stackedWidget->setCurrentIndex(0);
+        isOnline=false;
+    }
+    ui->loginButton->setEnabled(true);
 }
