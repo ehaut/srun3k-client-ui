@@ -8,16 +8,7 @@
 #include "QJsonArray"
 #include "QJsonDocument"
 
-static QString serverReback=   "login_ok@登陆成功,"
-                        "logout_ok@注销成功,"
-                        "missing_required_parameters_error@缺少参数,"
-                        "login_error#E2553: Password is error.@密码错误,"
-                        "login_error#E2531: User not found.@用户名未找到,"
-                        "login_error#INFO failed, BAS respond timeout.@ACID错误,"
-                        "login_error#You are not online.@您不在线,"
-                        "login_error#E2901: (Third party 1)Status_Err@你的账户状态错误,可能是您欠费了,"
-                        "login_error#E2901: (Third party 1)User Locked@你的账户被锁定,可能是您欠费了,"
-                        "ip_already_online_error@您的IP已经在线了";
+
 class network
 {
 public:
@@ -41,6 +32,7 @@ public:
     QStringList parseUserInfo(const QString userinfo, int &usedTime, bool &isOnline);
     QStringList parseServerMessage(QString getReback);
     QStringList parseUpdateMessage(QString getReback);
+    bool isTimeOut;
 };
 
 

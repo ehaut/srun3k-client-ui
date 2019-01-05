@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "QDebug"
+//#include "QDebug"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -80,6 +80,17 @@ MainWindow::MainWindow(QWidget *parent) :
         on_setDefaultButton_clicked();
     }
     isUserinfoExists=s->readuserConfigFromFile(userConfig);
+    if(isUserinfoExists)
+    {
+        ui->usernameLineEdit->setText(userConfig.at(0));
+        ui->passwordLineEdit->setText(userConfig.at(1));
+        if(userConfig.at(2)=="true")
+            ui->autoStartCheckBox->setCheckState(Qt::Checked);
+        if(userConfig.at(3)=="true")
+         {
+            ui->autoLoginCheckBox->setCheckState(Qt::Checked);
+        }
+    }
 
 }
 
@@ -100,12 +111,16 @@ void MainWindow::on_ADVANCED_clicked()
 
 void MainWindow::on_ENTER_clicked()
 {
-    if(isOnline)
-        ui->stackedWidget->setCurrentIndex(3);
-    else
+    if(!n->isTimeOut)
     {
-        ui->stackedWidget->setCurrentIndex(2);
+        if(isOnline)
+            ui->stackedWidget->setCurrentIndex(3);
+        else
+            ui->stackedWidget->setCurrentIndex(2);
     }
+    else
+         ui->stackedWidget->setCurrentIndex(0);
+
 }
 
 void MainWindow::getServerInfo(void)
@@ -115,20 +130,17 @@ void MainWindow::getServerInfo(void)
      ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
                                      "QWidget#widgetBottom{background:#3498DB;}");
      QString url=serverConfig.at(0)+"/v2/srun_portal_message";
-     QStringList serverMessage=n->parseServerMessage(n->httpGet(url.toStdString().c_str()));
-     AboutButton->show();
-     AdvancedButton->show();
-     connect(AboutButton, SIGNAL(clicked()), this, SLOT(on_ABOUT_clicked()));//连接信号
-     connect(AdvancedButton, SIGNAL(clicked()), this, SLOT(on_ADVANCED_clicked()));//连接信号
-     if(serverMessage.size()!=0||!serverMessage.isEmpty())
+     QString reback=n->httpGet(url.toStdString().c_str());
+     if(!n->isTimeOut)
      {
+         QStringList serverMessage=n->parseServerMessage(reback);
          ui->statusBar->setText("获取服务器信息中...成功！");
          setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #1aad18;}");
          ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
                                          "QWidget#widgetBottom{background:#1aad18;}");
         ui->messageLable->setText(serverMessage.at(0));
         ui->messageBox->setText(serverMessage.at(1));
-
+        getUserInfo(true);
      }
      else
      {
@@ -136,31 +148,39 @@ void MainWindow::getServerInfo(void)
          setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #E05D6F;}");
          ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
                                          "QWidget#widgetBottom{background:#E05D6F;}");
+         ui->stackedWidget->setCurrentIndex(0);
      }
-     getUserInfo();
+     AboutButton->show();
+     AdvancedButton->show();
+     connect(AboutButton, SIGNAL(clicked()), this, SLOT(on_ABOUT_clicked()));//连接信号
+     connect(AdvancedButton, SIGNAL(clicked()), this, SLOT(on_ADVANCED_clicked()));//连接信号
 }
 
 
-void MainWindow::getUserInfo(void)
+void MainWindow::getUserInfo(bool showmode)
 {
-    ui->statusBar->setText("获取用户状态中...");
-    setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #3498DB;}");
-    ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
-                                    "QWidget#widgetBottom{background:#3498DB;}");
+    if(showmode)
+    {
+        ui->statusBar->setText("获取用户状态中...");
+        setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #3498DB;}");
+        ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                        "QWidget#widgetBottom{background:#3498DB;}");
+    }
     QString url=serverConfig.at(0)+":"+serverConfig.at(3)+"/cgi-bin/rad_user_info";
-
     QStringList list=n->parseUserInfo(n->httpGet(url.toStdString().c_str()),usedtime,isOnline);
-    ui->statusBar->setText("获取用户状态中...成功！");
-    setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #1aad18;}");
-    ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
-                                    "QWidget#widgetBottom{background:#1aad18;}");
-
+    if(showmode)
+    {
+        ui->statusBar->setText("获取用户状态中...成功！");
+        setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #1aad18;}");
+        ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                        "QWidget#widgetBottom{background:#1aad18;}");
+    }
     if(!isOnline)
     {
         ui->stackedWidget->setCurrentIndex(2);
         if(ui->autoLoginCheckBox->isChecked())
          {
-             QTimer::singleShot(30,[this](){ui->loginButton->click();});
+             QTimer::singleShot(30,[this](){on_loginButton_clicked(true);});
          }
     }
     else
@@ -371,29 +391,34 @@ void MainWindow::on_checkUpdateButton_clicked()
 {
     ui->enterButtonInAboutPage->setEnabled(false);
     ui->checkUpdateButton->setEnabled(false);
+    QStringList list;
+    ui->statusBar->setText("检查更新中...");
+    setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #3498DB;}");
+    ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                    "QWidget#widgetBottom{background:#3498DB;}");
     if(isOnline)
     {
-        QStringList list;
-        ui->statusBar->setText("检查更新中...");
-        setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #3498DB;}");
-        ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
-                                        "QWidget#widgetBottom{background:#3498DB;}");
-        if(checkVersion(list,n)!=-1)
+        int c=checkVersion(list,n);
+        if(c!=-1)
         {
             ui->statusBar->setText("检查更新中...成功！");
             setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #1aad18;}");
             ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
                                             "QWidget#widgetBottom{background:#1aad18;}");
 
-            if(checkVersion(list,n)==0)
+            ui->aboutBox->setStyleSheet("QTextBrowser{padding:5px 5px 5px 5px;"
+                                        "border-radius:5px 5px 5px 5px;"
+                                        "border: 1px solid #3498DB;}");
+
+            if(c==0)
             {
                 QString s="当前版本";
                 QString v;
                 v.sprintf("%s",version);
-                s=s+" "+v+" 已经为最新版本！感谢您的使用！";
+                s=s+" "+v+" 已经为最新版本！感谢您的使用！\n\n-- E-HAUT 小组敬上";
                 ui->aboutBox->setText(s);
             }
-            if(checkVersion(list,n)==1)
+            if(c==1)
             {
                 /**
                   list[0] version
@@ -402,18 +427,19 @@ void MainWindow::on_checkUpdateButton_clicked()
                   list[3] sha1
                   list[4] url
                 */
+
                 QString s="当前版本";
                 QString v;
                 v.sprintf("%s",version);
                 QString ehaut=ui->eHautIco->text();
                 QString url=QString("<a href = \"%1\">%2</a>").arg(list.at(4)).arg(ehaut);
-                s=s+" "+v+" 。最新版本 "+list.at(0)+" ,发布于 "+list.at(1)+" 。\n\n <=====================\n      点击左边蜗牛下载最新版！ \n\n备用地址："+list.at(4);
+                s=s+" "+v+" 。最新版本 "+list.at(0)+" ,发布于 "+list.at(1)+" 。<br><br> &#60;===================== <br>&nbsp;&nbsp;&nbsp;&nbsp;点击左边蜗牛下载最新版！<br><br>备用地址："+QString("<a href = \"%1\">%2</a>").arg(list.at(4)).arg("点我下载！");
 
                 ui->eHautIco->setText(url);
                 ui->eHautIco->setOpenExternalLinks(true);
-                ui->aboutBox->setText(s);
+                ui->aboutBox->setHtml(s);
             }
-        }
+          }
         else
         {
             ui->stackedWidget->setCurrentIndex(0);
@@ -503,50 +529,62 @@ void MainWindow::TimeSlot()
 
 void MainWindow::on_RetryButton_clicked()
 {
+    ui->RetryButton->setEnabled(false);
     QTimer::singleShot(2000, this, SLOT(getServerInfo()));
+    ui->RetryButton->setEnabled(true);
 }
 
 void MainWindow::on_logoutButton_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(2);
-//    ui->logoutButton->setEnabled(false);
-//    ui->statusBar->setText("注销中...");
-//    setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #3498DB;}");
-//    ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
-//                                    "QWidget#widgetBottom{background:#3498DB;}");
-//    QString post="&action=logout&ac_id=";
-//    QString nameEncrypt;
-//    nameEncrypt.append(s->usernameEncrypt(logoutname));
-//    post=post+serverConfig.at(5)+"&mac="+serverConfig.at(2)+"&type="+serverConfig.at(6)+"&username=%7BSRUN3%7D%0D%0A"+n->urlEncode(nameEncrypt);
-//    QString url=serverConfig.at(0)+":"+serverConfig.at(3)+"/cgi-bin/srun_portal";
-//    QString reback=n->httpPost(url.toStdString().c_str(),post.toStdString().c_str());
-//    qDebug()<<reback;
-//    int status;
-//    reback=n->parseServerReback(reback,status);
-//    if(status==-2)
-//    {
-//        ui->statusBar->setText("注销中...网络错误！");
-//        setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #E05D6F;}");
-//        ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
-//                                        "QWidget#widgetBottom{background:#E05D6F;}");
-//        ui->stackedWidget->setCurrentIndex(0);
-//        isOnline=false;
-//    }
-//    else if(status==0)
-//    {
-//        isOnline=false;
-//        ui->statusBar->setText("注销中...成功！");
-//        setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #1aad18;}");
-//        ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
-//                                        "QWidget#widgetBottom{background:#1aad18;}");
-//        ui->stackedWidget->setCurrentIndex(2);
-//    }
-//    else if(reback=="您不在线")
-//    {
-//        isOnline=false;
-//        ui->stackedWidget->setCurrentIndex(2);
-//    }
-//    ui->logoutButton->setEnabled(true);
+    ui->logoutButton->setEnabled(false);
+    ui->statusBar->setText("注销中...");
+    setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #3498DB;}");
+    ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                    "QWidget#widgetBottom{background:#3498DB;}");
+    QString post="&action=logout&ac_id=";
+    QString nameEncrypt;
+    nameEncrypt.append(s->usernameEncrypt(logoutname));
+    post=post+serverConfig.at(5)+"&mac="+serverConfig.at(2)+"&type="+serverConfig.at(6)+"&username=%7BSRUN3%7D%0D%0A"+n->urlEncode(nameEncrypt);
+    QString url=serverConfig.at(0)+":"+serverConfig.at(3)+"/cgi-bin/srun_portal";
+    QString reback=n->httpPost(url.toStdString().c_str(),post.toStdString().c_str());
+    if(!n->isTimeOut)
+    {
+        int status;
+        reback=n->parseServerReback(reback,status);
+        if(status==1)
+        {
+           isOnline=false;
+           ui->statusBar->setText("注销中...成功！");
+           setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #1aad18;}");
+           ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                           "QWidget#widgetBottom{background:#1aad18;}");
+           meTimer->stop();
+           ui->stackedWidget->setCurrentIndex(2);
+        }
+        else if(status==6)
+        {
+           isOnline=false;
+           ui->stackedWidget->setCurrentIndex(2);
+        }
+        else
+        {
+
+            ui->statusBar->setText(reback);
+            setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #E05D6F;}");
+            ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                            "QWidget#widgetBottom{background:#E05D6F;}");
+        }
+    }
+    else
+    {
+        ui->statusBar->setText("注销中...网络错误！");
+        setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #E05D6F;}");
+        ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                        "QWidget#widgetBottom{background:#E05D6F;}");
+        ui->stackedWidget->setCurrentIndex(0);
+        isOnline=false;
+    }
+    ui->logoutButton->setEnabled(true);
 }
 
 void MainWindow::on_autoStartCheckBox_clicked()
@@ -569,8 +607,9 @@ void MainWindow::on_autoLoginCheckBox_clicked()
      set=true;
 }
 
-void MainWindow::on_loginButton_clicked()
+void MainWindow::on_loginButton_clicked(bool showmode)
 {
+    ui->loginButton->setEnabled(false);
     QString username=ui->usernameLineEdit->text().trimmed();
     QString password=ui->passwordLineEdit->text().trimmed();
     if(username.isEmpty())
@@ -580,6 +619,7 @@ void MainWindow::on_loginButton_clicked()
         ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
                                         "QWidget#widgetBottom{background:#E05D6F;}");
         ui->usernameLineEdit->setFocus();
+        ui->loginButton->setEnabled(true);
         return;
     }
     if(password.isEmpty())
@@ -589,7 +629,112 @@ void MainWindow::on_loginButton_clicked()
         ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
                                         "QWidget#widgetBottom{background:#E05D6F;}");
         ui->passwordLineEdit->setFocus();
+        ui->loginButton->setEnabled(true);
         return;
     }
+    if(showmode)
+    {
+        ui->statusBar->setText("登陆中...");
+        setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #3498DB;}");
+        ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                        "QWidget#widgetBottom{background:#3498DB;}");
+    }
+    QString post="&action=login&n=117&mbytes=0&minutes=0&ac_id=";
+    QString nameEncrypt;
+    nameEncrypt.append(s->usernameEncrypt(username));
+    QString passwordEncrypt;
+    passwordEncrypt.append(s->passwordEncrypy(password));
+    post=post+serverConfig.at(5)+"&mac="+serverConfig.at(2)+"&type="+serverConfig.at(6)+"&username=%7BSRUN3%7D%0D%0A"+n->urlEncode(nameEncrypt)+"&password="+n->urlEncode(passwordEncrypt);
+    post=post+"&drop="+serverConfig.at(7)+"&pop="+serverConfig.at(8);
+    QString url=serverConfig.at(0)+":"+serverConfig.at(3)+"/cgi-bin/srun_portal";
+    QString reback=n->httpPost(url.toStdString().c_str(),post.toStdString().c_str());
+    //qDebug()<<n->isTimeOut;
+    if(!n->isTimeOut)
+    {
+        int status;
+        reback=n->parseServerReback(reback,status);
+        //qDebug()<<reback<<" "<<status;
+        if(status==0)
+        {
+           isOnline=false;
+           ui->statusBar->setText("登陆中...成功！");
+           setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #1aad18;}");
+           ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                           "QWidget#widgetBottom{background:#1aad18;}");
 
+           if(set==true||isUserinfoExists==false)
+           {
+               QStringList list;
+               list<<username;
+               list<<password;
+               QString autoStart=(ui->autoStartCheckBox->isChecked())?"true":"false";
+               QString autoLogin=(ui->autoLoginCheckBox->isChecked())?"true":"false";
+               list<<autoStart;
+               list<<autoLogin;
+               bool saveState=s->saveUserConfigToFile(list);
+               if(saveState)
+               {
+                   ui->statusBar->setText("登陆成功且您的信息已经保存！");
+                   setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #1aad18;}");
+                   ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                                   "QWidget#widgetBottom{background:#1aad18;}");
+               }
+               else
+               {
+                   ui->statusBar->setText("登陆成功但您的信息未保存！");
+                   setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #E05D6F;}");
+                   ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                                   "QWidget#widgetBottom{background:#E05D6F;}");
+               }
+           }
+           ui->stackedWidget->setCurrentIndex(3);
+           getUserInfo(false);
+        }
+        else if(status==5)
+        {
+            ui->statusBar->setText("ACID错误...正在自动尝试");
+            setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #3498DB;}");
+            ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                            "QWidget#widgetBottom{background:#3498DB;}");
+            if(serverConfig.at(5)=="1")
+            {
+                 ui->acidSpinBox->setValue(2);
+            }
+            if(serverConfig.at(5)=="2")
+            {
+                 ui->acidSpinBox->setValue(1);
+            }
+            serverConfig.clear();
+            serverConfig<<(ui->loginServerLineEdit->text().toUtf8());
+            serverConfig<<(ui->serviceServerLineEdit->text().toUtf8());
+            serverConfig<<(ui->macLineEdit->text().toUtf8());
+            serverConfig<<(ui->loginServerPortSpinbox->text().trimmed());
+            serverConfig<<(ui->serviceServerPortSpinbox->text().trimmed());
+            serverConfig<<(ui->acidSpinBox->text().trimmed());
+            serverConfig<<(ui->typeSpinBox->text().trimmed());
+            serverConfig<<(ui->dropSpinBox->text().trimmed());
+            serverConfig<<(ui->popSpinBox->text().trimmed());
+            s->saveserverConfigToFile(serverConfig);
+            set=true;
+            on_loginButton_clicked(false);
+        }
+        else
+        {
+
+            ui->statusBar->setText(reback);
+            setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #E05D6F;}");
+            ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                            "QWidget#widgetBottom{background:#E05D6F;}");
+        }
+    }
+    else
+    {
+        ui->statusBar->setText("登陆中...网络错误！");
+        setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #E05D6F;}");
+        ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                        "QWidget#widgetBottom{background:#E05D6F;}");
+        ui->stackedWidget->setCurrentIndex(0);
+        isOnline=false;
+    }
+    ui->loginButton->setEnabled(true);
 }

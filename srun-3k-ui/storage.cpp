@@ -1,6 +1,5 @@
 #include "storage.h"
 
-
 bool storage::readServerConfigFromFile(QStringList &list)
 {
     QString serverconfig=QCoreApplication::applicationDirPath()+"/server.json";
@@ -84,11 +83,25 @@ bool storage::readuserConfigFromFile(QStringList &list)
               if(obj.contains("username"))
                  list<<obj.value("username").toString();
               if(obj.contains("password"))
-                 list<<obj.value("username").toString();
+                 list<<QString(QByteArray::fromBase64(obj.value("password").toString().toUtf8()));
               if(obj.contains("auto_start"))
-                 list<<obj.value("auto_start").toString();
+              {
+                 if(obj.value("auto_start").toBool())
+                    list<<"true";
+                 else
+                 {
+                    list<<"false";
+                 }
+              }
               if(obj.contains("auto_login"))
-                 list<<obj.value("auto_login").toString();
+              {
+                  if(obj.value("auto_login").toBool())
+                     list<<"true";
+                  else
+                  {
+                     list<<"false";
+                  }
+              }
               return true;
          }
     }
@@ -99,9 +112,11 @@ bool storage::saveUserConfigToFile(QStringList list)
 {
     QJsonObject info;
     info.insert("username",list.at(0));
-    info.insert("password",list.at(1));
-    info.insert("auto_login",list.at(2));
-    info.insert("auto_start",list.at(3));
+    info.insert("password",QString(list.at(1).toUtf8().toBase64()));
+    bool isAutoLogin=(list.at(3)=="true")?true:false;
+    bool isAutoStart=(list.at(2)=="true")?true:false;
+    info.insert("auto_login",isAutoLogin);
+    info.insert("auto_start",isAutoStart);
     QJsonDocument SAVE_INFO;
     SAVE_INFO.setObject(info);
     QString userconfig=QCoreApplication::applicationDirPath()+"/config.json";
@@ -153,33 +168,33 @@ QByteArray storage::usernameEncrypt(QString username)
     for (int i=0;i<username.size();i++)
     {//用户名加密
         char c=username.at(i).toLatin1();
-
         NAME_ENCRYPT.append(QString(c+4));
     }
     return NAME_ENCRYPT;
 }
 
 QByteArray storage::passwordEncrypy(QString passwd)
-{
-
+{  
+    char *password;
+    QByteArray ba = passwd.toUtf8();
+    password=ba.data();
     QByteArray PASSWD_ENCRYPT="";
     char key[]= "1234567890";
-    for (int i = 0; i<passwd.size(); ++i)
+    for (int i = 0; *(password+i)!='\0'; ++i)
     {//这是密码加密函数
-        char password=passwd.at(i).toLatin1();
-        int ki = (password) ^ key[strlen(key) - i%strlen(key) - 1];
-        QString _l =  (QChar)((ki & 0x0f) + 0x36);
-        QString _h =  (QChar)((ki >> 4 & 0x0f) + 0x63);
-        if (i % 2 == 0)
-        {
-            PASSWD_ENCRYPT.append(_l);
-            PASSWD_ENCRYPT.append(_h);
-        }
-        else
-        {
-            PASSWD_ENCRYPT.append(_h);
-            PASSWD_ENCRYPT.append(_l);
-        }
+         int ki = *(password+i) ^ key[strlen(key) - i%strlen(key) - 1];
+         QString _l =  (QChar)((ki & 0x0f) + 0x36);
+         QString _h =  (QChar)((ki >> 4 & 0x0f) + 0x63);
+         if (i % 2 == 0)
+         {
+             PASSWD_ENCRYPT.append(_l);
+             PASSWD_ENCRYPT.append(_h);
+         }
+         else
+         {
+             PASSWD_ENCRYPT.append(_h);
+             PASSWD_ENCRYPT.append(_l);
+         }
     }
     return PASSWD_ENCRYPT;
 }

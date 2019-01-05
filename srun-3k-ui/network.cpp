@@ -1,5 +1,5 @@
 #include "network.h"
-#include "QDebug"
+//#include "QDebug"
 
 size_t network::writefunc(void *ptr,size_t size,size_t nmemb,std::string &str)
 {
@@ -31,12 +31,22 @@ QString network::httpGet(const char * url)
     res = curl_easy_perform(curl);//启动libcurl
     if(res!=CURLE_OK)
     {
+        isTimeOut=true;
         return "";
     }
     else
     {
         QString result=QString::fromStdString(reback);
-        return result;
+        if(result.length()!=0&&!result.isEmpty())
+        {
+            isTimeOut=false;
+            return result;
+        }
+        else
+        {
+            isTimeOut=true;
+            return "";
+        }
     }
     curl_easy_cleanup(curl);
     curl=nullptr;
@@ -51,20 +61,30 @@ QString network::httpPost(const char * url,const char * post)
         exit(-1);
     }
     curl_easy_setopt(curl,CURLOPT_URL,url);//设置POST地址
-    curl_easy_setopt(curl, CURLOPT_POST, 1L);
+    curl_easy_setopt(curl, CURLOPT_POST,1);
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS,post);//设置POST参数
-    curl_easy_setopt(curl,CURLOPT_TIMEOUT,1L);//超时设置成1s
+    curl_easy_setopt(curl,CURLOPT_TIMEOUT,10L);//超时设置成
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, network::writefunc);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &reback);
     res = curl_easy_perform(curl);//启动libcurl
     if(res!=CURLE_OK)
     {
+        isTimeOut=true;
         return "";
     }
     else
     {
         QString result=QString::fromStdString(reback);
-        return result;
+        if(result.length()!=0&&!result.isEmpty())
+        {
+            isTimeOut=false;
+            return result;
+        }
+        else
+        {
+            isTimeOut=true;
+            return "";
+        }
     }
     curl_easy_cleanup(curl);
     curl=nullptr;
@@ -104,13 +124,10 @@ QStringList network::parseUserInfo(const QString userinfo,int &usedTime,bool &is
     {
         isOnline=true;
         QStringList getinfo=userinfo.split(",");
-
         int loginTime=getinfo.at(1).toInt();
         int serverTime=getinfo.at(2).toInt();
         usedTime=getinfo.at(7).toInt()+serverTime-loginTime;
         double data=getinfo.at(6).toDouble()/1073741824;
-
-
         list<<getinfo.at(0);
         list<<getinfo.at(8);
         list<<QString::number(data,'g',6);
@@ -119,33 +136,64 @@ QStringList network::parseUserInfo(const QString userinfo,int &usedTime,bool &is
     else
          isOnline=false;
     return list;
-
 }
 
 QString network::parseServerReback(QString getReback,int &status)
 {
-
-    if(getReback.isEmpty())
-        status=-2;
-    else
+//    "login_ok@登陆中...登陆成功",
+//    "logout_ok@注销成功",
+//    "missing_required_parameters_error@登陆中...缺少参数！",
+//    "login_error#E2553: Password is error.@登陆中...密码错误！",
+//    "login_error#E2531: User not found.@登陆中...用户名未找到！",
+//    "login_error#INFO failed, BAS respond timeout.@ACID错误",
+//    "You are not online.@您不在线！",
+    status=-1;
+    if(getReback.indexOf("login_ok")!=-1)
     {
-        QStringList list=serverReback.split(",");
-        for(int i=0;i<list.size();i++)
-        {
-            if(i==0)
-                status=1;
-            else if(i==1)
-                status=0;
-            else
-            {
-                status=-1;
-            }
-            if(getReback.indexOf(list.at(i).split("@").at(0))!=-1)
-            {
-                getReback=list.at(i).split("@").at(1);
-                break;
-            }
-        }
+       status=0;
+       getReback="登陆中...登陆成功";
+    }
+    else if(getReback.indexOf("logout_ok")!=-1)
+    {
+        status=1;
+        getReback="注销中...注销成功";
+    }
+    else if(getReback.indexOf("missing_required_parameters_error")!=-1)
+    {
+        getReback="登陆中...缺少参数！";
+    }
+    else if(getReback.indexOf("login_error#E2553: Password is error.")!=-1)
+    {
+        getReback="登陆中...密码错误！";
+    }
+    else if(getReback.indexOf("login_error#E2531: User not found.")!=-1)
+    {
+        getReback="登陆中...用户名未找到！";
+    }
+    else if(getReback.indexOf("login_error#INFO failed, BAS respond timeout.")!=-1)
+    {
+        status=5;
+        getReback="登陆中...ACID错误！";
+    }
+    else if(getReback.indexOf("You are not online.")!=-1)
+    {
+        status=6;
+        getReback="注销中...您不在线！";
+    }
+    //    "login_error#E2901: (Third party 1)Status_Err@登陆中...你的账户状态错误可能是您欠费了！",
+    //    "login_error#E2901: (Third party 1)User Locked@登陆中...你的账户被锁定可能是您欠费了！",
+    //    "ip_already_online_error@登陆中...您的IP已经在线了"
+    else if(getReback.indexOf("login_error#E2901: (Third party 1)Status_Err")!=-1)
+    {
+        getReback="登陆中...你的账户状态错误，可能是您欠费了！";
+    }
+    else if(getReback.indexOf("login_error#E2901: (Third party 1)User Locked")!=-1)
+    {
+        getReback="登陆中...登陆中...你的账户被锁定，可能是您欠费了！";
+    }
+    else if(getReback.indexOf("ip_already_online_error")!=-1)
+    {
+        getReback="登陆中...您的IP已经在线了！";
     }
     return getReback;
 }
@@ -184,13 +232,10 @@ QStringList network::parseUpdateMessage(QString getReback)
     QByteArray byte=getReback.toUtf8();
     QJsonDocument info = QJsonDocument::fromJson(byte);
     QJsonObject obj=info.object();
-    if(!obj.isEmpty())
-    {
-        list<<obj.value("version").toString();
-        list<<obj.value("date").toString();
-        list<<obj.value("author").toString();
-        list<<obj.value("sha1").toString();
-        list<<obj.value("url").toString();
-    }
+    list<<obj.value("version").toString();
+    list<<obj.value("date").toString();
+    list<<obj.value("author").toString();
+    list<<obj.value("sha1").toString();
+    list<<obj.value("url").toString();
     return list;
 }

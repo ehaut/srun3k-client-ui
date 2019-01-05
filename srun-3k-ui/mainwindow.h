@@ -48,7 +48,7 @@ private slots:
     void on_setDefaultButton_clicked();
     void on_saveButtonInadvanceSettingsPage_clicked();
     void getServerInfo();
-    void getUserInfo();
+    void getUserInfo(bool);
     void showMessage();
     void on_ABOUT_clicked();
     void on_ADVANCED_clicked();
@@ -58,17 +58,14 @@ private slots:
     void on_SERVICE_clicked();
     void on_mABOUT_clicked();
     void on_logoutButton_clicked();
-
     void on_autoStartCheckBox_clicked();
-
     void on_autoLoginCheckBox_clicked();
-
-    void on_loginButton_clicked();
+    void on_loginButton_clicked(bool);
 
 private:
     bool mDrag;
-    bool isUserinfoExists;
-    bool isServerinfoExist;
+    bool isUserinfoExists=false;
+    bool isServerinfoExist=false;
     QPoint mDragPos;
     QRect mLocation;
     QFont mIconFont;
@@ -89,7 +86,7 @@ private:
     int status;
     QTimer *meTimer=nullptr;
     QString logoutname;
-    bool set;
+    bool set=false;
 };
 
 #endif // MAINWINDOW_H
