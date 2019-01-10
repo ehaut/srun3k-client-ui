@@ -22,7 +22,4 @@
         <file alias="widgets.qm">Resouces/language/widgets.qm</file>
 		<file alias="qt_zh_CN.qm">Resouces/language/qt_zh_CN.qm</file>
     </qresource>
-	<qresource prefix="/png">
-        <file alias="HAUT">Resouces/png/haut.jpg</file>
-    </qresource>
 </RCC>
