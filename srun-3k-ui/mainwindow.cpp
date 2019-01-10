@@ -60,7 +60,7 @@ MainWindow::MainWindow(QWidget *parent) :
     isServerinfoExist=s->readServerConfigFromFile(serverConfig);
     if(isServerinfoExist)
     {
-
+        ui->saveButtonInadvanceSettingsPage->setGeometry(170,200,150,40);
         ui->Ladvanced->setText("高级设置：");
         ui->loginServerLineEdit->setText(serverConfig.at(0));
         ui->serviceServerLineEdit->setText(serverConfig.at(1));
@@ -287,6 +287,49 @@ void MainWindow::on_SERVICE_clicked()
                                     "QWidget#widgetBottom{background:#3498DB;}");
     QString url=serverConfig.at(1)+":"+serverConfig.at(4);
     //qDebug()<<url;
+
+    /**
+    if(loginStatus == 'online')
+        {
+            if (typeof username != "undefined" && username != "") {
+                var ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
+                    base64 = $.base64;
+                base64.setAlpha(ALPHA);
+                var data = "";
+                if (typeof password != "undefined" && password != "") {
+                    var pwd = md5(password);
+                    data = base64.encode(username+":"+pwd);
+                }
+                data = base64.encode(username+":"+username);
+                if (data != "") {
+                    window.open(""+data);
+                    $("pre").css("background","#1aad18");
+                    $("#statusbar").text("正在打开自服务...成功！")
+                    return;
+                }
+                $("pre").css("background","#1aad18");
+                $("#statusbar").text("正在打开自服务...成功！")
+                window.open("http://172.16.154.130:8800");
+                return;
+            }
+        }
+    */
+
+    QString username=logoutname;
+    if(isOnline)
+    {
+        if(username!=""&&!username.isEmpty())
+        {
+            QString data=username+":"+username;
+            data=data.toUtf8().toBase64();
+            if(!data.isEmpty()&&data!="")
+            {
+                url=url+"/site/sso?data="+data;
+            }
+        }
+    }
+
+    //qDebug()<<url;
     QDesktopServices::openUrl(QUrl(url));
     ui->statusBar->setText("打开自服务中...成功！");
     setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #1aad18;}");
@@ -508,6 +551,7 @@ void MainWindow::on_saveButtonInadvanceSettingsPage_clicked()
          getServerInfo();
           ui->Ladvanced->setText("高级设置：");
          ui->backButtonInadvanceSettingsPage->show();
+         ui->saveButtonInadvanceSettingsPage->setGeometry(170,200,150,40);
      }
      else
      {
@@ -564,6 +608,10 @@ void MainWindow::on_logoutButton_clicked()
         else if(status==6)
         {
            isOnline=false;
+           ui->statusBar->setText("注销中...您不在线无法注销！");
+           setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #E05D6F;}");
+           ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                           "QWidget#widgetBottom{background:#E05D6F;}");
            ui->stackedWidget->setCurrentIndex(2);
         }
         else
@@ -689,6 +737,34 @@ void MainWindow::on_loginButton_clicked(bool showmode)
            }
            ui->stackedWidget->setCurrentIndex(3);
            getUserInfo(false);
+           QStringList list;
+           int c=checkVersion(list,n);
+           if(c==1)
+           {
+
+               /**
+                 list[0] version
+                 list[1] date
+                 list[2] author
+                 list[3] sha1
+                 list[4] url
+               */
+
+               QString s="当前版本";
+               QString v;
+               v.sprintf("%s",version);
+               QString ehaut=ui->eHautIco->text();
+               QString url=QString("<a href = \"%1\">%2</a>").arg(list.at(4)).arg(ehaut);
+               s=s+" "+v+" 。最新版本 "+list.at(0)+" ,发布于 "+list.at(1)+" 。<br><br> &#60;===================== <br>&nbsp;&nbsp;&nbsp;&nbsp;点击左边蜗牛下载最新版！<br><br>备用地址："+QString("<a href = \"%1\">%2</a>").arg(list.at(4)).arg("点我下载！");
+
+               AboutButton->setStyleSheet("QPushButton {border-image: url(:/titleButtons/about_alert);}"
+                                         "QPushButton:hover {border-image: url(:/titleButtons/about_alert_hover);}"
+                                          "QPushButton:pressed {border-image: url(:/titleButtons/about_alert_pressed);}");
+               ui->eHautIco->setText(url);
+               ui->eHautIco->setOpenExternalLinks(true);
+               ui->aboutBox->setHtml(s);
+           }
+
         }
         else if(status==5)
         {
