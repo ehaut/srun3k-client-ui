@@ -1,6 +1,6 @@
 #ifndef NETWORK_H
 #define NETWORK_H
-#include "curl/curl.h"
+#include <curl/curl.h>
 #include "string.h"
 #include "QString"
 #include "QStringList"

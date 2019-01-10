@@ -1,18 +1,25 @@
 <RCC>
     <qresource prefix="/titleButtons">
+	
 		<file alias="min">Resouces/titleButtons/min.png</file>
         <file alias="min_hover">Resouces/titleButtons/min_hover.png</file>
         <file alias="min_pressed">Resouces/titleButtons/min_pressed.png</file>
+		
         <file alias="close">Resouces/titleButtons/close.png</file>
         <file alias="close_hover">Resouces/titleButtons/close_hover.png</file>
         <file alias="close_pressed">Resouces/titleButtons/close_pressed.png</file>
-        <file alias="about">Resouces/titleButtons/about.png</file>
-        <file alias="about_hover">Resouces/titleButtons/about_hover.png</file>
-        <file alias="about_pressed">Resouces/titleButtons/about_pressed.png</file>
-		<file alias="advanced">Resouces/titleButtons/advanced.png</file>
-        <file alias="advanced_hover">Resouces/titleButtons/advanced_hover.png</file>
-        <file alias="advanced_pressed">Resouces/titleButtons/advanced_pressed.png</file>
-		<file alias="boxshadow">Resouces/titleButtons/boxshadow.png</file>
+		
+        <file alias="about">Resouces/titleButtons/about_info.png</file>
+        <file alias="about_hover">Resouces/titleButtons/about_info_horver.png</file>
+        <file alias="about_pressed">Resouces/titleButtons/about_info_press.png</file>
+		
+		<file alias="about_alert">Resouces/titleButtons/about_alert.png</file>
+        <file alias="about_alert_hover">Resouces/titleButtons/about_alert_horver.png</file>
+        <file alias="about_alert_pressed">Resouces/titleButtons/about_alert_press.png</file>
+		
+		<file alias="advanced">Resouces/titleButtons/setting.png</file>
+        <file alias="advanced_hover">Resouces/titleButtons/setting_horver.png</file>
+        <file alias="advanced_pressed">Resouces/titleButtons/setting_press.png</file>
     </qresource>
     <qresource prefix="/Ico">
         <file alias="R">Resouces/Ico/new.png</file>
