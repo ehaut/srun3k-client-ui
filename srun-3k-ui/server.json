@@ -1,0 +1,11 @@
+{
+    "acid": "1",
+    "drop": "0",
+    "login_port": "69",
+    "login_server": "http://172.16.154.130",
+    "mac": "02:00:00:00:00:00",
+    "pop": "1",
+    "service_port": "8800",
+    "service_server": "http://172.16.154.130",
+    "type": "3"
+}

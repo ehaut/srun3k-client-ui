@@ -1,0 +1,24 @@
+branches:
+  only:
+    - master
+
+install:
+  - set QTDIR=C:\Qt\5.11.2
+  - set PATH=%QTDIR%\bin;C:\Qt\Tools\mingw530_64\bin;%PATH%;
+build_script:
+  - cmd: cd srun-srun-3k-ui"
+  - qmake srun-3k-ui.pro
+  - mingw64-make
+after_build:
+  - windeployqt release/SRUN3K.exe
+  - rm !(SRUN3K.exe|platforms|libcrypto-1_1-x64.dll|libgcc_s_seh-1.dll|libssl-1_1-x64.dll|libstdc++-6.dll|libwinpthread-1.dll|Qt5Core.dll|Qt5Gui.dll|Qt5Widgets.dll) 
+  - cmd: cp ../LICENSE release/LICENSE.txt"
+  - cmd: cp ../README.MD release/README.MD"
+  - cmd: cp ./server.json release/server.json"
+  - rm release/*.o
+  - rm release/*.cpp
+
+artifacts:
+  - path: release/*
+  - path: release
+    type: zip
