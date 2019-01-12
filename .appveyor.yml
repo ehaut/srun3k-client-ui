@@ -8,7 +8,7 @@ install:
 build_script:
   - cmd: cd srun-3k-ui"
   - qmake srun-3k-ui.pro
-  - mingw64-make
+  - mingw32-make
 after_build:
   - windeployqt release/SRUN3K.exe
   - rm !(SRUN3K.exe|platforms|libcrypto-1_1-x64.dll|libgcc_s_seh-1.dll|libssl-1_1-x64.dll|libstdc++-6.dll|libwinpthread-1.dll|Qt5Core.dll|Qt5Gui.dll|Qt5Widgets.dll) 
