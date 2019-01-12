@@ -4,7 +4,7 @@ branches:
 
 install:
   - set QTDIR=C:\Qt\5.11.2
-  - set PATH=%QTDIR%\bin;C:\Qt\Tools\mingw530_32\bin;%PATH%;
+  - set PATH=%PATH%;%QTDIR%\bin;C:\Qt\Tools\mingw530_32\bin
 build_script:
   - cmd: cd srun-3k-ui"
   - qmake srun-3k-ui.pro
@@ -22,3 +22,9 @@ artifacts:
   - path: release/*
   - path: release
     type: zip
+    
+notifications:
+  - provider: Email
+    to:
+      - chn-student@Outlook.com
+    on_build_status_changed: true
