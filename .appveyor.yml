@@ -13,14 +13,16 @@ skip_commits:
     
 install:
   - set QTDIR=C:\Qt\5.11.2\mingw53_32
-  - set PATH=%PATH%;"C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\bin";%QTDIR%\bin; # C:\Qt\Tools\mingw530_32\bin
+  - set MINGW64DIR=C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64
+  - set PATH=%PATH%;%MINGW64DIR%\bin ;%QTDIR%\bin # C:\Qt\Tools\mingw530_32\bin
 build_script:
   - cmd: cd srun-3k-ui"
   - qmake srun-3k-ui.pro
   - mingw32-make
 after_build:
   - windeployqt release/SRUN3K.exe
-  - rm !(SRUN3K.exe|platforms|libcrypto-1_1-x64.dll|libgcc_s_seh-1.dll|libssl-1_1-x64.dll|libstdc++-6.dll|libwinpthread-1.dll|Qt5Core.dll|Qt5Gui.dll|Qt5Widgets.dll) 
+  - rm !(release/SRUN3K.exe|release/platforms|release/libcrypto-1_1-x64.dll|release/libgcc_s_seh-1.dll|release/libssl-1_1-x64.dll|release/libstdc++-6.dll|release/libwinpthread-1.dll|release/Qt5Core.dll|release/Qt5Gui.dll|release/Qt5Widgets.dll) 
+  - ls -al release/*
   - cmd: cp ../LICENSE release/LICENSE.txt"
   - cmd: cp ../README.MD release/README.MD"
   - cmd: cp ./server.json release/server.json"
