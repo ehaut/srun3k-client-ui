@@ -1,10 +1,19 @@
+version: build{build}
+
 branches:
   only:
     - master
 
+skip_commits:
+  files:
+    - "*.yml"
+    - "*.rst"
+    - "LICENSE"
+    - "README.MD"
+    
 install:
   - set QTDIR=C:\Qt\5.11.2\mingw53_32
-  - set PATH=%PATH%;%QTDIR%\bin;C:\Qt\Tools\mingw530_32\bin
+  - set PATH=%PATH%;"C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\bin";%QTDIR%\bin;C:\Qt\Tools\mingw530_32\bin
 build_script:
   - cmd: cd srun-3k-ui"
   - qmake srun-3k-ui.pro
