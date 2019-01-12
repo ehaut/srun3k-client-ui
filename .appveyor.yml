@@ -3,7 +3,7 @@ branches:
     - master
 
 install:
-  - set QTDIR=C:\Qt\5.11.2
+  - set QTDIR=C:\Qt\5.11.2\mingw53_32
   - set PATH=%PATH%;%QTDIR%\bin;C:\Qt\Tools\mingw530_32\bin
 build_script:
   - cmd: cd srun-3k-ui"
