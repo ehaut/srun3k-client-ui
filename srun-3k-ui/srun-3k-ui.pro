@@ -28,13 +28,15 @@ SOURCES += \
         mainwindow.cpp \
         version.cpp \
         network.cpp \
-        storage.cpp
+        storage.cpp \
+        radiusprogressbar.cpp
 
 HEADERS += \
         mainwindow.h \
         version.h \
         network.h \
-        storage.h
+        storage.h \
+        radiusprogressbar.h
 
 FORMS += \
         mainwindow.ui

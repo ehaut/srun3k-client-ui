@@ -20,7 +20,13 @@
 		<file alias="advanced">Resouces/titleButtons/setting.png</file>
         <file alias="advanced_hover">Resouces/titleButtons/setting_horver.png</file>
         <file alias="advanced_pressed">Resouces/titleButtons/setting_press.png</file>
+		
     </qresource>
+	<qresource prefix="/png">
+		<file alias="radius_back">Resouces/png/radius_back.png</file>
+		<file alias="radius_front">Resouces/png/radius_front.png</file>
+	</qresource>
+	
     <qresource prefix="/Ico">
         <file alias="R">Resouces/Ico/new.png</file>
 		<file alias="SysIcon">Resouces/Ico/myappSysTrayIcon.png</file>
