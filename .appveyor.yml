@@ -21,13 +21,13 @@ build_script:
   - mingw32-make
 after_build:
   - windeployqt.exe --release --no-translations --no-angle --no-opengl-sw --no-svg --no-webkit2 release/SRUN3K.exe
-  - rm release/styles
-  - rm release/imageformats
+  - rm -rf release/styles
+  - rm -rf release/imageformats
   - cmd: cp ../LICENSE release/LICENSE.txt"
   - cmd: cp ../README.MD release/README.MD"
   - cmd: cp ./server.json release/server.json"
-  - rm release/*.o
-  - rm release/*.cpp
+  - rm -rf release/*.o
+  - rm -rf release/*.cpp
 
 artifacts:
   - path: release/*
