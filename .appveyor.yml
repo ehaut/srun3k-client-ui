@@ -13,7 +13,7 @@ skip_commits:
     
 install:
   - set QTDIR=C:\Qt\5.12.1\mingw73_64
-  - set MINGW64DIR=C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0
+  - set MINGW64DIR=C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64
   - set PATH=%PATH%;%QTDIR%\bin;C:\Qt\5.12.1\Tools\mingw730_64\bin;%MINGW64DIR%\bin;
 build_script:
   - cmd: cd srun-3k-ui"
