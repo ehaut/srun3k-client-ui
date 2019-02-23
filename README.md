@@ -4,6 +4,8 @@ A GUI Software for Srun3k Client for HAUT
 
 e 河工大-新河南工业大学校园网PC客户端（Windows版） V2.0.0
 
+[![Build status](https://ci.appveyor.com/api/projects/status/7moydeyyq0fus6ce?svg=true)](https://ci.appveyor.com/project/CHN-STUDENT/srun3k-client-ui)
+
 ![DEMO](srun-3k-ui/Resouces/png/demo.png)
 
 
