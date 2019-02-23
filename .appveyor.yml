@@ -20,9 +20,8 @@ build_script:
   - qmake srun-3k-ui.pro
   - mingw32-make
 after_build:
-  - windeployqt release/SRUN3K.exe
+  - windeployqt.exe --release --no-translations --no-angle --no-opengl-sw --no-svg --no-webkit2 release/SRUN3K.exe
   - rm !(release/SRUN3K.exe|release/platforms|release/libcrypto-1_1-x64.dll|release/libgcc_s_seh-1.dll|release/libssl-1_1-x64.dll|release/libstdc++-6.dll|release/libwinpthread-1.dll|release/Qt5Core.dll|release/Qt5Gui.dll|release/Qt5Widgets.dll) 
-  - ls -al release/*
   - cmd: cp ../LICENSE release/LICENSE.txt"
   - cmd: cp ../README.MD release/README.MD"
   - cmd: cp ./server.json release/server.json"
