@@ -198,3 +198,32 @@ QByteArray storage::passwordEncrypy(QString passwd)
     }
     return PASSWD_ENCRYPT;
 }
+
+QByteArray storage::fileChecksum(const QString &fileName)
+{
+    //检查文件的SHA1值：https://stackoverflow.com/questions/16383392/how-to-get-the-sha-1-md5-checksum-of-a-file-with-qt/16383433
+    QString path=QCoreApplication::applicationDirPath()+"/"+fileName;
+    //qDebug()<<path;
+    QFile f(path);
+    if (f.open(QFile::ReadOnly)) {
+        QCryptographicHash hash(QCryptographicHash::Sha1);
+        if (hash.addData(&f)) {
+            return hash.result().toHex().toUpper();
+        }
+    }
+    return "";
+}
+
+bool storage::checkUpdateProgramisExist(const QString &fileName)
+{
+     QString path=QCoreApplication::applicationDirPath()+"/"+fileName;
+     QFile f(path);
+     return f.remove();
+}
+
+size_t storage::saveDataTodisk(void* pBuffer, size_t nSize, size_t nMemByte, FILE* fp)
+{
+    size_t nWrite = fwrite(pBuffer, nSize, nMemByte, fp);
+    return nWrite;
+}
+

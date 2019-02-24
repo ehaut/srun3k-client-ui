@@ -2,11 +2,14 @@
 #include "ui_mainwindow.h"
 //#include "QDebug"
 
+MainWindow *singleton;
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    singleton = this;
     setWindowFlags(Qt::FramelessWindowHint);
     setAttribute(Qt::WA_TranslucentBackground);
     mLocation = this->geometry();
@@ -51,6 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->usernameLineEdit->setAttribute(Qt::WA_InputMethodEnabled, false);
     ui->passwordLineEdit->setAttribute(Qt::WA_InputMethodEnabled, false);
     ui->stackedWidget->setCurrentIndex(2);
+    ui->stackedWidgetBottom->setCurrentIndex(0);
     AboutButton->hide();//在获取公告前隐藏这两个按钮
     AdvancedButton->hide();
     n=new network();
@@ -91,7 +95,6 @@ MainWindow::MainWindow(QWidget *parent) :
             ui->autoLoginCheckBox->setCheckState(Qt::Checked);
         }
     }
-
 }
 
 void MainWindow::showMessage(void)
@@ -434,14 +437,13 @@ void MainWindow::on_checkUpdateButton_clicked()
 {
     ui->enterButtonInAboutPage->setEnabled(false);
     ui->checkUpdateButton->setEnabled(false);
-    QStringList list;
     ui->statusBar->setText("检查更新中...");
     setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #3498DB;}");
     ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
                                     "QWidget#widgetBottom{background:#3498DB;}");
     if(isOnline)
     {
-        int c=checkVersion(list,n);
+        int c=checkVersion(updateInfo,n);
         if(c!=-1)
         {
             ui->statusBar->setText("检查更新中...成功！");
@@ -475,12 +477,10 @@ void MainWindow::on_checkUpdateButton_clicked()
                 QString v;
                 v.sprintf("%s",version);
                 QString ehaut=ui->eHautIco->text();
-                QString url=QString("<a href = \"%1\">%2</a>").arg(list.at(4)).arg(ehaut);
-                s=s+" "+v+" 。最新版本 "+list.at(0)+" ,发布于 "+list.at(1)+" 。<br><br> &#60;===================== <br>&nbsp;&nbsp;&nbsp;&nbsp;点击左边蜗牛下载最新版！<br><br>备用地址："+QString("<a href = \"%1\">%2</a>").arg(list.at(4)).arg("点我下载！");
-
-                ui->eHautIco->setText(url);
-                ui->eHautIco->setOpenExternalLinks(true);
-                ui->aboutBox->setHtml(s);
+                QString url=QString("<a href = \"%1\">%2</a>").arg(updateInfo.at(4)).arg(ehaut);
+                s=s+" "+v+" 。最新版本 "+updateInfo.at(0)+" ,发布于 "+updateInfo.at(1)+" 。<br><br> &#60;===================== <br>&nbsp;&nbsp;&nbsp;&nbsp;点击左边蜗牛下载最新版！<br><br>备用地址："+QString("<a href = \"%1\">%2</a>").arg(updateInfo.at(4)).arg("点我下载！");
+                ui->aboutBox->setText(s);
+                ui->eHautIco->setEnabled(true);
             }
           }
         else
@@ -737,8 +737,7 @@ void MainWindow::on_loginButton_clicked(bool showmode)
            }
            ui->stackedWidget->setCurrentIndex(3);
            getUserInfo(false);
-           QStringList list;
-           int c=checkVersion(list,n);
+           int c=checkVersion(updateInfo,n);
            if(c==1)
            {
 
@@ -749,20 +748,18 @@ void MainWindow::on_loginButton_clicked(bool showmode)
                  list[3] sha1
                  list[4] url
                */
-
                QString s="当前版本";
                QString v;
                v.sprintf("%s",version);
                QString ehaut=ui->eHautIco->text();
-               QString url=QString("<a href = \"%1\">%2</a>").arg(list.at(4)).arg(ehaut);
-               s=s+" "+v+" 。最新版本 "+list.at(0)+" ,发布于 "+list.at(1)+" 。<br><br> &#60;===================== <br>&nbsp;&nbsp;&nbsp;&nbsp;点击左边蜗牛下载最新版！<br><br>备用地址："+QString("<a href = \"%1\">%2</a>").arg(list.at(4)).arg("点我下载！");
+               s=s+" "+v+" 。最新版本 "+updateInfo.at(0)+" ,发布于 "+updateInfo.at(1)+" 。<br><br> &#60;===================== <br>&nbsp;&nbsp;&nbsp;&nbsp;点击左边蜗牛下载最新版！<br><br>备用地址："+QString("<a href = \"%1\">%2</a>").arg(updateInfo.at(4)).arg("点我下载！");
 
                AboutButton->setStyleSheet("QPushButton {border-image: url(:/titleButtons/about_alert);}"
                                          "QPushButton:hover {border-image: url(:/titleButtons/about_alert_hover);}"
                                           "QPushButton:pressed {border-image: url(:/titleButtons/about_alert_pressed);}");
-               ui->eHautIco->setText(url);
-               ui->eHautIco->setOpenExternalLinks(true);
+
                ui->aboutBox->setHtml(s);
+               ui->eHautIco->setEnabled(true);
            }
 
         }
@@ -813,4 +810,157 @@ void MainWindow::on_loginButton_clicked(bool showmode)
         isOnline=false;
     }
     ui->loginButton->setEnabled(true);
+}
+
+void MainWindow::on_eHautIco_clicked()
+{
+    ui->eHautIco->setEnabled(false);
+    ui->enterButtonInAboutPage->setEnabled(false);
+    ui->checkUpdateButton->setEnabled(false);
+    setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #1aad18;}");
+    ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                    "QWidget#widgetBottom{background:#1aad18;}");
+    info="检查是否存在老版本更新包...";
+    ui->aboutBox->setHtml(info);
+    bool isUpdateProgramExist=s->checkUpdateProgramisExist("update.exe");
+    if(isUpdateProgramExist)
+    {
+        info=info+"删除成功！<br>";
+    }
+    else
+    {
+        info=info+"无需删除！<br>";
+    }
+    info=info+"下载更新包中...";
+    ui->aboutBox->setHtml(info);
+    ui->stackedWidgetBottom->setCurrentIndex(1);
+    ui->downloadBar->setMaximum(100);
+    ui->downloadBar->setValue(0);
+    QString downloadUrl=updateInfo.at(4);
+    static int retry=1;
+    static bool isTrue=false;
+    QString path=QCoreApplication::applicationDirPath()+"/update.exe";
+    FILE* fp = nullptr;
+    while(retry<=3)
+    {
+        if(retry>1)
+        {
+              Sleep(5000);
+              info=info+"尝试第 "+QString::number(retry)+" 次下载:<br>";
+              info=info+"下载更新包中...";
+              ui->aboutBox->setHtml(info);
+        }
+        CURL* curl = curl_easy_init();
+        if(!(curl))
+        {//如果非正常初始化
+            exit(-1);
+        }
+        fp=fopen(path.toStdString().c_str(), "wb");
+        rewind(fp);
+        curl_easy_setopt(curl, CURLOPT_URL,downloadUrl.toStdString().c_str());
+        //设置接收数据的回调
+        curl_easy_setopt(curl,CURLOPT_SSL_VERIFYPEER,false);//设定为不验证证书和HOST
+        curl_easy_setopt(curl,CURLOPT_SSL_VERIFYHOST,false);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, storage::saveDataTodisk);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+        // 设置重定向的最大次数
+        curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 5);
+        // 设置301、302跳转跟随location
+        //curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+        //设置进度回调函数
+        curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, MainWindow::progressUpdate);
+        //设置超时
+        curl_easy_setopt(curl,CURLOPT_CONNECTTIMEOUT,3L);
+        //开始执行请求
+        CURLcode retcCode = curl_easy_perform(curl);
+        if(retcCode!=CURLE_OK)
+        {
+            info=info+"下载失败！<br>";
+            ui->aboutBox->setHtml(info);
+            retry++;
+        }
+        else
+        {
+            info=info+"下载成功！<br>";
+            isTrue=true;
+            ui->aboutBox->setHtml(info);
+            break;
+        }
+        curl_easy_cleanup(curl);
+   }
+    if(fp!=nullptr)
+        fclose(fp);
+    if(isTrue)
+    {
+        info=info+"校验下载值中...";
+        ui->aboutBox->setHtml(info);
+        QString sha1;
+        sha1.prepend(s->fileChecksum("update.exe"));
+        //qDebug()<<sha1<<" "<<updateInfo.at(3);
+        if(updateInfo.at(3).compare(sha1)==0)
+        {
+            info=info+"校验成功！<br>";
+            ui->aboutBox->setHtml(info);
+            ui->downloadBar->setMaximum(100);
+            ui->downloadBar->setValue(100);
+            info=info+"5s后尝试启动自动更新程序！<br>";
+            ui->aboutBox->setHtml(info);
+            QTimer::singleShot(5000, this, SLOT(startUpdate()));
+        }
+        else
+        {
+            info=info+"校验失败！<br>";
+            ui->statusBar->setText("自动更新失败！请重试！");
+            setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #E05D6F;}");
+            ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                            "QWidget#widgetBottom{background:#E05D6F;}");
+            ui->stackedWidgetBottom->setCurrentIndex(0);
+            info=info+"正在删除更新包...";
+            ui->aboutBox->setHtml(info);
+            bool isDelete=s->checkUpdateProgramisExist("update.exe");
+            if(isDelete)
+            {
+                info=info+"删除成功！<br>请您重试自动更新！";
+                ui->aboutBox->setHtml(info);
+            }
+            else
+            {
+                info=info+"不可预知的错误！<br>";
+                ui->aboutBox->setHtml(info);
+            }
+        }
+    }
+
+    ui->enterButtonInAboutPage->setEnabled(true);
+    ui->checkUpdateButton->setEnabled(true);
+    ui->eHautIco->setEnabled(true);
+}
+
+void MainWindow::startUpdate()
+{
+    QString path=QCoreApplication::applicationDirPath()+"/update.exe";
+    QProcess process(this);
+    bool isStart=process.startDetached(path);\
+    if(isStart)
+        qApp->exit(0);
+    else
+    {
+        info=info+"调用失败请重试！<br>";
+        ui->statusBar->setText("自动更新失败！请重试！");
+        setStyleSheet("QWidget#centralWidget{color:black;background:white;border:1px solid #E05D6F;}");
+        ui->widgetBottom->setStyleSheet("QLabel#statusBar{color:white;padding:5px 0px 5px;}"
+                                        "QWidget#widgetBottom{background:#E05D6F;}");
+        ui->stackedWidgetBottom->setCurrentIndex(0);
+    }
+}
+
+int MainWindow::progressUpdate(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow)
+{
+    if ( dltotal > -0.1 && dltotal < 0.1 )
+        return 0;
+    int nPos = (int) ( (dlnow/dltotal)*90.0 );
+    //ui->downloadBar->setValue(nPos);
+    singleton->ui->downloadBar->setValue(nPos);
+    return 0;
 }

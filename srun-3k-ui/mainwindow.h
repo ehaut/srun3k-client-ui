@@ -12,6 +12,7 @@
 #include <QDesktopServices>
 #include <QTimer>
 #include <QSettings>
+#include <QProcess>
 #include "network.h"
 #include "version.h"
 #include "storage.h"
@@ -61,7 +62,9 @@ private slots:
     void on_autoStartCheckBox_clicked();
     void on_autoLoginCheckBox_clicked();
     void on_loginButton_clicked(bool);
-
+    void on_eHautIco_clicked();
+    static int progressUpdate(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow);
+    void startUpdate();
 private:
     bool mDrag;
     bool isUserinfoExists=false;
@@ -87,6 +90,8 @@ private:
     QTimer *meTimer=nullptr;
     QString logoutname;
     bool set=false;
+    QStringList updateInfo;
+    QString info;
 };
 
 #endif // MAINWINDOW_H
