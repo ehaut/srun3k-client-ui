@@ -17,16 +17,16 @@ install:
   - set MINGW64DIR=C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64
   - set PATH=%PATH%;%QTDIR%\bin;C:\Qt\5.12.1\Tools\mingw730_64\bin;%MINGW64DIR%\bin;
 build_script:
-  - cmd: cd srun-3k-ui"
+  - cmd: cd srun-3k-ui
   - qmake srun-3k-ui.pro
   - mingw32-make
 after_build:
   - windeployqt.exe --release --no-translations --no-angle --no-opengl-sw --no-svg --no-webkit2 release/SRUN3K.exe
   - rm -rf release/styles
   - rm -rf release/imageformats
-  - cmd: cp ../LICENSE release/LICENSE.txt"
-  - cmd: cp ../README.MD release/README.MD"
-  - cmd: cp ./server.json release/server.json"
+  - cmd: cp ../LICENSE release/LICENSE
+  - cmd: cp ../README.MD release/README.MD
+  - cmd: cp ./server.json release/server.json
   - rm -rf release/*.o
   - rm -rf release/*.cpp
   # Start packing
@@ -34,6 +34,7 @@ after_build:
   - cd release
   - 7z a (AutoCIBuild)LastRelease.%appveyor_build_version%.7z -mx9 * -r
   - 7z a (AutoCIBuild)MainProgramUpdateSingel.%appveyor_build_version%.7z -mx9 SRUN3K.exe
+  - cd %APPVEYOR_BUILD_FOLDER%
   - dir
   
 test: off  
