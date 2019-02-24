@@ -34,13 +34,15 @@ after_build:
   - cd release
   - 7z a (AutoCIBuild)LastRelease.%appveyor_build_version%.7z -mx9 * -r
   - 7z a (AutoCIBuild)MainProgramUpdateSingel.%appveyor_build_version%.7z -mx9 SRUN3K.exe
-  
+  - DIR
 test: off  
 
 artifacts:
-  - path: .\release\(AutoCIBuild)LastRelease.%appveyor_build_version%.7z
-  - path: .\release\(AutoCIBuild)MainProgramUpdateSingel.%appveyor_build_version%.7z
-    
+  - DIR
+  - path: release\(AutoCIBuild)LastRelease.%appveyor_build_version%.7z
+    name: LastRelease
+  - path: release\(AutoCIBuild)MainProgramUpdateSingel.%appveyor_build_version%.7z
+    name: MainProgramUpdateSingel
 notifications:
   - provider: Email
     to:
