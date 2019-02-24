@@ -31,18 +31,19 @@ after_build:
   - rm -rf release/*.cpp
   # Start packing
   - echo %appveyor_build_version%
+  - mkdir C:\Release
   - cd release
   - 7z a (AutoCIBuild)LastRelease.%appveyor_build_version%.7z -mx9 * -r
+  - cmd: cp ./(AutoCIBuild)LastRelease.*.7z C:\Release\
   - 7z a (AutoCIBuild)MainProgramUpdateSingel.%appveyor_build_version%.7z -mx9 SRUN3K.exe
-  - cd %APPVEYOR_BUILD_FOLDER%
-  - dir
+  - cmd: cp ./(AutoCIBuild)MainProgramUpdateSingel.*.7z C:\Release\
   
 test: off  
 
 artifacts:
  
-  - path: (AutoCIBuild)LastRelease.*.7z
-  - path: (AutoCIBuild)MainProgramUpdateSingel.*.7z
+  - path: C:\Release\(AutoCIBuild)LastRelease.*.7z
+  - path: C:\Release\(AutoCIBuild)MainProgramUpdateSingel.*.7z
     
 notifications:
   - provider: Email
