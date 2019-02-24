@@ -16,26 +16,59 @@ install:
   - set MINGW64DIR=C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64
   - set PATH=%PATH%;%QTDIR%\bin;C:\Qt\5.12.1\Tools\mingw730_64\bin;%MINGW64DIR%\bin;
 build_script:
-  - cmd: cd srun-3k-ui"
+  - cmd: cd srun-3k-ui
   - qmake srun-3k-ui.pro
   - mingw32-make
 after_build:
   - windeployqt.exe --release --no-translations --no-angle --no-opengl-sw --no-svg --no-webkit2 release/SRUN3K.exe
   - rm -rf release/styles
   - rm -rf release/imageformats
-  - cmd: cp ../LICENSE release/LICENSE.txt"
-  - cmd: cp ../README.MD release/README.MD"
-  - cmd: cp ./server.json release/server.json"
+  - cmd: cp ../LICENSE release/LICENSE
+  - cmd: cp ../README.MD release/README.MD
+  - cmd: cp ./server.json release/server.json
   - rm -rf release/*.o
   - rm -rf release/*.cpp
+  - rm -rf release/*.h
+  # Start packing
+  - echo %appveyor_build_version%
+  - cd release
+  - 7z a SRUN3K.V%appveyor_build_version%.7z -mx9 * -r
+  - 7z a SRUN3K.V%appveyor_build_version%UPDATE.7z -mx9 SRUN3K.exe
+  - mkdir download
+  - cmd: cp ./SRUN3K.V%appveyor_build_version%.7z download/lastrelease.7z  
+  - DIR
+test: off  
 
 artifacts:
-  - path: release/*
-  - path: release
-    type: zip
-    
+  - path: srun-3k-ui\release\SRUN3K.V%appveyor_build_version%.7z   
+    name: LastRelease
+  - path: srun-3k-ui\release\SRUN3K.V%appveyor_build_version%UPDATE.7z
+    name: MainProgramSingel
 notifications:
   - provider: Email
     to:
-      - chn-student@Outlook.com
+       - chn-student@outlook.com
     on_build_status_changed: true
+    
+deploy:
+  - provider: GitHub
+    release: AutoCi Release V$(appveyor_build_version)
+    description: '这是使用自动构建平台发布的Release版本。'
+    auth_token:
+        secure: "eMffTjPQpQYcEA6rPu0vNDI0HzomzY6KHx1KQxv5cKpyC3WmmV+Lh7RfYEYbO1b0"
+    artifact: srun-3k-ui\release\*.7z              # upload all NuGet packages to release assets
+    draft: false
+    prerelease: false
+    on:
+        branch: master                 # release from master branch only
+        APPVEYOR_REPO_TAG: true        # deploy on tag push only
+  - provider: FTP
+    protocol: ftp
+    host: 
+        secure: r9TbzlBz0AACZvBQ6naPBw==
+    username: 
+        secure: eiBksjNqEr8UcXyHJGDebQ==
+    password:
+        secure: gU0mWPiQsnx33poEhDqH0QkACluHC0qV1nF2mwFsVZg=
+    folder: download
+    artifact: srun-3k-ui\release\download\lastrelease.7z  
