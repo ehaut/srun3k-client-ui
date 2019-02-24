@@ -52,7 +52,7 @@ notifications:
     
 deploy:
   - provider: GitHub
-    tag:Ci V$(appveyor_build_version)
+    tag: Ci V$(appveyor_build_version)
     release: AutoCi Release V$(appveyor_build_version)
     description: '这是使用自动构建平台发布的Release版本。'
     auth_token:
