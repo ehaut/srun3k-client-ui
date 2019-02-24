@@ -30,16 +30,15 @@ after_build:
   - rm -rf release/*.o
   - rm -rf release/*.cpp
   - cd release
-  - set ARTIFACT_NAME=%APPVEYOR_REPO_BRANCH%
-  - 7z a (AutoCIBuild)LastRelease.%ARTIFACT_NAME%.7z -mx9 * -r
-  - 7z a (AutoCIBuild)MainProgramUpdateSingel.%ARTIFACT_NAME%.7z -mx9 SRUN3K.exe
+  - 7z a (AutoCIBuild)LastRelease.7z -mx9 * -r
+  - 7z a (AutoCIBuild)MainProgramUpdateSingel.7z -mx9 SRUN3K.exe
   
 test: off  
 
 artifacts:
  
-  - path: '(AutoCIBuild)LastRelease.*.7z'
-  - path: '(AutoCIBuild)MainProgramUpdateSingel.*.7z'
+  - path: 'release/(AutoCIBuild)LastRelease.7z'
+  - path: 'release/(AutoCIBuild)MainProgramUpdateSingel.7z'
     
 notifications:
   - provider: Email
