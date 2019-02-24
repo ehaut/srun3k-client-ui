@@ -52,6 +52,7 @@ notifications:
     
 deploy:
   - provider: GitHub
+    tag:Ci V$(appveyor_build_version)
     release: AutoCi Release V$(appveyor_build_version)
     description: '这是使用自动构建平台发布的Release版本。'
     auth_token:
@@ -59,13 +60,14 @@ deploy:
     artifact: /.*\.7z/              # upload all NuGet packages to release assets
     draft: false
     prerelease: false
-  - provider: FTP
-    protocol: ftp
-    host: 
-        secure: r9TbzlBz0AACZvBQ6naPBw==
-    username: 
-        secure: eiBksjNqEr8UcXyHJGDebQ==
-    password:
-        secure: gU0mWPiQsnx33poEhDqH0QkACluHC0qV1nF2mwFsVZg=
-    folder: download
-    artifact: /.*\.7z/ 
+# The FTP deploy does not work normally.Do not use.
+#  - provider: FTP
+#    protocol: ftp
+#    host: 
+#        secure: r9TbzlBz0AACZvBQ6naPBw==
+#    username: 
+#        secure: eiBksjNqEr8UcXyHJGDebQ==
+#    password:
+#        secure: gU0mWPiQsnx33poEhDqH0QkACluHC0qV1nF2mwFsVZg=
+#    folder: download
+#    artifact: /.*\.7z/ 
